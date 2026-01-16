@@ -53,6 +53,14 @@
             50% { box-shadow: 0 0 0 8px rgba(249, 115, 22, 0); }
         }
         .pulse-orange { animation: pulse 2s infinite; }
+
+        /* CHART FIX: Bu class grafiklerin taşmasını kesin olarak engeller */
+        .sparkline-container {
+            position: relative;
+            height: 60px !important; /* Yüksekliği zorla sabitliyoruz */
+            width: 100%;
+            overflow: hidden;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -70,9 +78,7 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <button class="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition text-white">
-                        🔍
-                    </button>
+                    <button class="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition text-white">🔍</button>
                     <div class="text-right">
                         <p class="text-sm font-light">Merhaba, <span class="font-medium">Melis</span> 👋</p>
                         <p class="text-xs text-purple-200">Platform Lead</p>
@@ -179,7 +185,8 @@
                         <div class="w-full bg-gray-200 rounded-full h-1 mb-2">
                             <div class="bg-detective rounded-full h-1" style="width: 38%"></div>
                         </div>
-                        <div class="relative h-12 w-full">
+                        
+                        <div class="sparkline-container">
                             <canvas id="sparklineDetective"></canvas>
                         </div>
                     </div>
@@ -224,7 +231,8 @@
                         <div class="w-full bg-gray-200 rounded-full h-1 mb-2">
                             <div class="bg-victim rounded-full h-1" style="width: 26%"></div>
                         </div>
-                        <div class="relative h-12 w-full">
+                        
+                        <div class="sparkline-container">
                             <canvas id="sparklineVictim"></canvas>
                         </div>
                     </div>
@@ -269,7 +277,8 @@
                         <div class="w-full bg-gray-200 rounded-full h-1 mb-2">
                             <div class="bg-passive rounded-full h-1" style="width: 21%"></div>
                         </div>
-                        <div class="relative h-12 w-full">
+                        
+                        <div class="sparkline-container">
                             <canvas id="sparklinePassive"></canvas>
                         </div>
                     </div>
@@ -431,7 +440,7 @@
     </footer>
 
     <script>
-        // Sparkline Chart Oluşturma Fonksiyonu
+        // Sparkline Config
         function createSparkline(canvasId, data, color) {
             const ctx = document.getElementById(canvasId).getContext('2d');
             new Chart(ctx, {
@@ -443,29 +452,27 @@
                         borderColor: color,
                         borderWidth: 2,
                         fill: false,
-                        pointRadius: 0, // Noktaları gizle
-                        pointHoverRadius: 0,
-                        tension: 0.4 // Çizgiyi yumuşat
+                        pointRadius: 0,
+                        tension: 0.4
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false, // Div boyutuna uyması için false
-                    plugins: { legend: { display: false }, tooltip: { enabled: false } }, // Tooltip ve legend gizle
+                    maintainAspectRatio: false, // Div boyutuna uyması için zorunlu
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } },
                     scales: {
-                        x: { display: false }, // X eksenini gizle
-                        y: { display: false, min: Math.min(...data) - 5, max: Math.max(...data) + 5 }  // Y eksenini gizle
+                        x: { display: false },
+                        y: { display: false }
                     },
                     layout: { padding: 0 }
                 }
             });
         }
 
-        // Dummy Data ile Sparkline'ları Çiz
-        // Trend verisi: Son 7-8 haftalık mini trendler
-        createSparkline('sparklineDetective', [30, 32, 35, 34, 36, 38, 40, 38], '#8B5CF6'); // Dedektifler (Mor)
-        createSparkline('sparklineVictim', [40, 38, 35, 32, 30, 28, 26, 26], '#14B8A6');   // Mağdurlar (Düşüşte)
-        createSparkline('sparklinePassive', [20, 21, 20, 21, 21, 21, 21, 21], '#A8A29E');  // Pasifler (Düz)
+        // Dummy Data
+        createSparkline('sparklineDetective', [30, 32, 35, 34, 36, 38, 40, 38], '#8B5CF6');
+        createSparkline('sparklineVictim', [40, 38, 35, 32, 30, 28, 26, 26], '#14B8A6');
+        createSparkline('sparklinePassive', [20, 21, 20, 21, 21, 21, 21, 21], '#A8A29E');
 
         // Slider Logic
         let currentSlide = 0;
