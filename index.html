@@ -24,90 +24,39 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
-        body {
-            font-family: 'Inter', sans-serif;
-        }
+        body { font-family: 'Inter', sans-serif; }
         
-        .card-hover {
-            transition: all 0.3s ease;
-        }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15); }
         
-        .card-hover:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-        }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .stat-card { background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); }
         
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        
-        .stat-card {
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-        }
-        
-        .tooltip {
-            position: relative;
-        }
-        
+        /* Tooltip Styling */
+        .tooltip { position: relative; }
         .tooltip-content {
-            visibility: hidden;
-            opacity: 0;
-            position: absolute;
-            z-index: 50;
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 16px;
-            width: 280px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            transition: opacity 0.3s;
-            top: -120px;
-            left: 50%;
-            transform: translateX(-50%);
+            visibility: hidden; opacity: 0; position: absolute; z-index: 50;
+            background: white; border: 1px solid #e5e7eb; border-radius: 12px;
+            padding: 16px; width: 280px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transition: opacity 0.3s; top: -140px; left: 50%; transform: translateX(-50%);
         }
+        .tooltip:hover .tooltip-content { visibility: visible; opacity: 1; }
         
-        .tooltip:hover .tooltip-content {
-            visibility: visible;
-            opacity: 1;
-        }
+        /* Slider Styling */
+        .slider-container { overflow: hidden; position: relative; }
+        .slider { display: flex; transition: transform 0.5s ease-in-out; }
+        .slide { min-width: 100%; flex-shrink: 0; }
         
-        .slider-container {
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .slider {
-            display: flex;
-            transition: transform 0.5s ease;
-        }
-        
-        .slide {
-            min-width: 100%;
-            flex-shrink: 0;
-        }
-        
+        /* Animations */
         @keyframes pulse {
-            0%, 100% {
-                box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4);
-            }
-            50% {
-                box-shadow: 0 0 0 8px rgba(249, 115, 22, 0);
-            }
+            0%, 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(249, 115, 22, 0); }
         }
-        
-        .pulse-orange {
-            animation: pulse 2s infinite;
-        }
-        
-        .mini-sparkline {
-            width: 100%;
-            height: 24px;
-        }
+        .pulse-orange { animation: pulse 2s infinite; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
     
-    <!-- Header -->
     <header class="gradient-bg text-white shadow-lg">
         <div class="max-w-7xl mx-auto px-6 py-6">
             <div class="flex items-center justify-between">
@@ -121,11 +70,12 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <button class="px-4 py-2 bg-white/10 backdrop-blur-sm text-white text-sm font-medium rounded-lg hover:bg-white/20 transition border border-white/20">
-                        📚 Scenario Hub
+                    <button class="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition text-white">
+                        🔍
                     </button>
                     <div class="text-right">
                         <p class="text-sm font-light">Merhaba, <span class="font-medium">Melis</span> 👋</p>
+                        <p class="text-xs text-purple-200">Platform Lead</p>
                     </div>
                 </div>
             </div>
@@ -134,7 +84,6 @@
 
     <main class="max-w-7xl mx-auto px-6 py-8">
         
-        <!-- Quick Stats -->
         <section class="mb-8">
             <h2 class="text-xl font-light text-gray-800 mb-4">📊 Hızlı Bakış <span class="text-sm text-gray-500 font-normal">(Son 7 Gün)</span></h2>
             <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
@@ -146,7 +95,7 @@
                     </div>
                     <div class="text-3xl font-semibold text-gray-800">3</div>
                     <div class="text-xs text-gray-500 mt-1">2 test anlamlı sonuç verdi ✅</div>
-                    <div class="text-xs text-green-600 mt-2 font-medium">💰 $4.2k potansiyel gelir</div>
+                    <div class="text-xs text-green-600 mt-2 font-medium">💰 $4.2k risk altında</div>
                 </div>
 
                 <div class="stat-card rounded-2xl p-6 shadow-md card-hover">
@@ -177,24 +126,15 @@
                     <div class="text-xs text-gray-500 mt-1">Son 30 günlük testler</div>
                 </div>
 
-                <!-- YENİ: Learning Momentum -->
                 <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 shadow-md card-hover border border-indigo-200">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-indigo-700 text-sm font-medium">📚 Öğrenim</span>
                         <span class="text-2xl">🧠</span>
                     </div>
                     <div class="text-3xl font-semibold text-indigo-600">78<span class="text-lg">/100</span></div>
-                    <div class="text-xs text-indigo-600 mt-1">
-                        <div class="flex items-center space-x-2">
-                            <span>✅ 12</span>
-                            <span>❌ 5</span>
-                            <span>❓ 8</span>
-                        </div>
-                    </div>
-                    <div class="text-xs text-indigo-700 mt-2 font-medium">Momentum yüksek! 🚀</div>
+                    <div class="text-xs text-indigo-600 mt-1">Momentum yüksek! 🚀</div>
                 </div>
 
-                <!-- Kritik Aksiyon -->
                 <div class="bg-gradient-to-br from-orange-100 to-red-100 rounded-2xl p-6 shadow-lg card-hover border-2 border-orange-500 pulse-orange relative">
                     <div class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">!</div>
                     <div class="flex items-center justify-between mb-2">
@@ -204,24 +144,16 @@
                     <div class="text-xs text-orange-800 mt-1 font-medium">Loss Aversion karar bekliyor</div>
                     <button class="mt-3 text-xs text-white bg-orange-600 px-3 py-1 rounded-lg font-bold hover:bg-orange-700 transition">Karar Ver →</button>
                 </div>
-
             </div>
         </section>
 
-        <!-- User Segments -->
         <section class="mb-8">
             <h2 class="text-xl font-light text-gray-800 mb-4">👥 Kullanıcı Arketipleri <span class="text-sm text-gray-500 font-normal">(Toplam 847K Aktif Kullanıcı)</span></h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 
-                <!-- Dedektifler -->
                 <div class="bg-white rounded-2xl p-6 shadow-lg card-hover border-l-4 border-detective cursor-pointer tooltip relative">
                     <div class="tooltip-content">
                         <h4 class="font-semibold text-detective mb-2">🧠 Psikolojik Bariyerler</h4>
-                        <ul class="text-xs text-gray-600 space-y-1">
-                            <li>• <strong>Privacy Concern:</strong> Düşük</li>
-                            <li>• <strong>Price Sensitivity:</strong> Orta</li>
-                        </ul>
-                        <h4 class="font-semibold text-detective mt-3 mb-2">🎯 Cognitive Biases</h4>
                         <ul class="text-xs text-gray-600 space-y-1">
                             <li>• <strong>FOMO:</strong> Çok yüksek</li>
                             <li>• <strong>Social Proof:</strong> Etkili</li>
@@ -233,55 +165,46 @@
                             <span class="text-4xl">🕵️</span>
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-800">Dedektifler</h3>
-                                <p class="text-xs text-gray-500">Sürekli sorgulayan, meraklı</p>
+                                <p class="text-xs text-gray-500">Sürekli sorgulayan</p>
                             </div>
                         </div>
-                        <div class="text-right">
-                            <span class="text-xs text-green-700 font-medium">🟢 High Opportunity</span>
-                        </div>
+                        <span class="text-xs text-green-700 font-medium bg-green-50 px-2 py-1 rounded">🟢 High Opportunity</span>
                     </div>
                     
                     <div class="mb-3">
                         <div class="flex justify-between items-end mb-1">
                             <span class="text-3xl font-bold text-detective">%38</span>
-                            <div class="flex items-center space-x-1">
-                                <span class="text-2xl text-green-600">↑</span>
-                                <span class="text-lg text-green-600 font-bold">%2</span>
-                            </div>
+                            <span class="text-sm text-green-600 font-bold">↑ %2</span>
                         </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-detective rounded-full h-2" style="width: 38%"></div>
+                        <div class="w-full bg-gray-200 rounded-full h-1 mb-2">
+                            <div class="bg-detective rounded-full h-1" style="width: 38%"></div>
                         </div>
-                        <!-- YENİ: Mini Sparkline -->
-                        <canvas id="sparklineDetective" class="mini-sparkline mt-2"></canvas>
+                        <div class="relative h-12 w-full">
+                            <canvas id="sparklineDetective"></canvas>
+                        </div>
                     </div>
                     
-                    <div class="space-y-2 text-sm">
+                    <div class="space-y-2 text-sm mt-2">
                         <div class="flex items-center justify-between">
-                            <span class="text-gray-600">Numara Sorgulama</span>
+                            <span class="text-gray-600">Sorgulama</span>
                             <span class="font-medium text-detective">4.2x/hafta</span>
                         </div>
                         <div class="flex items-center justify-between">
-                            <span class="text-gray-600">Premium Dönüşüm</span>
+                            <span class="text-gray-600">Dönüşüm</span>
                             <span class="font-medium text-detective">8.2%</span>
                         </div>
                     </div>
-                    
-                    <div class="mt-4 pt-4 border-t border-gray-100">
-                        <button class="text-detective text-sm font-medium hover:underline">Detayları Gör →</button>
-                    </div>
                 </div>
 
-                <!-- Mağdurlar -->
                 <div class="bg-white rounded-2xl p-6 shadow-lg card-hover border-l-4 border-victim cursor-pointer tooltip relative">
-                    <div class="tooltip-content">
+                     <div class="tooltip-content">
                         <h4 class="font-semibold text-victim mb-2">🧠 Psikolojik Bariyerler</h4>
                         <ul class="text-xs text-gray-600 space-y-1">
                             <li>• <strong>Trust Issues:</strong> Yüksek</li>
                             <li>• <strong>Risk Aversion:</strong> Çok yüksek</li>
                         </ul>
                     </div>
-                    
+
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center space-x-3">
                             <span class="text-4xl">🛡️</span>
@@ -290,50 +213,43 @@
                                 <p class="text-xs text-gray-500">Güvenlik odaklı</p>
                             </div>
                         </div>
-                        <div class="text-right">
-                            <span class="text-xs text-green-700 font-medium">🟢 Stable Revenue</span>
-                        </div>
+                        <span class="text-xs text-gray-700 font-medium bg-gray-100 px-2 py-1 rounded">Stable Revenue</span>
                     </div>
                     
                     <div class="mb-3">
                         <div class="flex justify-between items-end mb-1">
                             <span class="text-3xl font-bold text-victim">%26</span>
-                            <div class="flex items-center space-x-1">
-                                <span class="text-2xl text-red-600">↓</span>
-                                <span class="text-lg text-red-600 font-bold">%3</span>
-                            </div>
+                            <span class="text-sm text-red-600 font-bold">↓ %3</span>
                         </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-victim rounded-full h-2" style="width: 26%"></div>
+                        <div class="w-full bg-gray-200 rounded-full h-1 mb-2">
+                            <div class="bg-victim rounded-full h-1" style="width: 26%"></div>
                         </div>
-                        <canvas id="sparklineVictim" class="mini-sparkline mt-2"></canvas>
+                        <div class="relative h-12 w-full">
+                            <canvas id="sparklineVictim"></canvas>
+                        </div>
                     </div>
                     
-                    <div class="space-y-2 text-sm">
+                    <div class="space-y-2 text-sm mt-2">
                         <div class="flex items-center justify-between">
-                            <span class="text-gray-600">Spam Raporlama</span>
+                            <span class="text-gray-600">Raporlama</span>
                             <span class="font-medium text-victim">6.1x/hafta</span>
                         </div>
                         <div class="flex items-center justify-between">
-                            <span class="text-gray-600">Premium Dönüşüm</span>
+                            <span class="text-gray-600">Dönüşüm</span>
                             <span class="font-medium text-victim">5.8%</span>
                         </div>
                     </div>
-                    
-                    <div class="mt-4 pt-4 border-t border-gray-100">
-                        <button class="text-victim text-sm font-medium hover:underline">Detayları Gör →</button>
-                    </div>
                 </div>
 
-                <!-- Pasifler -->
                 <div class="bg-white rounded-2xl p-6 shadow-lg card-hover border-l-4 border-passive cursor-pointer tooltip relative">
                     <div class="tooltip-content">
                         <h4 class="font-semibold text-passive mb-2">🧠 Psikolojik Bariyerler</h4>
                         <ul class="text-xs text-gray-600 space-y-1">
                             <li>• <strong>Low Engagement:</strong> Çok yüksek</li>
+                            <li>• <strong>Status Quo Bias:</strong> Güçlü</li>
                         </ul>
                     </div>
-                    
+
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center space-x-3">
                             <span class="text-4xl">😴</span>
@@ -342,60 +258,180 @@
                                 <p class="text-xs text-gray-500">Set & forget</p>
                             </div>
                         </div>
-                        <div class="text-right">
-                            <span class="text-xs text-orange-700 font-medium">🟠 Reactivation Needed</span>
-                        </div>
+                        <span class="text-xs text-orange-700 font-medium bg-orange-50 px-2 py-1 rounded">🟠 Reactivation</span>
                     </div>
                     
                     <div class="mb-3">
                         <div class="flex justify-between items-end mb-1">
                             <span class="text-3xl font-bold text-passive">%21</span>
-                            <div class="flex items-center space-x-1">
-                                <span class="text-2xl text-gray-500">→</span>
-                                <span class="text-lg text-gray-500 font-bold">%0</span>
-                            </div>
+                            <span class="text-sm text-gray-500 font-bold">→ %0</span>
                         </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-passive rounded-full h-2" style="width: 21%"></div>
+                        <div class="w-full bg-gray-200 rounded-full h-1 mb-2">
+                            <div class="bg-passive rounded-full h-1" style="width: 21%"></div>
                         </div>
-                        <canvas id="sparklinePassive" class="mini-sparkline mt-2"></canvas>
+                        <div class="relative h-12 w-full">
+                            <canvas id="sparklinePassive"></canvas>
+                        </div>
                     </div>
                     
-                    <div class="space-y-2 text-sm">
+                    <div class="space-y-2 text-sm mt-2">
                         <div class="flex items-center justify-between">
-                            <span class="text-gray-600">Uygulama Açılış</span>
+                            <span class="text-gray-600">Açılış</span>
                             <span class="font-medium text-passive">0.8x/hafta</span>
                         </div>
                         <div class="flex items-center justify-between">
-                            <span class="text-gray-600">Premium Dönüşüm</span>
+                            <span class="text-gray-600">Dönüşüm</span>
                             <span class="font-medium text-passive">1.2%</span>
                         </div>
                     </div>
-                    
-                    <div class="mt-4 pt-4 border-t border-gray-100">
-                        <button class="text-passive text-sm font-medium hover:underline">Detayları Gör →</button>
-                    </div>
                 </div>
-
             </div>
         </section>
 
-        <!-- Diğer bölümler aynı kalıyor... (Koşan Testler, Keşifler, AI Asistan) -->
-        <!-- Kısaltma için buraya eklemedim, tam kodu yukarıda V3'ten kopyalayabilirsin -->
+        <section class="mb-8">
+            <h2 class="text-xl font-light text-gray-800 mb-4">🧪 Koşan Testler</h2>
+            <div class="space-y-4">
+                <div class="bg-white rounded-2xl p-6 shadow-md card-hover">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <span class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
+                                <h3 class="text-lg font-semibold text-gray-800">Paywall - Loss Aversion Test</h3>
+                                <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">🟢 Ship It</span>
+                                <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">Messaging</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-2">
+                                <span class="font-medium">Hipotez:</span> "X kişi profiline baktı - kaçırma" mesajı daha mı etkili?
+                            </p>
+                            <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                <span>👥 Hedef: Dedektifler</span>
+                                <span>📅 Gün 7/14</span>
+                                <span class="text-orange-600 font-medium">⚠️ Blast Radius: Orta</span>
+                            </div>
+                        </div>
+                        <button class="px-4 py-2 bg-purple-100 text-detective text-sm font-medium rounded-lg hover:bg-purple-200 transition">Detaylar</button>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Control</p>
+                            <p class="text-2xl font-bold text-gray-800">2.1%</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Variant (Loss Aversion)</p>
+                            <p class="text-2xl font-bold text-green-600">2.8%</p>
+                            <p class="text-xs text-green-600">+33% artış ✨</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">İstatistiksel Anlamlılık</p>
+                            <p class="text-2xl font-bold text-orange-600">67%</p>
+                            <p class="text-xs text-orange-600">95% için devam etmeli</p>
+                        </div>
+                    </div>
+                     <div class="mt-4">
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-purple-600 rounded-full h-2" style="width: 50%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-light text-gray-800">✨ Bu Haftanın Davranışsal Keşifleri</h2>
+                <div class="flex space-x-2">
+                    <button onclick="previousSlide()" class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition">←</button>
+                    <button onclick="nextSlide()" class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition">→</button>
+                </div>
+            </div>
+            
+            <div class="slider-container rounded-2xl shadow-lg overflow-hidden bg-white border border-gray-100 relative">
+                <div class="slider flex transition-transform duration-500 ease-in-out" id="insightSlider">
+                    <div class="slide min-w-full bg-white p-0 flex flex-col md:flex-row h-auto md:h-64">
+                        <div class="w-full md:w-1/4 bg-gradient-to-br from-purple-600 to-indigo-700 p-6 flex flex-col justify-center items-center text-white text-center">
+                            <span class="text-5xl mb-3">🕵️</span>
+                            <h3 class="font-bold text-lg">Dedektifler</h3>
+                            <span class="text-xs opacity-80 uppercase tracking-widest mt-1">Segment Analizi</span>
+                        </div>
+                        <div class="w-full md:w-3/4 p-6 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded uppercase">Başarı: +%18</span>
+                                    <span class="text-xs text-gray-500 font-medium">Prensip: Authority + FOMO</span>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-800 mb-2">Social Proof Mesajı Dönüşümü Artırdı</h3>
+                                <p class="text-gray-600 text-sm">"X kişi baktı" yerine <span class="bg-purple-50 text-purple-700 font-semibold px-1">"Rehberinden 3 kişi baktı"</span> dediğimizde güven skoru tavan yaptı.</p>
+                            </div>
+                            <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                                <div class="text-xs text-gray-500"><span class="block">Güven Aralığı</span><strong class="text-gray-800 text-lg">96% ✅</strong></div>
+                                <button class="px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition">Tüm Segmente Uygula →</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slide min-w-full bg-white p-0 flex flex-col md:flex-row h-auto md:h-64">
+                        <div class="w-full md:w-1/4 bg-gradient-to-br from-teal-500 to-cyan-600 p-6 flex flex-col justify-center items-center text-white text-center">
+                            <span class="text-5xl mb-3">👁️</span>
+                            <h3 class="font-bold text-lg">Eye Tracking</h3>
+                             <span class="text-xs opacity-80 uppercase tracking-widest mt-1">UX Research</span>
+                        </div>
+                        <div class="w-full md:w-3/4 p-6 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center space-x-2 mb-2">
+                                     <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded uppercase">İyileşme: +%28</span>
+                                     <span class="text-xs text-gray-500 font-medium">Prensip: Color Affordance</span>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-800 mb-2">Mavi Renk "Bilgi", Turuncu "Aksiyon"dur</h3>
+                                <p class="text-gray-600 text-sm">Kullanıcıların %12'si mavi butonu sadece metin sandı. Rengi turuncuya çektiğimizde etkileşim arttı.</p>
+                            </div>
+                            <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                                <div class="text-xs text-gray-500"><span class="block">Gözlemlenen</span><strong class="text-gray-800 text-lg">1,247 Kişi</strong></div>
+                                <button class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition">Isı Haritasını Gör</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-8">
+            <h2 class="text-xl font-light text-gray-800 mb-4">🤖 Yapay Zeka Asistanından</h2>
+            <div class="bg-white rounded-2xl p-6 shadow-md border-l-4 border-accent">
+                <div class="flex items-start space-x-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-pink-400 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <span class="text-2xl">🤖</span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-semibold text-gray-800">Pasifler Segmenti Sessiz - Bir Test Önerisi</h3>
+                            <span class="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">📊 Güven: %84</span>
+                        </div>
+                        <p class="text-gray-700 mb-4 text-sm">
+                            Son 3 gündür <span class="font-semibold">Pasifler</span> segmentinde aktivite %12 düştü.
+                        </p>
+                        <div class="bg-purple-50 rounded-xl p-4 mb-4">
+                            <p class="text-sm text-gray-700">
+                                <span class="font-semibold text-purple-700">💡 Test Önerim:</span> "Bu ay seni <span class="font-bold text-purple-700">23 spam aramadan</span> koruduk. Arka planda çalışıyoruz 🛡️"
+                            </p>
+                        </div>
+                        <button class="px-4 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition">Tek Tıkla Test Oluştur</button>
+                    </div>
+                </div>
+            </div>
+        </section>
 
     </main>
 
     <footer class="bg-white border-t border-gray-200 mt-12">
         <div class="max-w-7xl mx-auto px-6 py-6 text-center">
             <p class="text-sm text-gray-500">
-                <span class="font-medium">Behavioural Hub</span> •
+                <span class="font-medium">Behavioural Hub</span> • User Psychology & A/B Testing Platform • 
                 <span class="text-purple-600">❤️ Melis tarafından tasarlandı</span>
             </p>
         </div>
     </footer>
 
     <script>
-        // Mini Sparkline Charts
+        // Sparkline Chart Oluşturma Fonksiyonu
         function createSparkline(canvasId, data, color) {
             const ctx = document.getElementById(canvasId).getContext('2d');
             new Chart(ctx, {
@@ -407,27 +443,44 @@
                         borderColor: color,
                         borderWidth: 2,
                         fill: false,
-                        pointRadius: 0,
-                        tension: 0.4
+                        pointRadius: 0, // Noktaları gizle
+                        pointHoverRadius: 0,
+                        tension: 0.4 // Çizgiyi yumuşat
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    maintainAspectRatio: false, // Div boyutuna uyması için false
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } }, // Tooltip ve legend gizle
                     scales: {
-                        x: { display: false },
-                        y: { display: false }
-                    }
+                        x: { display: false }, // X eksenini gizle
+                        y: { display: false, min: Math.min(...data) - 5, max: Math.max(...data) + 5 }  // Y eksenini gizle
+                    },
+                    layout: { padding: 0 }
                 }
             });
         }
 
-        // Trend data (last 30 days)
-        createSparkline('sparklineDetective', [35, 36, 35, 37, 36, 38, 37, 38], '#8B5CF6');
-        createSparkline('sparklineVictim', [29, 28, 27, 28, 27, 26, 27, 26], '#14B8A6');
-        createSparkline('sparklinePassive', [21, 21, 22, 21, 21, 21, 21, 21], '#A8A29E');
-    </script>
+        // Dummy Data ile Sparkline'ları Çiz
+        // Trend verisi: Son 7-8 haftalık mini trendler
+        createSparkline('sparklineDetective', [30, 32, 35, 34, 36, 38, 40, 38], '#8B5CF6'); // Dedektifler (Mor)
+        createSparkline('sparklineVictim', [40, 38, 35, 32, 30, 28, 26, 26], '#14B8A6');   // Mağdurlar (Düşüşte)
+        createSparkline('sparklinePassive', [20, 21, 20, 21, 21, 21, 21, 21], '#A8A29E');  // Pasifler (Düz)
 
+        // Slider Logic
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        function showSlide(index) {
+            const slider = document.getElementById('insightSlider');
+            if (index >= totalSlides) currentSlide = 0;
+            else if (index < 0) currentSlide = totalSlides - 1;
+            else currentSlide = index;
+            slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+        }
+        function nextSlide() { showSlide(currentSlide + 1); }
+        function previousSlide() { showSlide(currentSlide - 1); }
+    </script>
 </body>
 </html>
