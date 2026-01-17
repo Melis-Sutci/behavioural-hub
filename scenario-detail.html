@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Loss Aversion Paywall - Scenario Detail</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        detective:'#8B5CF6',
+        victim:'#14B8A6',
+        passive:'#A8A29E',
+        accent:'#FB7185'
+      }
+    }
+  }
+}
+</script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap');
+body { font-family: Inter, sans-serif; }
+.tab-btn.active {
+  background: linear-gradient(to right, #4F46E5, #7C3AED);
+  color: white;
+}
+</style>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+
+<!-- HEADER -->
+<header class="bg-gradient-to-r from-indigo-600 to-purple-700 text-white shadow-lg sticky top-0 z-50">
+  <!-- Breadcrumb Navigation -->
+  <div class="bg-white/10 backdrop-blur-sm border-b border-white/20">
+    <div class="max-w-[1800px] mx-auto px-8 py-2">
+      <div class="flex items-center gap-2 text-xs">
+        <a href="index.html" class="hover:text-white/70 transition">🏠 Dashboard</a>
+        <span class="text-white/50">/</span>
+        <a href="scenario-hub.html" class="hover:text-white/70 transition">📊 Scenario Hub</a>
+        <span class="text-white/50">/</span>
+        <span class="text-white/90 font-medium">Scenario Detail</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Header Content -->
+  <div class="px-8 py-4">
+    <div class="flex justify-between items-center max-w-[1800px] mx-auto">
+      <div class="flex items-center gap-4">
+        <a href="scenario-hub.html" class="text-2xl hover:opacity-80 transition">←</a>
+        <div>
+          <h1 class="text-xl font-semibold">🎯 Loss Aversion Paywall Test</h1>
+          <p class="text-xs opacity-80">Dedektifler | Premium Conversion | A/B Test</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="px-3 py-1.5 bg-yellow-400 text-yellow-900 rounded-lg text-xs font-semibold animate-pulse">
+          🧪 RUNNING
+        </span>
+        <button class="px-4 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition text-sm">
+          📊 Export Report
+        </button>
+        <button class="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg transition text-sm font-semibold">
+          🛑 Stop Test
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-[1800px] mx-auto px-8 py-8">
+
+<!-- KEY METRICS BANNER -->
+<div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+  <div class="bg-white p-5 rounded-xl shadow text-center border-l-4 border-green-500">
+    <div class="text-3xl font-bold text-green-600">+18.4%</div>
+    <div class="text-xs text-gray-500 mt-1">Conversion Uplift</div>
+    <div class="text-xs text-green-600 mt-1">↑ Variant B winning</div>
+  </div>
+
+  <div class="bg-white p-5 rounded-xl shadow text-center">
+    <div class="text-3xl font-bold text-indigo-600">89%</div>
+    <div class="text-xs text-gray-500 mt-1">Confidence Level</div>
+    <div class="text-xs text-gray-600 mt-1">Target: 95%</div>
+  </div>
+
+  <div class="bg-white p-5 rounded-xl shadow text-center">
+    <div class="text-3xl font-bold text-gray-900">24,847</div>
+    <div class="text-xs text-gray-500 mt-1">Users Tested</div>
+    <div class="text-xs text-gray-600 mt-1">50% each variant</div>
+  </div>
+
+  <div class="bg-white p-5 rounded-xl shadow text-center">
+    <div class="text-3xl font-bold text-purple-600">+$8.7k</div>
+    <div class="text-xs text-gray-500 mt-1">Expected Impact/mo</div>
+    <div class="text-xs text-gray-600 mt-1">$104k ARR</div>
+  </div>
+
+  <div class="bg-white p-5 rounded-xl shadow text-center">
+    <div class="text-3xl font-bold text-yellow-600">5 days</div>
+    <div class="text-xs text-gray-500 mt-1">Time Remaining</div>
+    <div class="text-xs text-gray-600 mt-1">Started: Jan 12</div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="bg-white rounded-xl shadow mb-8">
+  <div class="border-b px-6 py-4 flex gap-2 overflow-x-auto">
+    <button onclick="switchTab('overview')" class="tab-btn active px-4 py-2 rounded-lg font-medium text-sm transition whitespace-nowrap">
+      📊 Overview
+    </button>
+    <button onclick="switchTab('variants')" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition whitespace-nowrap hover:bg-gray-100">
+      🎨 Variants (A/B)
+    </button>
+    <button onclick="switchTab('analytics')" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition whitespace-nowrap hover:bg-gray-100">
+      📈 Analytics
+    </button>
+    <button onclick="switchTab('insights')" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition whitespace-nowrap hover:bg-gray-100">
+      🤖 AI Insights
+    </button>
+    <button onclick="switchTab('timeline')" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition whitespace-nowrap hover:bg-gray-100">
+      ⏱️ Timeline
+    </button>
+    <button onclick="switchTab('notes')" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition whitespace-nowrap hover:bg-gray-100">
+      💬 Team Notes (3)
+    </button>
+  </div>
+
+  <!-- TAB CONTENT: OVERVIEW -->
+  <div id="tab-overview" class="tab-content p-6">
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+
+      <!-- Test Info Card -->
+      <div class="bg-gradient-to-br from-purple-50 to-indigo-50 p-6 rounded-xl border border-purple-200">
+        <h3 class="font-semibold mb-4 flex items-center gap-2">
+          📋 Test Information
+        </h3>
+        <div class="space-y-3 text-sm">
+          <div class="flex justify-between">
+            <span class="text-gray-600">Status:</span>
+            <span class="font-semibold text-yellow-700">🧪 Running</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Segment:</span>
+            <span class="font-semibold text-purple-700">🕵️ Dedektifler</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Test Type:</span>
+            <span class="font-semibold">Premium Conversion</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Cognitive Bias:</span>
+            <span class="font-semibold">Loss Aversion</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Priority:</span>
+            <span class="font-semibold text-red-600">🔴 Critical</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Owner:</span>
+            <span class="font-semibold">@melis</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Duration:</span>
+            <span class="font-semibold">14 days</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hypothesis Card -->
+      <div class="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-xl border border-blue-200 lg:col-span-2">
+        <h3 class="font-semibold mb-4 flex items-center gap-2">
+          🧪 Hypothesis
+        </h3>
+        <div class="space-y-4">
+          <div>
+            <p class="text-xs text-gray-500 mb-1 font-semibold">OBSERVATION</p>
+            <p class="text-sm">Dedektifler segment users frequently check "Who viewed my profile?" but 62% don't convert to premium when shown standard paywall.</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 mb-1 font-semibold">HYPOTHESIS</p>
+            <p class="text-sm font-medium">IF we show partial information (e.g., "3 people viewed you today, unlock to see who") and emphasize what they're losing by not converting,<br/>
+            THEN premium conversion will increase by 15%+<br/>
+            BECAUSE loss aversion bias is stronger in high-curiosity users than gain framing.</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 mb-1 font-semibold">SUCCESS CRITERIA</p>
+            <p class="text-sm">✅ 95% statistical confidence<br/>✅ Minimum +10% conversion uplift<br/>✅ No increase in churn rate</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Real-Time Performance Chart -->
+    <div class="bg-white border rounded-xl p-6 mb-8">
+      <h3 class="font-semibold mb-4">📈 Real-Time Conversion Performance (Last 7 Days)</h3>
+      <canvas id="conversionChart" height="80"></canvas>
+    </div>
+
+    <!-- Variant Performance Comparison -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <!-- Variant A (Control) -->
+      <div class="bg-white border rounded-xl p-6">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h3 class="font-semibold">Variant A (Control)</h3>
+            <p class="text-xs text-gray-500">Standard paywall message</p>
+          </div>
+          <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-xs font-semibold">CONTROL</span>
+        </div>
+
+        <div class="space-y-3 text-sm mb-4">
+          <div class="flex justify-between">
+            <span class="text-gray-600">Users:</span>
+            <strong>12,424</strong>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Conversions:</span>
+            <strong>1,018</strong>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Conversion Rate:</span>
+            <strong class="text-lg">8.19%</strong>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Avg Time to Convert:</span>
+            <strong>4.2 days</strong>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 rounded p-3 text-xs">
+          <p class="text-gray-600 mb-1">Sample Message:</p>
+          <p class="font-medium">"Upgrade to Premium to see who viewed your profile and unlock all features."</p>
+        </div>
+      </div>
+
+      <!-- Variant B (Test) -->
+      <div class="bg-white border-2 border-green-500 rounded-xl p-6">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h3 class="font-semibold text-green-700">Variant B (Test) ✨</h3>
+            <p class="text-xs text-gray-500">Loss aversion messaging</p>
+          </div>
+          <span class="px-3 py-1 bg-green-100 text-green-700 rounded text-xs font-semibold">WINNING +18.4%</span>
+        </div>
+
+        <div class="space-y-3 text-sm mb-4">
+          <div class="flex justify-between">
+            <span class="text-gray-600">Users:</span>
+            <strong>12,423</strong>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Conversions:</span>
+            <strong class="text-green-600">1,205</strong>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Conversion Rate:</span>
+            <strong class="text-lg text-green-600">9.70%</strong>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Avg Time to Convert:</span>
+            <strong class="text-green-600">3.1 days</strong>
+          </div>
+        </div>
+
+        <div class="bg-green-50 rounded p-3 text-xs border border-green-200">
+          <p class="text-gray-600 mb-1">Sample Message:</p>
+          <p class="font-medium text-green-900">"3 people viewed your profile today. <span class="text-red-600">You're missing out</span> on who they are. Upgrade now to unlock."</p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- TAB CONTENT: VARIANTS (A/B UI COMPARISON) -->
+  <div id="tab-variants" class="tab-content hidden p-6">
+
+    <h3 class="font-semibold mb-6 text-xl">🎨 UI/UX Comparison: Before & After</h3>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+      <!-- Variant A Screenshots -->
+      <div>
+        <div class="flex justify-between items-center mb-4">
+          <h4 class="font-semibold">Variant A (Control)</h4>
+          <span class="px-3 py-1 bg-gray-100 rounded text-xs">8.19% CVR</span>
+        </div>
+
+        <!-- Screenshot Mockup -->
+        <div class="bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl p-8 border-2 border-gray-300 mb-4">
+          <div class="bg-white rounded-lg shadow-xl p-6 max-w-sm mx-auto">
+            <div class="text-center mb-4">
+              <div class="w-16 h-16 bg-purple-100 rounded-full mx-auto mb-3 flex items-center justify-center text-2xl">
+                🔒
+              </div>
+              <h3 class="font-bold text-lg mb-2">Unlock Premium Features</h3>
+              <p class="text-sm text-gray-600">See who viewed your profile and get unlimited searches</p>
+            </div>
+            <button class="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold">
+              Upgrade to Premium
+            </button>
+            <p class="text-xs text-center text-gray-500 mt-3">$9.99/month</p>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-4 text-sm">
+          <p class="font-semibold mb-2">📝 Design Notes:</p>
+          <ul class="space-y-1 text-gray-700 list-disc list-inside">
+            <li>Generic benefit messaging</li>
+            <li>No urgency or FOMO</li>
+            <li>Standard CTA copy</li>
+            <li>No personalization</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Variant B Screenshots -->
+      <div>
+        <div class="flex justify-between items-center mb-4">
+          <h4 class="font-semibold text-green-700">Variant B (Test) ✨</h4>
+          <span class="px-3 py-1 bg-green-100 text-green-700 rounded text-xs font-semibold">9.70% CVR (+18.4%)</span>
+        </div>
+
+        <!-- Screenshot Mockup -->
+        <div class="bg-gradient-to-br from-green-100 to-emerald-200 rounded-xl p-8 border-2 border-green-400 mb-4">
+          <div class="bg-white rounded-lg shadow-xl p-6 max-w-sm mx-auto">
+            <div class="text-center mb-4">
+              <div class="w-16 h-16 bg-yellow-100 rounded-full mx-auto mb-3 flex items-center justify-center text-2xl animate-pulse">
+                ⚠️
+              </div>
+              <h3 class="font-bold text-lg mb-2">You're Missing Out!</h3>
+              <p class="text-sm text-gray-600"><strong class="text-purple-600">3 people</strong> viewed your profile today</p>
+              <p class="text-xs text-red-600 font-semibold mt-1">Don't lose access to this information</p>
+            </div>
+            <button class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-semibold shadow-lg">
+              Unlock Now - Don't Miss Out
+            </button>
+            <p class="text-xs text-center text-gray-500 mt-3">$9.99/month • Cancel anytime</p>
+          </div>
+        </div>
+
+        <div class="bg-green-50 rounded-lg p-4 text-sm border border-green-200">
+          <p class="font-semibold mb-2 text-green-900">✅ Design Changes:</p>
+          <ul class="space-y-1 text-gray-700 list-disc list-inside">
+            <li><strong>Loss aversion framing:</strong> "You're missing out"</li>
+            <li><strong>Personalized data:</strong> "3 people viewed you"</li>
+            <li><strong>Urgency icon:</strong> Warning symbol with pulse</li>
+            <li><strong>Stronger CTA:</strong> "Don't Miss Out"</li>
+            <li><strong>Risk reducer:</strong> "Cancel anytime"</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- A/B Test Metrics Table -->
+    <div class="mt-8 bg-white border rounded-xl p-6">
+      <h4 class="font-semibold mb-4">📊 Detailed Metrics Comparison</h4>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-50 border-b">
+            <tr>
+              <th class="text-left p-3">Metric</th>
+              <th class="text-center p-3">Variant A (Control)</th>
+              <th class="text-center p-3">Variant B (Test)</th>
+              <th class="text-center p-3">Difference</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y">
+            <tr>
+              <td class="p-3 font-medium">Conversion Rate</td>
+              <td class="text-center p-3">8.19%</td>
+              <td class="text-center p-3 text-green-600 font-semibold">9.70%</td>
+              <td class="text-center p-3 text-green-600 font-semibold">+18.4% ↑</td>
+            </tr>
+            <tr class="bg-gray-50">
+              <td class="p-3 font-medium">Click-Through Rate</td>
+              <td class="text-center p-3">34.2%</td>
+              <td class="text-center p-3 text-green-600 font-semibold">42.7%</td>
+              <td class="text-center p-3 text-green-600 font-semibold">+24.9% ↑</td>
+            </tr>
+            <tr>
+              <td class="p-3 font-medium">Avg Time to Decision</td>
+              <td class="text-center p-3">4.2 days</td>
+              <td class="text-center p-3 text-green-600 font-semibold">3.1 days</td>
+              <td class="text-center p-3 text-green-600 font-semibold">-26% faster</td>
+            </tr>
+            <tr class="bg-gray-50">
+              <td class="p-3 font-medium">Bounce Rate</td>
+              <td class="text-center p-3">58.3%</td>
+              <td class="text-center p-3 text-green-600 font-semibold">48.1%</td>
+              <td class="text-center p-3 text-green-600 font-semibold">-17.5% ↓</td>
+            </tr>
+            <tr>
+              <td class="p-3 font-medium">Trial Start Rate</td>
+              <td class="text-center p-3">12.4%</td>
+              <td class="text-center p-3 text-green-600 font-semibold">15.8%</td>
+              <td class="text-center p-3 text-green-600 font-semibold">+27.4% ↑</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB CONTENT: ANALYTICS -->
+  <div id="tab-analytics" class="tab-content hidden p-6">
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+
+      <!-- Segment Breakdown -->
+      <div class="bg-white border rounded-xl p-6">
+        <h4 class="font-semibold mb-4">👥 Performance by User Cohort</h4>
+        <canvas id="cohortChart" height="200"></canvas>
+      </div>
+
+      <!-- Device Breakdown -->
+      <div class="bg-white border rounded-xl p-6">
+        <h4 class="font-semibold mb-4">📱 Performance by Device</h4>
+        <canvas id="deviceChart" height="200"></canvas>
+      </div>
+
+    </div>
+
+    <!-- Funnel Analysis -->
+    <div class="bg-white border rounded-xl p-6 mb-6">
+      <h4 class="font-semibold mb-4">🔻 Conversion Funnel Analysis</h4>
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div class="text-center">
+          <div class="bg-indigo-100 rounded-lg p-4 mb-2">
+            <div class="text-2xl font-bold text-indigo-700">24,847</div>
+            <div class="text-xs text-gray-600 mt-1">Saw Paywall</div>
+          </div>
+          <div class="text-xs text-gray-500">100%</div>
+        </div>
+        <div class="flex items-center justify-center text-gray-400">→</div>
+        <div class="text-center">
+          <div class="bg-indigo-100 rounded-lg p-4 mb-2">
+            <div class="text-2xl font-bold text-indigo-700">9,847</div>
+            <div class="text-xs text-gray-600 mt-1">Clicked CTA</div>
+          </div>
+          <div class="text-xs text-gray-500">39.6%</div>
+        </div>
+        <div class="flex items-center justify-center text-gray-400">→</div>
+        <div class="text-center">
+          <div class="bg-green-100 rounded-lg p-4 mb-2">
+            <div class="text-2xl font-bold text-green-700">2,223</div>
+            <div class="text-xs text-gray-600 mt-1">Converted</div>
+          </div>
+          <div class="text-xs text-green-600 font-semibold">8.95%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistical Significance -->
+    <div class="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-xl p-6">
+      <h4 class="font-semibold mb-4 text-indigo-900">📊 Statistical Significance</h4>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <p class="text-sm text-gray-600 mb-2">Current Confidence Level</p>
+          <div class="flex items-end gap-2">
+            <span class="text-4xl font-bold text-indigo-700">89%</span>
+            <span class="text-sm text-gray-500 mb-2">of 95% target</span>
+          </div>
+          <div class="w-full bg-gray-200 h-3 rounded-full mt-2">
+            <div class="bg-indigo-600 h-3 rounded-full" style="width:89%"></div>
+          </div>
+        </div>
+        <div>
+          <p class="text-sm text-gray-600 mb-2">P-Value</p>
+          <div class="text-4xl font-bold text-green-700">0.012</div>
+          <p class="text-xs text-green-600 mt-2">✅ Significant (p < 0.05)</p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-600 mb-2">Sample Size Needed</p>
+          <div class="text-4xl font-bold text-gray-900">~28k</div>
+          <p class="text-xs text-gray-600 mt-2">Est. 5 days to reach</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB CONTENT: AI INSIGHTS -->
+  <div id="tab-insights" class="tab-content hidden p-6">
+
+    <div class="bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-xl p-8 mb-6">
+      <h3 class="text-2xl font-bold mb-4">🤖 AI-Generated Insights</h3>
+      <p class="text-sm opacity-90">Based on 10,247 historical tests and behavioral patterns</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+
+      <!-- Why It's Working -->
+      <div class="bg-green-50 border-2 border-green-200 rounded-xl p-6">
+        <h4 class="font-semibold text-green-900 mb-4 flex items-center gap-2">
+          ✅ Why Variant B is Winning
+        </h4>
+        <div class="space-y-3 text-sm">
+          <div class="bg-white rounded-lg p-3 border border-green-200">
+            <p class="font-semibold text-green-900 mb-1">🧠 Loss Aversion Trigger</p>
+            <p class="text-gray-700">Dedektifler segment has 3.2x higher response to loss-framed messaging than gain-framed. "You're missing out" creates urgency.</p>
+          </div>
+          <div class="bg-white rounded-lg p-3 border border-green-200">
+            <p class="font-semibold text-green-900 mb-1">📊 Personalized Data</p>
+            <p class="text-gray-700">Showing specific number ("3 people") increases perceived value by 42% vs. generic messaging.</p>
+          </div>
+          <div class="bg-white rounded-lg p-3 border border-green-200">
+            <p class="font-semibold text-green-900 mb-1">⏱️ Faster Decision Time</p>
+            <p class="text-gray-700">Urgency framing reduced decision time by 26%, indicating stronger emotional trigger.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recommendations -->
+      <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-6">
+        <h4 class="font-semibold text-blue-900 mb-4 flex items-center gap-2">
+          💡 AI Recommendations
+        </h4>
+        <div class="space-y-3 text-sm">
+          <div class="bg-white rounded-lg p-3 border border-blue-200">
+            <p class="font-semibold text-blue-900 mb-1">🚀 Quick Win: Deploy Now</p>
+            <p class="text-gray-700">With 89% confidence and consistent performance, deploy Variant B immediately. Expected impact: +$8.7k/mo.</p>
+          </div>
+          <div class="bg-white rounded-lg p-3 border border-blue-200">
+            <p class="font-semibold text-blue-900 mb-1">🔬 Next Test: Iterate</p>
+            <p class="text-gray-700">Test C: Add countdown timer "3 people viewed you in last 6 hours" for stronger urgency. Predicted uplift: +12-15%.</p>
+          </div>
+          <div class="bg-white rounded-lg p-3 border border-blue-200">
+            <p class="font-semibold text-blue-900 mb-1">⚠️ Watch For: Churn</p>
+            <p class="text-gray-700">Monitor 30-day churn rate. Loss aversion can create buyer's remorse if not delivered value quickly.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Related Scenarios -->
+    <div class="bg-white border rounded-xl p-6">
+      <h4 class="font-semibold mb-4">🔗 Related Successful Tests (Similar Pattern)</h4>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+        <div class="border rounded-lg p-4 hover:shadow-lg transition cursor-pointer">
+          <div class="flex justify-between items-start mb-2">
+            <h5 class="font-semibold text-sm">Social Proof Messaging</h5>
+            <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">WON</span>
+          </div>
+          <p class="text-xs text-gray-600 mb-2">Dedektifler | +18% uplift</p>
+          <p class="text-xs text-green-700">💡 Also used FOMO + Authority</p>
+        </div>
+
+        <div class="border rounded-lg p-4 hover:shadow-lg transition cursor-pointer">
+          <div class="flex justify-between items-start mb-2">
+            <h5 class="font-semibold text-sm">Profile Views Counter</h5>
+            <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">WON</span>
+          </div>
+          <p class="text-xs text-gray-600 mb-2">Dedektifler | +24% uplift</p>
+          <p class="text-xs text-green-700">💡 Personalized data worked</p>
+        </div>
+
+        <div class="border rounded-lg p-4 hover:shadow-lg transition cursor-pointer">
+          <div class="flex justify-between items-start mb-2">
+            <h5 class="font-semibold text-sm">FOMO Timer Paywall</h5>
+            <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded">RUNNING</span>
+          </div>
+          <p class="text-xs text-gray-600 mb-2">Dedektifler | Testing now</p>
+          <p class="text-xs text-gray-600">💡 Building on this success</p>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB CONTENT: TIMELINE -->
+  <div id="tab-timeline" class="tab-content hidden p-6">
+
+    <h3 class="font-semibold mb-6 text-xl">⏱️ Test Timeline & History</h3>
+
+    <div class="relative">
+      <!-- Timeline Line -->
+      <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+
+      <!-- Timeline Items -->
+      <div class="space-y-6">
+
+        <div class="relative pl-20">
+          <div class="absolute left-6 w-5 h-5 bg-blue-500 rounded-full border-4 border-white shadow"></div>
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div class="text-xs text-blue-700 font-semibold mb-1">Jan 8, 2026 - IDEATION</div>
+            <p class="font-semibold mb-1">Test Proposed by @melis</p>
+            <p class="text-sm text-gray-700">Initial hypothesis drafted based on Q4 2025 data showing Dedektifler's high curiosity but low conversion.</p>
+          </div>
+        </div>
+
+        <div class="relative pl-20">
+          <div class="absolute left-6 w-5 h-5 bg-purple-500 rounded-full border-4 border-white shadow"></div>
+          <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+            <div class="text-xs text-purple-700 font-semibold mb-1">Jan 10, 2026 - DESIGN</div>
+            <p class="font-semibold mb-1">Variant B Mockups Approved</p>
+            <p class="text-sm text-gray-700">Design team created 3 variants, stakeholders voted for loss aversion framing. AI predicted 84% success probability.</p>
+          </div>
+        </div>
+
+        <div class="relative pl-20">
+          <div class="absolute left-6 w-5 h-5 bg-green-500 rounded-full border-4 border-white shadow"></div>
+          <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div class="text-xs text-green-700 font-semibold mb-1">Jan 12, 2026 - LAUNCHED</div>
+            <p class="font-semibold mb-1">Test Started (50/50 Split)</p>
+            <p class="text-sm text-gray-700">Deployed to Dedektifler segment only. Initial sample: 24,847 users. Target: 95% confidence in 14 days.</p>
+          </div>
+        </div>
+
+        <div class="relative pl-20">
+          <div class="absolute left-6 w-5 h-5 bg-yellow-400 rounded-full border-4 border-white shadow animate-pulse"></div>
+          <div class="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4">
+            <div class="text-xs text-yellow-700 font-semibold mb-1">Jan 17, 2026 - CURRENT STATUS</div>
+            <p class="font-semibold mb-1 text-yellow-900">🧪 Test Running (Day 5/14)</p>
+            <p class="text-sm text-gray-700">Variant B showing +18.4% uplift with 89% confidence. On track to reach 95% in 5 days.</p>
+          </div>
+        </div>
+
+        <div class="relative pl-20">
+          <div class="absolute left-6 w-5 h-5 bg-gray-300 rounded-full border-4 border-white shadow"></div>
+          <div class="bg-gray-50 border border-gray-300 rounded-lg p-4 opacity-60">
+            <div class="text-xs text-gray-500 font-semibold mb-1">Jan 22, 2026 (PROJECTED) - COMPLETION</div>
+            <p class="font-semibold mb-1">Decision & Deployment</p>
+            <p class="text-sm text-gray-700">If trends continue, declare Variant B winner and deploy to 100% of Dedektifler segment.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB CONTENT: TEAM NOTES -->
+  <div id="tab-notes" class="tab-content hidden p-6">
+
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="font-semibold text-xl">💬 Team Notes & Discussion (3)</h3>
+      <button class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition">
+        + Add Note
+      </button>
+    </div>
+
+    <div class="space-y-4">
+
+      <div class="bg-white border rounded-xl p-5">
+        <div class="flex items-start gap-4">
+          <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center font-semibold text-purple-700">
+            MS
+          </div>
+          <div class="flex-1">
+            <div class="flex justify-between items-start mb-2">
+              <div>
+                <p class="font-semibold">Melis Sutci</p>
+                <p class="text-xs text-gray-500">Jan 12, 2026 at 2:34 PM</p>
+              </div>
+              <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Owner</span>
+            </div>
+            <p class="text-sm text-gray-700">
+              Launching the test now! Early indicators look promising - CTR is already 8% higher than control in first 2 hours.
+              Let's monitor bounce rate closely, don't want loss aversion to backfire.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white border rounded-xl p-5">
+        <div class="flex items-start gap-4">
+          <div class="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center font-semibold text-teal-700">
+            AK
+          </div>
+          <div class="flex-1">
+            <div class="flex justify-between items-start mb-2">
+              <div>
+                <p class="font-semibold">Ahmet Kaya</p>
+                <p class="text-xs text-gray-500">Jan 14, 2026 at 10:12 AM</p>
+              </div>
+            </div>
+            <p class="text-sm text-gray-700">
+              Day 3 update: Variant B is crushing it! 🚀 Conversion rate stable at +17-19% range.
+              Interestingly, time-to-convert is 30% faster. Users are making decisions quicker with loss framing.
+            </p>
+            <div class="mt-3 flex gap-2">
+              <button class="text-xs text-gray-600 hover:text-gray-900">👍 5</button>
+              <button class="text-xs text-gray-600 hover:text-gray-900">Reply</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white border rounded-xl p-5">
+        <div class="flex items-start gap-4">
+          <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center font-semibold text-orange-700">
+            DS
+          </div>
+          <div class="flex-1">
+            <div class="flex justify-between items-start mb-2">
+              <div>
+                <p class="font-semibold">Data Science Team</p>
+                <p class="text-xs text-gray-500">Jan 16, 2026 at 4:45 PM</p>
+              </div>
+              <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Automated</span>
+            </div>
+            <p class="text-sm text-gray-700 mb-2">
+              📊 Statistical Update: Confidence level reached 89%. Predicted time to 95%: ~5 more days at current rate.
+            </p>
+            <div class="bg-gray-50 rounded p-3 text-xs">
+              <p><strong>P-value:</strong> 0.012 (significant)</p>
+              <p><strong>Effect size:</strong> Medium-Large (Cohen's h = 0.42)</p>
+              <p><strong>Power:</strong> 0.87</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- RELATED ACTIONS -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+
+  <div class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-xl p-6 shadow-lg">
+    <h4 class="font-semibold mb-3">🚀 If This Wins, Test Next:</h4>
+    <div class="space-y-2 text-sm">
+      <div class="bg-white/10 rounded p-2">• Add countdown timer (FOMO boost)</div>
+      <div class="bg-white/10 rounded p-2">• Test on Mağdurlar segment</div>
+      <div class="bg-white/10 rounded p-2">• Try ABC test with 3 loss frames</div>
+    </div>
+  </div>
+
+  <div class="bg-white border rounded-xl p-6 shadow">
+    <h4 class="font-semibold mb-3 text-gray-900">📋 Quick Actions</h4>
+    <div class="space-y-2">
+      <button class="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium transition text-left">
+        📊 Download Full Report (PDF)
+      </button>
+      <button class="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium transition text-left">
+        📧 Email Stakeholders
+      </button>
+      <button class="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium transition text-left">
+        🔄 Clone Test for Another Segment
+      </button>
+    </div>
+  </div>
+
+  <div class="bg-white border rounded-xl p-6 shadow">
+    <h4 class="font-semibold mb-3 text-gray-900">👥 Stakeholders</h4>
+    <div class="space-y-2 text-sm">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-xs font-semibold">MS</div>
+        <div>
+          <p class="font-medium">Melis Sutci</p>
+          <p class="text-xs text-gray-500">Owner</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-xs font-semibold">GT</div>
+        <div>
+          <p class="font-medium">Growth Team</p>
+          <p class="text-xs text-gray-500">Collaborator</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-xs font-semibold">DS</div>
+        <div>
+          <p class="font-medium">Data Science</p>
+          <p class="text-xs text-gray-500">Analyst</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</main>
+
+<footer class="text-center text-xs text-gray-500 py-6 border-t mt-12">
+Behavioural Hub • Scenario Intelligence Engine
+</footer>
+
+<script>
+// Tab Switching
+function switchTab(tabName) {
+  // Hide all tabs
+  document.querySelectorAll('.tab-content').forEach(tab => {
+    tab.classList.add('hidden');
+  });
+
+  // Show selected tab
+  document.getElementById('tab-' + tabName).classList.remove('hidden');
+
+  // Update button styles
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.remove('active');
+    btn.classList.add('hover:bg-gray-100');
+  });
+  event.target.classList.add('active');
+  event.target.classList.remove('hover:bg-gray-100');
+
+  // Initialize charts if needed
+  if (tabName === 'overview') {
+    setTimeout(initConversionChart, 100);
+  } else if (tabName === 'analytics') {
+    setTimeout(() => {
+      initCohortChart();
+      initDeviceChart();
+    }, 100);
+  }
+}
+
+// Initialize Conversion Chart
+function initConversionChart() {
+  const ctx = document.getElementById('conversionChart');
+  if (ctx && !ctx.chart) {
+    ctx.chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Jan 12', 'Jan 13', 'Jan 14', 'Jan 15', 'Jan 16', 'Jan 17'],
+        datasets: [
+          {
+            label: 'Variant A (Control)',
+            data: [8.1, 8.2, 8.3, 8.2, 8.1, 8.2],
+            borderColor: '#9CA3AF',
+            backgroundColor: 'rgba(156, 163, 175, 0.1)',
+            tension: 0.4
+          },
+          {
+            label: 'Variant B (Test)',
+            data: [9.5, 9.6, 9.7, 9.8, 9.7, 9.7],
+            borderColor: '#10B981',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            tension: 0.4,
+            borderWidth: 3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true, position: 'top' }
+        },
+        scales: {
+          y: {
+            beginAtZero: false,
+            min: 7,
+            max: 11,
+            ticks: {
+              callback: function(value) {
+                return value + '%';
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+}
+
+// Initialize Cohort Chart
+function initCohortChart() {
+  const ctx = document.getElementById('cohortChart');
+  if (ctx && !ctx.chart) {
+    ctx.chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['New Users', 'Returning', 'Power Users', 'At Risk'],
+        datasets: [
+          {
+            label: 'Variant A',
+            data: [7.8, 8.5, 9.2, 6.1],
+            backgroundColor: '#9CA3AF'
+          },
+          {
+            label: 'Variant B',
+            data: [9.2, 10.1, 11.4, 7.8],
+            backgroundColor: '#10B981'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true, position: 'top' }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return value + '%';
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+}
+
+// Initialize Device Chart
+function initDeviceChart() {
+  const ctx = document.getElementById('deviceChart');
+  if (ctx && !ctx.chart) {
+    ctx.chart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['iOS', 'Android', 'Web'],
+        datasets: [{
+          data: [45, 42, 13],
+          backgroundColor: ['#8B5CF6', '#14B8A6', '#FB7185']
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true, position: 'right' }
+        }
+      }
+    });
+  }
+}
+
+// Initialize on page load
+window.addEventListener('DOMContentLoaded', () => {
+  initConversionChart();
+});
+</script>
+
+</body>
+</html>
