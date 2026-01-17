@@ -307,10 +307,10 @@
                     </div>
                 </div>
 
-                <!-- Mağdurlar -->
-               <div class="bg-white rounded-2xl p-6 shadow-lg card-hover border-l-4 border-victim cursor-pointer tooltip relative">
+            <!-- Mağdurlar -->
+<div class="bg-white rounded-2xl p-6 shadow-lg card-hover border-l-4 border-victim cursor-pointer tooltip relative">
 
-    <!-- MAĞDURLAR MOMENTUM (İÇERDE) -->
+    <!-- MAĞDURLAR MOMENTUM -->
     <div class="-mx-6 px-6 pt-4 pb-2 bg-gradient-to-b from-red-50 to-transparent rounded-t-2xl mb-4">
         <svg viewBox="0 0 100 40" class="w-full h-20">
             <defs>
@@ -319,172 +319,95 @@
                     <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
                 </linearGradient>
             </defs>
-
             <path d="M0,14 L20,18 L40,20 L60,24 L80,28 L100,30 L100,40 L0,40 Z"
                   fill="url(#victimTrendFill)" />
-
             <polyline points="0,14 20,18 40,20 60,24 80,28 100,30"
                       fill="none" stroke="#ef4444" stroke-width="2.5" />
         </svg>
-
         <div class="text-xs text-red-600 font-semibold mt-1">
             ▼ Negatif trend (son 7 gün)
         </div>
     </div>
 
-    <!-- NORMAL KART İÇERİĞİ -->
-   
+    <!-- Tooltip -->
+    <div class="tooltip-content">
+        <h4 class="font-semibold text-victim mb-2">🧠 Psikolojik Bariyerler</h4>
+        <ul class="text-xs text-gray-600 space-y-1">
+            <li>• Trust Issues: Yüksek</li>
+            <li>• Risk Aversion: Çok yüksek</li>
+        </ul>
+    </div>
 
+    <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center space-x-3">
+            <span class="text-4xl">🛡️</span>
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800">Mağdurlar</h3>
+                <p class="text-xs text-gray-500">Güvenlik odaklı</p>
+            </div>
+        </div>
+        <span class="text-xs text-green-700 font-medium">🟢 Stable Revenue</span>
+    </div>
 
-                <div class="bg-white rounded-2xl p-6 shadow-lg card-hover border-l-4 border-victim cursor-pointer tooltip relative">
-                    <!-- Tooltip -->
-                    <div class="tooltip-content">
-                        <h4 class="font-semibold text-victim mb-2">🧠 Psikolojik Bariyerler</h4>
-                        <ul class="text-xs text-gray-600 space-y-1">
-                            <li>• <strong>Trust Issues:</strong> Yüksek (güven inşa edilmeli)</li>
-                            <li>• <strong>Risk Aversion:</strong> Çok yüksek</li>
-                        </ul>
-                        <h4 class="font-semibold text-victim mt-3 mb-2">🎯 Cognitive Biases</h4>
-                        <ul class="text-xs text-gray-600 space-y-1">
-                            <li>• <strong>Safety First:</strong> Birincil motivasyon</li>
-                            <li>• <strong>Authority:</strong> Etkili (resmi onay önemli)</li>
-                            <li>• <strong>Loss Aversion:</strong> Koruma odaklı</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center space-x-3">
-                            <span class="text-4xl">🛡️</span>
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-800">Mağdurlar</h3>
-                                <p class="text-xs text-gray-500">Güvenlik odaklı, korunma isteği</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-xs text-green-700 font-medium">🟢 Stable Revenue</span>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <div class="flex justify-between items-end mb-1">
-                            <span class="text-3xl font-bold text-victim">%26</span>
-                            <div class="flex items-center space-x-1">
-                                <span class="text-2xl text-red-600">↓</span>
-                                <span class="text-lg text-red-600 font-bold">%3</span>
-                            </div>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-victim rounded-full h-2" style="width: 26%"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="space-y-2 text-sm">
-                        <div class="flex items-center justify-between">
-                            <span class="text-gray-600">Spam Raporlama</span>
-                            <span class="font-medium text-victim">6.1x/hafta</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-gray-600">Premium Dönüşüm</span>
-                            <span class="font-medium text-victim">5.8%</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-gray-600">Motivasyon</span>
-                            <span class="text-xs bg-teal-100 text-victim px-2 py-1 rounded-full">Güvenlik & Huzur</span>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-4 pt-4 border-t border-gray-100">
-                        <button class="text-victim text-sm font-medium hover:underline">Detayları Gör →</button>
-                    </div>
-                </div>
+    <div class="mb-3">
+        <div class="flex justify-between items-end mb-1">
+            <span class="text-3xl font-bold text-victim">%26</span>
+            <div class="flex items-center space-x-1">
+                <span class="text-red-600">↓ %3</span>
+            </div>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-victim rounded-full h-2" style="width:26%"></div>
+        </div>
+    </div>
+</div>
 
-                   
-<!-- PASİFLER  -->
-               <div class="bg-white rounded-2xl p-6 shadow-lg card-hover border-l-4 border-passive cursor-pointer tooltip relative">
+<!-- Pasifler -->
+<div class="bg-white rounded-2xl p-6 shadow-lg card-hover border-l-4 border-passive cursor-pointer tooltip relative">
 
-    <!-- PASİFLER MOMENTUM (İÇERDE) -->
+    <!-- PASİFLER MOMENTUM -->
     <div class="-mx-6 px-6 pt-4 pb-2 bg-gradient-to-b from-slate-50 to-transparent rounded-t-2xl mb-4">
         <svg viewBox="0 0 100 40" class="w-full h-16">
-            <polyline
-                points="0,22 100,22"
-                fill="none"
-                stroke="#64748b"
-                stroke-width="2"
-                stroke-dasharray="4 4"
-            />
+            <polyline points="0,22 100,22"
+                      fill="none"
+                      stroke="#64748b"
+                      stroke-width="2"
+                      stroke-dasharray="4 4" />
         </svg>
-
         <div class="text-xs text-slate-500 font-semibold mt-1">
             → Stabil (anlamlı değişim yok)
         </div>
     </div>
 
-    <!-- NORMAL PASİFLER İÇERİĞİ -->
+    <!-- Tooltip -->
+    <div class="tooltip-content">
+        <h4 class="font-semibold text-passive mb-2">🧠 Psikolojik Bariyerler</h4>
+        <ul class="text-xs text-gray-600 space-y-1">
+            <li>• Low Engagement</li>
+            <li>• Status Quo Bias</li>
+        </ul>
+    </div>
 
-
-                <div class="bg-white rounded-2xl p-6 shadow-lg card-hover border-l-4 border-passive cursor-pointer tooltip relative">
-                    <!-- Tooltip -->
-                    <div class="tooltip-content">
-                        <h4 class="font-semibold text-passive mb-2">🧠 Psikolojik Bariyerler</h4>
-                        <ul class="text-xs text-gray-600 space-y-1">
-                            <li>• <strong>Low Engagement:</strong> Çok yüksek</li>
-                            <li>• <strong>Attention:</strong> Çok düşük</li>
-                        </ul>
-                        <h4 class="font-semibold text-passive mt-3 mb-2">🎯 Cognitive Biases</h4>
-                        <ul class="text-xs text-gray-600 space-y-1">
-                            <li>• <strong>Status Quo Bias:</strong> Güçlü</li>
-                            <li>• <strong>Reminder Value:</strong> Etkili olabilir</li>
-                            <li>• <strong>Surprise & Delight:</strong> Test edilmeli</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center space-x-3">
-                            <span class="text-4xl">😴</span>
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-800">Pasifler</h3>
-                                <p class="text-xs text-gray-500">Set & forget, düşük etkileşim</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-xs text-orange-700 font-medium">🟠 Reactivation Needed</span>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <div class="flex justify-between items-end mb-1">
-                            <span class="text-3xl font-bold text-passive">%21</span>
-                            <div class="flex items-center space-x-1">
-                                <span class="text-2xl text-gray-500">→</span>
-                                <span class="text-lg text-gray-500 font-bold">%0</span>
-                            </div>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-passive rounded-full h-2" style="width: 21%"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="space-y-2 text-sm">
-                        <div class="flex items-center justify-between">
-                            <span class="text-gray-600">Uygulama Açılış</span>
-                            <span class="font-medium text-passive">0.8x/hafta</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-gray-600">Premium Dönüşüm</span>
-                            <span class="font-medium text-passive">1.2%</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-gray-600">Motivasyon</span>
-                            <span class="text-xs bg-gray-200 text-passive px-2 py-1 rounded-full">Değer Hatırlatma</span>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-4 pt-4 border-t border-gray-100">
-                        <button class="text-passive text-sm font-medium hover:underline">Detayları Gör →</button>
-                    </div>
-                </div>
-
+    <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center space-x-3">
+            <span class="text-4xl">😴</span>
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800">Pasifler</h3>
+                <p class="text-xs text-gray-500">Düşük etkileşim</p>
             </div>
+        </div>
+        <span class="text-xs text-orange-700 font-medium">🟠 Reactivation Needed</span>
+    </div>
+
+    <div class="mb-3">
+        <div class="flex justify-between items-end mb-1">
+            <span class="text-3xl font-bold text-passive">%21</span>
+            <span class="text-gray-500">→ %0</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-passive rounded-full h-2" style="width:21%"></div>
+        </div>
+    </div>
         </section>
 
         <!-- Active Tests -->
