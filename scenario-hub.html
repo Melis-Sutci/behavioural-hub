@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Scenario Intelligence Hub</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 tailwind.config = {
   theme: {
@@ -20,155 +21,1333 @@ tailwind.config = {
 }
 </script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
 body { font-family: Inter, sans-serif; }
 .kanban { min-height: 520px; }
+.view-section { display: none; }
+.view-section.active { display: block; }
+.ai-sidebar {
+  position: sticky;
+  top: 20px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+.scenario-card {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.scenario-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
+  50% { box-shadow: 0 0 30px rgba(139, 92, 246, 0.6); }
+}
 </style>
 </head>
 
 <body class="bg-gray-50 min-h-screen">
 
 <!-- HEADER -->
-<header class="bg-gradient-to-r from-indigo-600 to-purple-700 text-white px-8 py-6 shadow">
-  <div class="flex justify-between items-center max-w-[1600px] mx-auto">
+<header class="bg-gradient-to-r from-indigo-600 to-purple-700 text-white px-8 py-6 shadow-lg sticky top-0 z-50">
+  <div class="flex justify-between items-center max-w-[1800px] mx-auto">
     <div>
       <h1 class="text-2xl font-light">🧠 Scenario Intelligence Hub</h1>
       <p class="text-sm opacity-80">Platformun Motor Odası</p>
     </div>
-    <a href="index.html" class="px-4 py-2 bg-white/10 rounded-lg hover:bg-white/20">
+    <a href="index.html" class="px-4 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition">
       ← Dashboard
     </a>
   </div>
 </header>
 
-<main class="max-w-[1600px] mx-auto px-8 py-8">
+<main class="max-w-[1800px] mx-auto px-8 py-8">
 
-<!-- OVERVIEW + SEARCH -->
-<section class="mb-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+<!-- LEFT/MAIN CONTENT (3/4) -->
+<div class="lg:col-span-3">
+
+<!-- VIEW MODE TOGGLE -->
+<section class="mb-6">
+  <div class="bg-white rounded-xl shadow p-2 flex gap-2 overflow-x-auto">
+    <button onclick="switchView('kanban')" class="view-btn flex-1 px-4 py-2 rounded-lg font-medium text-sm transition whitespace-nowrap bg-indigo-600 text-white">
+      📋 Kanban
+    </button>
+    <button onclick="switchView('analytics')" class="view-btn flex-1 px-4 py-2 rounded-lg font-medium text-sm transition whitespace-nowrap hover:bg-gray-100">
+      📈 Analytics
+    </button>
+    <button onclick="switchView('pattern')" class="view-btn flex-1 px-4 py-2 rounded-lg font-medium text-sm transition whitespace-nowrap hover:bg-gray-100">
+      🧬 Pattern Matrix
+    </button>
+    <button onclick="switchView('timeline')" class="view-btn flex-1 px-4 py-2 rounded-lg font-medium text-sm transition whitespace-nowrap hover:bg-gray-100">
+      ⏱️ Timeline
+    </button>
+    <button onclick="switchView('learning')" class="view-btn flex-1 px-4 py-2 rounded-lg font-medium text-sm transition whitespace-nowrap hover:bg-gray-100">
+      📚 Learning
+    </button>
+  </div>
+</section>
+
+<!-- OVERVIEW + FILTERS -->
+<section class="mb-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
 
   <div class="bg-white p-6 rounded-xl shadow">
-    <h3 class="text-sm text-gray-500 mb-2">📊 Overview</h3>
+    <h3 class="text-sm text-gray-500 mb-3 font-semibold">📊 Overview</h3>
     <div class="grid grid-cols-2 gap-4 text-sm">
-      <div><strong>247</strong><br/>Total Scenarios</div>
-      <div><strong>67%</strong><br/>Win Rate</div>
-      <div><strong>3</strong><br/>Running</div>
-      <div><strong>+$84k</strong><br/>Total Impact</div>
+      <div><strong class="text-2xl block">247</strong><span class="text-gray-500">Total Scenarios</span></div>
+      <div><strong class="text-2xl block text-green-600">67%</strong><span class="text-gray-500">Win Rate</span></div>
+      <div><strong class="text-2xl block text-yellow-600">3</strong><span class="text-gray-500">Running</span></div>
+      <div><strong class="text-2xl block text-indigo-600">+$84k</strong><span class="text-gray-500">Total Impact</span></div>
     </div>
   </div>
 
   <div class="bg-white p-6 rounded-xl shadow lg:col-span-2">
-    <div class="flex gap-4">
-      <input class="flex-1 border rounded-lg px-4 py-2"
+    <div class="flex gap-3 flex-wrap">
+      <input class="flex-1 min-w-[200px] border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
         placeholder="🔍 Senaryo ara (Loss Aversion, Dedektifler, Premium)"/>
-      <select class="border rounded-lg px-3 py-2">
-        <option>👥 Segment</option>
-        <option>Dedektifler</option>
-        <option>Mağdurlar</option>
-        <option>Pasifler</option>
+      <select class="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
+        <option>👥 Segment: All</option>
+        <option>🕵️ Dedektifler</option>
+        <option>🛡️ Mağdurlar</option>
+        <option>😴 Pasifler</option>
+        <option>All Users</option>
       </select>
-      <select class="border rounded-lg px-3 py-2">
-        <option>🎯 Tip</option>
+      <select class="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
+        <option>🎯 Tip: All</option>
         <option>Messaging</option>
         <option>UX</option>
         <option>Pricing</option>
         <option>Retention</option>
+        <option>Onboarding</option>
+      </select>
+      <select class="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
+        <option>🧠 Bias: All</option>
+        <option>Loss Aversion</option>
+        <option>Social Proof</option>
+        <option>FOMO</option>
+        <option>Scarcity</option>
+        <option>Authority</option>
       </select>
     </div>
   </div>
 
 </section>
 
-<!-- KANBAN -->
-<section class="mb-10">
+<!-- ============================================ -->
+<!-- VIEW: KANBAN -->
+<!-- ============================================ -->
+<section id="view-kanban" class="view-section active">
+
 <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
 
 <!-- PLANNED -->
 <div>
-<h3 class="font-bold text-sm mb-3">💡 Planned</h3>
-<div class="kanban bg-white rounded-xl p-4 space-y-4 shadow">
-  <div class="border rounded-lg p-4">
-    <h4 class="font-semibold">🎯 Loss Aversion Paywall</h4>
-    <p class="text-xs text-gray-500 mt-1">Dedektifler | Premium</p>
-    <p class="text-xs mt-2">📊 Success: <strong>84%</strong></p>
-    <p class="text-xs">💰 Impact: +$8.7k</p>
-    <div class="flex gap-2 mt-3">
-      <button class="text-xs text-purple-600">Compare</button>
-      <button class="text-xs text-purple-600">View</button>
-      <button class="text-xs bg-purple-600 text-white px-2 py-1 rounded">Run</button>
+<h3 class="font-bold text-sm mb-3 flex items-center gap-2">
+  <span class="text-yellow-500">💡</span> Planned <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded-full">4</span>
+</h3>
+<div class="kanban bg-gray-50 rounded-xl p-3 space-y-3">
+
+  <!-- Card 1 -->
+  <div class="scenario-card bg-white border-l-4 border-detective rounded-lg p-4 shadow-sm" onclick="openScenario('loss-aversion-paywall')">
+    <div class="flex items-start justify-between mb-2">
+      <h4 class="font-semibold text-sm">🎯 Loss Aversion Paywall</h4>
+      <span class="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">A/B</span>
+    </div>
+    <p class="text-xs text-gray-500 mb-3">🕵️ Dedektifler | 💎 Premium</p>
+
+    <div class="space-y-1 text-xs mb-3">
+      <div class="flex justify-between">
+        <span class="text-gray-600">Success Prob:</span>
+        <strong class="text-green-600">84%</strong>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-600">Est. Impact:</span>
+        <strong class="text-indigo-600">+$8.7k/mo</strong>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-600">Effort:</span>
+        <span class="text-yellow-600">Medium</span>
+      </div>
+    </div>
+
+    <div class="border-t pt-2 mb-2">
+      <p class="text-xs text-gray-500">🔗 Similar to:</p>
+      <p class="text-xs text-indigo-600">• Social Proof Messaging (+18%)</p>
+    </div>
+
+    <div class="flex gap-2">
+      <button class="flex-1 text-xs text-indigo-600 hover:bg-indigo-50 px-2 py-1 rounded transition">Compare</button>
+      <button class="flex-1 text-xs bg-indigo-600 text-white hover:bg-indigo-700 px-2 py-1 rounded transition">Run Test</button>
     </div>
   </div>
+
+  <!-- Card 2 -->
+  <div class="scenario-card bg-white border-l-4 border-victim rounded-lg p-4 shadow-sm" onclick="openScenario('weekly-security-digest')">
+    <div class="flex items-start justify-between mb-2">
+      <h4 class="font-semibold text-sm">🛡️ Weekly Security Digest</h4>
+      <span class="text-xs bg-teal-100 text-teal-700 px-2 py-0.5 rounded">A/B</span>
+    </div>
+    <p class="text-xs text-gray-500 mb-3">🛡️ Mağdurlar | 📱 Push Notification</p>
+
+    <div class="space-y-1 text-xs mb-3">
+      <div class="flex justify-between">
+        <span class="text-gray-600">Success Prob:</span>
+        <strong class="text-green-600">76%</strong>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-600">Est. Impact:</span>
+        <strong class="text-indigo-600">+12% retention</strong>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-600">Effort:</span>
+        <span class="text-green-600">Low</span>
+      </div>
+    </div>
+
+    <div class="border-t pt-2 mb-2">
+      <p class="text-xs text-gray-500">🔗 Similar to:</p>
+      <p class="text-xs text-indigo-600">• Spam Report Weekly (+14%)</p>
+    </div>
+
+    <div class="flex gap-2">
+      <button class="flex-1 text-xs text-indigo-600 hover:bg-indigo-50 px-2 py-1 rounded transition">Compare</button>
+      <button class="flex-1 text-xs bg-indigo-600 text-white hover:bg-indigo-700 px-2 py-1 rounded transition">Run Test</button>
+    </div>
+  </div>
+
 </div>
 </div>
 
 <!-- RUNNING -->
 <div>
-<h3 class="font-bold text-sm mb-3">🧪 Running</h3>
-<div class="kanban bg-white rounded-xl p-4 space-y-4 shadow">
-  <div class="border rounded-lg p-4 border-yellow-300">
-    <h4 class="font-semibold">🧪 Premium Banner Sticky</h4>
-    <p class="text-xs text-gray-500">All Users | UX</p>
-    <p class="text-xs mt-2">📊 Confidence: 67%</p>
-    <div class="w-full bg-gray-200 h-2 rounded mt-2">
-      <div class="bg-yellow-400 h-2 rounded" style="width:50%"></div>
+<h3 class="font-bold text-sm mb-3 flex items-center gap-2">
+  <span class="text-yellow-500">🧪</span> Running <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded-full">3</span>
+</h3>
+<div class="kanban bg-gray-50 rounded-xl p-3 space-y-3">
+
+  <div class="scenario-card bg-white border-l-4 border-yellow-400 rounded-lg p-4 shadow-sm" onclick="openScenario('premium-banner-sticky')">
+    <div class="flex items-start justify-between mb-2">
+      <h4 class="font-semibold text-sm">🧪 Premium Banner Sticky</h4>
+      <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded animate-pulse">LIVE</span>
     </div>
+    <p class="text-xs text-gray-500 mb-3">All Users | 🎨 UX</p>
+
+    <div class="space-y-1 text-xs mb-3">
+      <div class="flex justify-between">
+        <span class="text-gray-600">Confidence:</span>
+        <strong class="text-yellow-600">67%</strong>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-600">Sample Size:</span>
+        <span>12.4k users</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-600">Days Left:</span>
+        <span>7 days</span>
+      </div>
+    </div>
+
+    <div class="w-full bg-gray-200 h-2 rounded-full mb-2">
+      <div class="bg-yellow-400 h-2 rounded-full transition-all" style="width:67%"></div>
+    </div>
+    <p class="text-xs text-gray-500 text-center">Progress to 95% confidence</p>
+
+    <div class="border-t pt-2 mb-2 mt-3">
+      <div class="flex justify-between text-xs">
+        <span>Variant A: <strong>4.2%</strong></span>
+        <span>Variant B: <strong class="text-green-600">5.8%</strong> ↑</span>
+      </div>
+    </div>
+
+    <button class="w-full text-xs bg-yellow-600 text-white hover:bg-yellow-700 px-2 py-1.5 rounded transition mt-2">
+      📊 View Live Data
+    </button>
   </div>
+
+  <div class="scenario-card bg-white border-l-4 border-yellow-400 rounded-lg p-4 shadow-sm" onclick="openScenario('onboarding-profile-first')">
+    <div class="flex items-start justify-between mb-2">
+      <h4 class="font-semibold text-sm">👤 Onboarding: Profile First</h4>
+      <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded animate-pulse">LIVE</span>
+    </div>
+    <p class="text-xs text-gray-500 mb-3">🕵️ Dedektifler | 🚀 Onboarding</p>
+
+    <div class="space-y-1 text-xs mb-3">
+      <div class="flex justify-between">
+        <span class="text-gray-600">Confidence:</span>
+        <strong class="text-yellow-600">82%</strong>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-600">Sample Size:</span>
+        <span>8.9k users</span>
+      </div>
+    </div>
+
+    <div class="w-full bg-gray-200 h-2 rounded-full mb-2">
+      <div class="bg-green-400 h-2 rounded-full" style="width:82%"></div>
+    </div>
+
+    <div class="border-t pt-2 mb-2 mt-3">
+      <div class="flex justify-between text-xs">
+        <span>Control: <strong>12.3%</strong></span>
+        <span>Test: <strong class="text-green-600">18.7%</strong> ↑</span>
+      </div>
+    </div>
+
+    <button class="w-full text-xs bg-yellow-600 text-white hover:bg-yellow-700 px-2 py-1.5 rounded transition mt-2">
+      📊 View Live Data
+    </button>
+  </div>
+
 </div>
 </div>
 
 <!-- WON -->
 <div>
-<h3 class="font-bold text-sm mb-3">✅ Won</h3>
-<div class="kanban bg-white rounded-xl p-4 space-y-4 shadow">
-  <div class="border rounded-lg p-4 bg-green-50">
-    <h4 class="font-semibold">🎉 Social Proof Messaging</h4>
-    <p class="text-xs text-gray-500">Dedektifler</p>
-    <p class="text-xs mt-2">📈 +18% uplift</p>
-    <p class="text-xs">💡 Insight: Authority + FOMO</p>
+<h3 class="font-bold text-sm mb-3 flex items-center gap-2">
+  <span class="text-green-500">✅</span> Won <span class="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">12</span>
+</h3>
+<div class="kanban bg-gray-50 rounded-xl p-3 space-y-3">
+
+  <div class="scenario-card bg-white border-l-4 border-green-500 rounded-lg p-4 shadow-sm bg-green-50/30" onclick="openScenario('social-proof-messaging')">
+    <div class="flex items-start justify-between mb-2">
+      <h4 class="font-semibold text-sm">🎉 Social Proof Messaging</h4>
+      <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">WON</span>
+    </div>
+    <p class="text-xs text-gray-500 mb-3">🕵️ Dedektifler | 💬 Messaging</p>
+
+    <div class="space-y-1 text-xs mb-3">
+      <div class="flex justify-between">
+        <span class="text-gray-600">Uplift:</span>
+        <strong class="text-green-600">+18%</strong>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-600">Revenue Impact:</span>
+        <strong class="text-green-600">+$12.3k/mo</strong>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-600">Deployed:</span>
+        <span>Dec 15, 2025</span>
+      </div>
+    </div>
+
+    <div class="bg-green-100 border border-green-300 rounded p-2 mb-2">
+      <p class="text-xs text-green-800">
+        <strong>💡 Key Insight:</strong> Authority + FOMO messaging tripled conversion for high-intent users
+      </p>
+    </div>
+
+    <div class="border-t pt-2">
+      <p class="text-xs text-gray-500">⚡ If this wins, test next:</p>
+      <p class="text-xs text-indigo-600">• FOMO Timer on Paywall (+$8k est.)</p>
+    </div>
   </div>
+
+  <div class="scenario-card bg-white border-l-4 border-green-500 rounded-lg p-4 shadow-sm bg-green-50/30" onclick="openScenario('caller-id-permission-flow')">
+    <div class="flex items-start justify-between mb-2">
+      <h4 class="font-semibold text-sm">📞 Caller ID Permission Flow</h4>
+      <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">WON</span>
+    </div>
+    <p class="text-xs text-gray-500 mb-3">All Users | 🚀 Onboarding</p>
+
+    <div class="space-y-1 text-xs mb-3">
+      <div class="flex justify-between">
+        <span class="text-gray-600">Uplift:</span>
+        <strong class="text-green-600">+24%</strong>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-600">Activation:</span>
+        <strong class="text-green-600">+31% Day 1</strong>
+      </div>
+    </div>
+
+    <div class="bg-green-100 border border-green-300 rounded p-2 mb-2">
+      <p class="text-xs text-green-800">
+        <strong>💡 Key Insight:</strong> Showing real spam call example increased permission grant by 31%
+      </p>
+    </div>
+  </div>
+
 </div>
 </div>
 
 <!-- FAILED -->
 <div>
-<h3 class="font-bold text-sm mb-3">❌ Failed</h3>
-<div class="kanban bg-white rounded-xl p-4 space-y-4 shadow">
-  <div class="border rounded-lg p-4 bg-red-50">
-    <h4 class="font-semibold">⚠️ Trial 7d → 3d</h4>
-    <p class="text-xs text-gray-500">Dedektifler | Pricing</p>
-    <p class="text-xs mt-2">📉 +8% churn</p>
-    <p class="text-xs">🧠 Too aggressive scarcity</p>
+<h3 class="font-bold text-sm mb-3 flex items-center gap-2">
+  <span class="text-red-500">❌</span> Failed <span class="bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full">8</span>
+</h3>
+<div class="kanban bg-gray-50 rounded-xl p-3 space-y-3">
+
+  <div class="scenario-card bg-white border-l-4 border-red-500 rounded-lg p-4 shadow-sm bg-red-50/30" onclick="openScenario('trial-7d-to-3d')">
+    <div class="flex items-start justify-between mb-2">
+      <h4 class="font-semibold text-sm">⚠️ Trial 7d → 3d</h4>
+      <span class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">FAILED</span>
+    </div>
+    <p class="text-xs text-gray-500 mb-3">🕵️ Dedektifler | 💰 Pricing</p>
+
+    <div class="space-y-1 text-xs mb-3">
+      <div class="flex justify-between">
+        <span class="text-gray-600">Impact:</span>
+        <strong class="text-red-600">+8% churn</strong>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-600">Tested:</span>
+        <span>Nov 2025</span>
+      </div>
+    </div>
+
+    <div class="bg-red-100 border border-red-300 rounded p-2 mb-2">
+      <p class="text-xs text-red-800">
+        <strong>🧠 Why Failed:</strong> Too aggressive scarcity. Users need 5+ days to experience "Aha Moment"
+      </p>
+    </div>
+
+    <div class="border-t pt-2">
+      <p class="text-xs text-gray-500">💡 Learning:</p>
+      <p class="text-xs">Don't reduce trial length for Dedektifler. Focus on value delivery speed instead.</p>
+    </div>
   </div>
+
+  <div class="scenario-card bg-white border-l-4 border-red-500 rounded-lg p-4 shadow-sm bg-red-50/30" onclick="openScenario('gamification-points')">
+    <div class="flex items-start justify-between mb-2">
+      <h4 class="font-semibold text-sm">🎮 Gamification Points</h4>
+      <span class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">FAILED</span>
+    </div>
+    <p class="text-xs text-gray-500 mb-3">😴 Pasifler | 🎯 Engagement</p>
+
+    <div class="space-y-1 text-xs mb-3">
+      <div class="flex justify-between">
+        <span class="text-gray-600">Impact:</span>
+        <strong class="text-red-600">No change</strong>
+      </div>
+    </div>
+
+    <div class="bg-red-100 border border-red-300 rounded p-2">
+      <p class="text-xs text-red-800">
+        <strong>🧠 Why Failed:</strong> Pasifler segment doesn't respond to gamification. They want utility, not engagement.
+      </p>
+    </div>
+  </div>
+
 </div>
 </div>
 
 </div>
+
 </section>
 
-<!-- AI ENGINE -->
-<section>
-<div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl p-8 shadow-xl">
-  <h3 class="text-xl font-bold mb-4">🤖 AI Scenario Engine</h3>
+<!-- ============================================ -->
+<!-- VIEW: ANALYTICS -->
+<!-- ============================================ -->
+<section id="view-analytics" class="view-section">
 
-  <div class="grid md:grid-cols-2 gap-4">
-    <div class="bg-white/10 p-4 rounded-lg">
-      <h4 class="font-semibold">Gamification Badge System</h4>
-      <p class="text-sm opacity-90">Dedektifler için rozetler</p>
-      <p class="text-xs mt-2">📊 Success Prediction: <strong>89%</strong></p>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+
+  <!-- Win Rate Chart -->
+  <div class="bg-white p-6 rounded-xl shadow">
+    <h3 class="font-semibold mb-4 flex items-center gap-2">
+      📊 Win Rate by Segment
+    </h3>
+    <canvas id="winRateChart" height="200"></canvas>
+  </div>
+
+  <!-- Impact Over Time -->
+  <div class="bg-white p-6 rounded-xl shadow">
+    <h3 class="font-semibold mb-4 flex items-center gap-2">
+      💰 Revenue Impact Over Time
+    </h3>
+    <canvas id="revenueChart" height="200"></canvas>
+  </div>
+
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+
+  <!-- Top Performing Biases -->
+  <div class="bg-white p-6 rounded-xl shadow">
+    <h3 class="font-semibold mb-4 text-sm">🧠 Top Performing Biases</h3>
+    <div class="space-y-3">
+      <div>
+        <div class="flex justify-between text-sm mb-1">
+          <span>Social Proof</span>
+          <strong class="text-green-600">84% Win</strong>
+        </div>
+        <div class="w-full bg-gray-200 h-2 rounded">
+          <div class="bg-green-500 h-2 rounded" style="width:84%"></div>
+        </div>
+      </div>
+      <div>
+        <div class="flex justify-between text-sm mb-1">
+          <span>Loss Aversion</span>
+          <strong class="text-green-600">71% Win</strong>
+        </div>
+        <div class="w-full bg-gray-200 h-2 rounded">
+          <div class="bg-green-500 h-2 rounded" style="width:71%"></div>
+        </div>
+      </div>
+      <div>
+        <div class="flex justify-between text-sm mb-1">
+          <span>FOMO</span>
+          <strong class="text-green-600">68% Win</strong>
+        </div>
+        <div class="w-full bg-gray-200 h-2 rounded">
+          <div class="bg-green-500 h-2 rounded" style="width:68%"></div>
+        </div>
+      </div>
+      <div>
+        <div class="flex justify-between text-sm mb-1">
+          <span>Scarcity</span>
+          <strong class="text-red-600">42% Win</strong>
+        </div>
+        <div class="w-full bg-gray-200 h-2 rounded">
+          <div class="bg-red-500 h-2 rounded" style="width:42%"></div>
+        </div>
+      </div>
     </div>
-    <div class="bg-white/10 p-4 rounded-lg">
-      <h4 class="font-semibold">Weekly Value Reminder</h4>
-      <p class="text-sm opacity-90">Pasifler için haftalık özet</p>
-      <p class="text-xs mt-2">📊 Success Prediction: <strong>71%</strong></p>
+  </div>
+
+  <!-- Segment Performance -->
+  <div class="bg-white p-6 rounded-xl shadow">
+    <h3 class="font-semibold mb-4 text-sm">👥 Segment Performance</h3>
+    <div class="space-y-4">
+      <div class="border-l-4 border-detective pl-3">
+        <div class="flex justify-between mb-1">
+          <span class="text-sm font-medium">🕵️ Dedektifler</span>
+          <span class="text-xs text-gray-500">38% of users</span>
+        </div>
+        <p class="text-xs text-gray-600">Premium CVR: <strong class="text-purple-600">8.2%</strong></p>
+        <p class="text-xs text-gray-600">Win Rate: <strong class="text-green-600">73%</strong></p>
+      </div>
+      <div class="border-l-4 border-victim pl-3">
+        <div class="flex justify-between mb-1">
+          <span class="text-sm font-medium">🛡️ Mağdurlar</span>
+          <span class="text-xs text-gray-500">26% of users</span>
+        </div>
+        <p class="text-xs text-gray-600">Premium CVR: <strong class="text-teal-600">5.8%</strong></p>
+        <p class="text-xs text-gray-600">Win Rate: <strong class="text-green-600">61%</strong></p>
+      </div>
+      <div class="border-l-4 border-passive pl-3">
+        <div class="flex justify-between mb-1">
+          <span class="text-sm font-medium">😴 Pasifler</span>
+          <span class="text-xs text-gray-500">21% of users</span>
+        </div>
+        <p class="text-xs text-gray-600">Premium CVR: <strong class="text-stone-600">1.2%</strong></p>
+        <p class="text-xs text-gray-600">Win Rate: <strong class="text-yellow-600">48%</strong></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Test Velocity -->
+  <div class="bg-white p-6 rounded-xl shadow">
+    <h3 class="font-semibold mb-4 text-sm">⚡ Test Velocity</h3>
+    <div class="space-y-3 text-sm">
+      <div class="flex justify-between">
+        <span>This Month:</span>
+        <strong class="text-indigo-600">12 tests</strong>
+      </div>
+      <div class="flex justify-between">
+        <span>Avg Duration:</span>
+        <strong>18 days</strong>
+      </div>
+      <div class="flex justify-between">
+        <span>Fastest Win:</span>
+        <strong class="text-green-600">7 days</strong>
+      </div>
+      <div class="flex justify-between">
+        <span>In Pipeline:</span>
+        <strong class="text-yellow-600">23 ideas</strong>
+      </div>
+    </div>
+    <div class="mt-4 pt-4 border-t">
+      <p class="text-xs text-gray-600">🎯 Goal: 15 tests/month</p>
+      <div class="w-full bg-gray-200 h-2 rounded mt-2">
+        <div class="bg-indigo-500 h-2 rounded" style="width:80%"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Monthly Breakdown -->
+<div class="bg-white p-6 rounded-xl shadow">
+  <h3 class="font-semibold mb-4">📅 Monthly Test Breakdown</h3>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 border-b">
+        <tr>
+          <th class="text-left p-3">Month</th>
+          <th class="text-center p-3">Tests Run</th>
+          <th class="text-center p-3">Won</th>
+          <th class="text-center p-3">Failed</th>
+          <th class="text-center p-3">Win Rate</th>
+          <th class="text-right p-3">Revenue Impact</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y">
+        <tr class="hover:bg-gray-50">
+          <td class="p-3">January 2026</td>
+          <td class="text-center p-3">12</td>
+          <td class="text-center p-3 text-green-600 font-semibold">9</td>
+          <td class="text-center p-3 text-red-600">3</td>
+          <td class="text-center p-3"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">75%</span></td>
+          <td class="text-right p-3 font-semibold text-indigo-600">+$18.2k</td>
+        </tr>
+        <tr class="hover:bg-gray-50">
+          <td class="p-3">December 2025</td>
+          <td class="text-center p-3">15</td>
+          <td class="text-center p-3 text-green-600 font-semibold">10</td>
+          <td class="text-center p-3 text-red-600">5</td>
+          <td class="text-center p-3"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">67%</span></td>
+          <td class="text-right p-3 font-semibold text-indigo-600">+$24.8k</td>
+        </tr>
+        <tr class="hover:bg-gray-50">
+          <td class="p-3">November 2025</td>
+          <td class="text-center p-3">11</td>
+          <td class="text-center p-3 text-green-600 font-semibold">6</td>
+          <td class="text-center p-3 text-red-600">5</td>
+          <td class="text-center p-3"><span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs">55%</span></td>
+          <td class="text-right p-3 font-semibold text-indigo-600">+$12.1k</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</section>
+
+<!-- ============================================ -->
+<!-- VIEW: PATTERN MATRIX -->
+<!-- ============================================ -->
+<section id="view-pattern" class="view-section">
+
+<div class="bg-white p-6 rounded-xl shadow mb-6">
+  <h3 class="font-semibold mb-4 flex items-center gap-2">
+    🧬 Pattern Matrix: Segment × Bias × Outcome
+    <span class="text-sm font-normal text-gray-500 ml-2">(Discover winning combinations)</span>
+  </h3>
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="text-left p-3 sticky left-0 bg-gray-50">Segment</th>
+          <th class="text-center p-3">Social Proof</th>
+          <th class="text-center p-3">Loss Aversion</th>
+          <th class="text-center p-3">FOMO</th>
+          <th class="text-center p-3">Scarcity</th>
+          <th class="text-center p-3">Authority</th>
+          <th class="text-center p-3">Reciprocity</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y">
+        <tr>
+          <td class="p-3 font-semibold border-l-4 border-detective sticky left-0 bg-white">🕵️ Dedektifler</td>
+          <td class="text-center p-3 bg-green-50">
+            <div class="text-green-700 font-semibold">89%</div>
+            <div class="text-xs text-gray-500">12 tests</div>
+          </td>
+          <td class="text-center p-3 bg-green-50">
+            <div class="text-green-700 font-semibold">84%</div>
+            <div class="text-xs text-gray-500">8 tests</div>
+          </td>
+          <td class="text-center p-3 bg-green-50">
+            <div class="text-green-700 font-semibold">76%</div>
+            <div class="text-xs text-gray-500">15 tests</div>
+          </td>
+          <td class="text-center p-3 bg-red-50">
+            <div class="text-red-700 font-semibold">38%</div>
+            <div class="text-xs text-gray-500">5 tests</div>
+          </td>
+          <td class="text-center p-3 bg-green-50">
+            <div class="text-green-700 font-semibold">71%</div>
+            <div class="text-xs text-gray-500">6 tests</div>
+          </td>
+          <td class="text-center p-3 bg-yellow-50">
+            <div class="text-yellow-700 font-semibold">58%</div>
+            <div class="text-xs text-gray-500">3 tests</div>
+          </td>
+        </tr>
+        <tr>
+          <td class="p-3 font-semibold border-l-4 border-victim sticky left-0 bg-white">🛡️ Mağdurlar</td>
+          <td class="text-center p-3 bg-yellow-50">
+            <div class="text-yellow-700 font-semibold">62%</div>
+            <div class="text-xs text-gray-500">8 tests</div>
+          </td>
+          <td class="text-center p-3 bg-green-50">
+            <div class="text-green-700 font-semibold">78%</div>
+            <div class="text-xs text-gray-500">11 tests</div>
+          </td>
+          <td class="text-center p-3 bg-yellow-50">
+            <div class="text-yellow-700 font-semibold">54%</div>
+            <div class="text-xs text-gray-500">7 tests</div>
+          </td>
+          <td class="text-center p-3 bg-red-50">
+            <div class="text-red-700 font-semibold">41%</div>
+            <div class="text-xs text-gray-500">4 tests</div>
+          </td>
+          <td class="text-center p-3 bg-green-50">
+            <div class="text-green-700 font-semibold">82%</div>
+            <div class="text-xs text-gray-500">9 tests</div>
+          </td>
+          <td class="text-center p-3 bg-yellow-50">
+            <div class="text-yellow-700 font-semibold">59%</div>
+            <div class="text-xs text-gray-500">2 tests</div>
+          </td>
+        </tr>
+        <tr>
+          <td class="p-3 font-semibold border-l-4 border-passive sticky left-0 bg-white">😴 Pasifler</td>
+          <td class="text-center p-3 bg-red-50">
+            <div class="text-red-700 font-semibold">34%</div>
+            <div class="text-xs text-gray-500">5 tests</div>
+          </td>
+          <td class="text-center p-3 bg-yellow-50">
+            <div class="text-yellow-700 font-semibold">52%</div>
+            <div class="text-xs text-gray-500">6 tests</div>
+          </td>
+          <td class="text-center p-3 bg-red-50">
+            <div class="text-red-700 font-semibold">28%</div>
+            <div class="text-xs text-gray-500">4 tests</div>
+          </td>
+          <td class="text-center p-3 bg-red-50">
+            <div class="text-red-700 font-semibold">31%</div>
+            <div class="text-xs text-gray-500">3 tests</div>
+          </td>
+          <td class="text-center p-3 bg-yellow-50">
+            <div class="text-yellow-700 font-semibold">61%</div>
+            <div class="text-xs text-gray-500">7 tests</div>
+          </td>
+          <td class="text-center p-3 bg-green-50">
+            <div class="text-green-700 font-semibold">71%</div>
+            <div class="text-xs text-gray-500">4 tests</div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Key Insights from Pattern -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+  <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-xl shadow-lg">
+    <div class="text-3xl mb-2">🎯</div>
+    <h4 class="font-semibold mb-2">Golden Combo #1</h4>
+    <p class="text-sm opacity-90 mb-3">Dedektifler + Social Proof</p>
+    <div class="bg-white/20 rounded p-3">
+      <p class="text-2xl font-bold">89%</p>
+      <p class="text-xs opacity-90">Win Rate (12 tests)</p>
+    </div>
+    <p class="text-xs mt-3 opacity-80">💡 Best for: Premium conversion, Feature adoption</p>
+  </div>
+
+  <div class="bg-gradient-to-br from-teal-500 to-teal-600 text-white p-6 rounded-xl shadow-lg">
+    <div class="text-3xl mb-2">🛡️</div>
+    <h4 class="font-semibold mb-2">Golden Combo #2</h4>
+    <p class="text-sm opacity-90 mb-3">Mağdurlar + Authority</p>
+    <div class="bg-white/20 rounded p-3">
+      <p class="text-2xl font-bold">82%</p>
+      <p class="text-xs opacity-90">Win Rate (9 tests)</p>
+    </div>
+    <p class="text-xs mt-3 opacity-80">💡 Best for: Trust building, Security features</p>
+  </div>
+
+  <div class="bg-gradient-to-br from-stone-500 to-stone-600 text-white p-6 rounded-xl shadow-lg">
+    <div class="text-3xl mb-2">😴</div>
+    <h4 class="font-semibold mb-2">Golden Combo #3</h4>
+    <p class="text-sm opacity-90 mb-3">Pasifler + Reciprocity</p>
+    <div class="bg-white/20 rounded p-3">
+      <p class="text-2xl font-bold">71%</p>
+      <p class="text-xs opacity-90">Win Rate (4 tests)</p>
+    </div>
+    <p class="text-xs mt-3 opacity-80">💡 Best for: Re-engagement, Value reminders</p>
+  </div>
+
+</div>
+
+<!-- Anti-patterns -->
+<div class="bg-red-50 border border-red-200 rounded-xl p-6 mt-6">
+  <h4 class="font-semibold text-red-900 mb-3 flex items-center gap-2">
+    ⚠️ Anti-Patterns: Avoid These Combinations
+  </h4>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 text-sm">
+    <div class="bg-white rounded p-3 border border-red-200">
+      <p class="font-semibold text-red-700">Dedektifler + Scarcity</p>
+      <p class="text-xs text-gray-600 mt-1">38% win rate - Creates pressure, reduces trust</p>
+    </div>
+    <div class="bg-white rounded p-3 border border-red-200">
+      <p class="font-semibold text-red-700">Pasifler + FOMO</p>
+      <p class="text-xs text-gray-600 mt-1">28% win rate - Wrong motivation for this segment</p>
+    </div>
+    <div class="bg-white rounded p-3 border border-red-200">
+      <p class="font-semibold text-red-700">Pasifler + Social Proof</p>
+      <p class="text-xs text-gray-600 mt-1">34% win rate - They don't care what others do</p>
     </div>
   </div>
 </div>
+
 </section>
+
+<!-- ============================================ -->
+<!-- VIEW: TIMELINE -->
+<!-- ============================================ -->
+<section id="view-timeline" class="view-section">
+
+<div class="bg-white p-6 rounded-xl shadow">
+  <h3 class="font-semibold mb-6 flex items-center gap-2">
+    ⏱️ Test Timeline
+    <span class="text-sm font-normal text-gray-500 ml-2">(Past, Present, Future)</span>
+  </h3>
+
+  <div class="relative">
+    <!-- Timeline Line -->
+    <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+
+    <!-- Timeline Items -->
+    <div class="space-y-8">
+
+      <!-- Future -->
+      <div class="relative pl-20">
+        <div class="absolute left-6 w-5 h-5 bg-yellow-400 rounded-full border-4 border-white shadow"></div>
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <div class="text-xs text-yellow-700 font-semibold mb-1">PLANNED - Week of Jan 20</div>
+          <h4 class="font-semibold mb-2">🎯 Loss Aversion Paywall</h4>
+          <p class="text-sm text-gray-600 mb-2">Dedektifler | Premium conversion test</p>
+          <div class="flex gap-4 text-xs">
+            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Expected: +$8.7k/mo</span>
+            <span class="bg-green-100 text-green-800 px-2 py-1 rounded">84% success prob</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="relative pl-20">
+        <div class="absolute left-6 w-5 h-5 bg-yellow-400 rounded-full border-4 border-white shadow"></div>
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <div class="text-xs text-yellow-700 font-semibold mb-1">PLANNED - Week of Jan 27</div>
+          <h4 class="font-semibold mb-2">🛡️ Weekly Security Digest</h4>
+          <p class="text-sm text-gray-600 mb-2">Mağdurlar | Retention test</p>
+          <div class="flex gap-4 text-xs">
+            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Expected: +12% retention</span>
+            <span class="bg-green-100 text-green-800 px-2 py-1 rounded">76% success prob</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Current -->
+      <div class="relative pl-20">
+        <div class="absolute left-6 w-5 h-5 bg-green-400 rounded-full border-4 border-white shadow animate-pulse"></div>
+        <div class="bg-green-50 border-2 border-green-400 rounded-lg p-4">
+          <div class="text-xs text-green-700 font-semibold mb-1 flex items-center gap-2">
+            RUNNING NOW <span class="animate-pulse">●</span>
+          </div>
+          <h4 class="font-semibold mb-2">🧪 Premium Banner Sticky</h4>
+          <p class="text-sm text-gray-600 mb-2">All Users | UX optimization</p>
+          <div class="flex gap-4 text-xs mb-2">
+            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">67% confidence</span>
+            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">7 days left</span>
+          </div>
+          <div class="text-xs">
+            <span class="text-gray-600">Current uplift:</span> <strong class="text-green-600">+1.6%</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="relative pl-20">
+        <div class="absolute left-6 w-5 h-5 bg-green-400 rounded-full border-4 border-white shadow animate-pulse"></div>
+        <div class="bg-green-50 border-2 border-green-400 rounded-lg p-4">
+          <div class="text-xs text-green-700 font-semibold mb-1 flex items-center gap-2">
+            RUNNING NOW <span class="animate-pulse">●</span>
+          </div>
+          <h4 class="font-semibold mb-2">👤 Onboarding: Profile First</h4>
+          <p class="text-sm text-gray-600 mb-2">Dedektifler | Onboarding flow</p>
+          <div class="flex gap-4 text-xs mb-2">
+            <span class="bg-green-100 text-green-800 px-2 py-1 rounded">82% confidence</span>
+            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">3 days left</span>
+          </div>
+          <div class="text-xs">
+            <span class="text-gray-600">Current uplift:</span> <strong class="text-green-600">+6.4%</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Past -->
+      <div class="relative pl-20">
+        <div class="absolute left-6 w-5 h-5 bg-green-600 rounded-full border-4 border-white shadow"></div>
+        <div class="bg-white border border-green-200 rounded-lg p-4">
+          <div class="text-xs text-green-700 font-semibold mb-1">WON - Dec 15, 2025</div>
+          <h4 class="font-semibold mb-2">🎉 Social Proof Messaging</h4>
+          <p class="text-sm text-gray-600 mb-2">Dedektifler | Messaging optimization</p>
+          <div class="flex gap-4 text-xs">
+            <span class="bg-green-100 text-green-800 px-2 py-1 rounded">+18% uplift</span>
+            <span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded">+$12.3k/mo impact</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="relative pl-20">
+        <div class="absolute left-6 w-5 h-5 bg-green-600 rounded-full border-4 border-white shadow"></div>
+        <div class="bg-white border border-green-200 rounded-lg p-4">
+          <div class="text-xs text-green-700 font-semibold mb-1">WON - Dec 8, 2025</div>
+          <h4 class="font-semibold mb-2">📞 Caller ID Permission Flow</h4>
+          <p class="text-sm text-gray-600 mb-2">All Users | Onboarding</p>
+          <div class="flex gap-4 text-xs">
+            <span class="bg-green-100 text-green-800 px-2 py-1 rounded">+24% uplift</span>
+            <span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded">+31% activation</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="relative pl-20">
+        <div class="absolute left-6 w-5 h-5 bg-red-600 rounded-full border-4 border-white shadow"></div>
+        <div class="bg-white border border-red-200 rounded-lg p-4">
+          <div class="text-xs text-red-700 font-semibold mb-1">FAILED - Nov 22, 2025</div>
+          <h4 class="font-semibold mb-2">⚠️ Trial 7d → 3d</h4>
+          <p class="text-sm text-gray-600 mb-2">Dedektifler | Pricing experiment</p>
+          <div class="flex gap-4 text-xs">
+            <span class="bg-red-100 text-red-800 px-2 py-1 rounded">+8% churn</span>
+          </div>
+          <p class="text-xs text-gray-600 mt-2">💡 Learning: Users need 5+ days for Aha Moment</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</section>
+
+<!-- ============================================ -->
+<!-- VIEW: LEARNING LIBRARY -->
+<!-- ============================================ -->
+<section id="view-learning" class="view-section">
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+
+  <!-- What Works -->
+  <div class="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-6">
+    <h3 class="font-semibold mb-4 text-green-900 flex items-center gap-2">
+      ✅ What Works: Key Learnings
+    </h3>
+    <div class="space-y-3">
+      <div class="bg-white rounded-lg p-4 border border-green-200">
+        <h4 class="font-semibold text-sm mb-1">Social Proof for Dedektifler = 🚀</h4>
+        <p class="text-xs text-gray-600 mb-2">From 12 tests, 89% win rate</p>
+        <p class="text-xs text-green-700">💡 Showing "X people viewed this profile" increases curiosity-driven actions by 18-24%</p>
+      </div>
+      <div class="bg-white rounded-lg p-4 border border-green-200">
+        <h4 class="font-semibold text-sm mb-1">Authority messaging for Mağdurlar</h4>
+        <p class="text-xs text-gray-600 mb-2">From 9 tests, 82% win rate</p>
+        <p class="text-xs text-green-700">💡 "Trusted by 100M+ users" and security badges build trust faster than feature lists</p>
+      </div>
+      <div class="bg-white rounded-lg p-4 border border-green-200">
+        <h4 class="font-semibold text-sm mb-1">Value reminders work for Pasifler</h4>
+        <p class="text-xs text-gray-600 mb-2">From 7 tests, 71% win rate</p>
+        <p class="text-xs text-green-700">💡 Weekly "You blocked 12 spam calls" notifications re-engage dormant users</p>
+      </div>
+      <div class="bg-white rounded-lg p-4 border border-green-200">
+        <h4 class="font-semibold text-sm mb-1">Onboarding: Show value FIRST</h4>
+        <p class="text-xs text-gray-600 mb-2">Multiple tests, consistent pattern</p>
+        <p class="text-xs text-green-700">💡 Users who see their own profile/tags in first session are 3x more likely to convert to premium</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- What Doesn't Work -->
+  <div class="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-xl p-6">
+    <h3 class="font-semibold mb-4 text-red-900 flex items-center gap-2">
+      ❌ What Doesn't Work: Avoid These
+    </h3>
+    <div class="space-y-3">
+      <div class="bg-white rounded-lg p-4 border border-red-200">
+        <h4 class="font-semibold text-sm mb-1">Aggressive scarcity backfires</h4>
+        <p class="text-xs text-gray-600 mb-2">Trial 7d→3d test</p>
+        <p class="text-xs text-red-700">⚠️ Reducing trial from 7 to 3 days increased churn by 8%. Users need time to reach Aha Moment.</p>
+      </div>
+      <div class="bg-white rounded-lg p-4 border border-red-200">
+        <h4 class="font-semibold text-sm mb-1">Gamification fails for Pasifler</h4>
+        <p class="text-xs text-gray-600 mb-2">Points/badges test</p>
+        <p class="text-xs text-red-700">⚠️ Pasifler want utility, not engagement. Points systems had zero impact on this segment.</p>
+      </div>
+      <div class="bg-white rounded-lg p-4 border border-red-200">
+        <h4 class="font-semibold text-sm mb-1">Feature-heavy messaging loses</h4>
+        <p class="text-xs text-gray-600 mb-2">Multiple messaging tests</p>
+        <p class="text-xs text-red-700">⚠️ Listing features ("50M database!") performs worse than benefit-focused copy ("Know who's calling")</p>
+      </div>
+      <div class="bg-white rounded-lg p-4 border border-red-200">
+        <h4 class="font-semibold text-sm mb-1">Generic "All Users" tests underperform</h4>
+        <p class="text-xs text-gray-600 mb-2">Pattern across 15+ tests</p>
+        <p class="text-xs text-red-700">⚠️ Segment-specific tests average 67% win rate vs. 42% for generic tests</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Segment Playbooks -->
+<div class="bg-white rounded-xl shadow p-6">
+  <h3 class="font-semibold mb-4 flex items-center gap-2">
+    📖 Segment Playbooks: Best Practices
+  </h3>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Dedektifler Playbook -->
+    <div class="border-l-4 border-detective pl-4">
+      <h4 class="font-semibold mb-3 text-purple-700">🕵️ Dedektifler Playbook</h4>
+      <div class="space-y-2 text-sm">
+        <div>
+          <p class="font-semibold text-xs text-gray-500 mb-1">PRIMARY MOTIVATION</p>
+          <p class="text-xs">Curiosity + FOMO ("Who viewed me?")</p>
+        </div>
+        <div>
+          <p class="font-semibold text-xs text-gray-500 mb-1">WINNING TACTICS</p>
+          <ul class="text-xs space-y-1 list-disc list-inside">
+            <li>Social proof ("500 viewing now")</li>
+            <li>Partial information reveal</li>
+            <li>Authority signals</li>
+            <li>Real-time notifications</li>
+          </ul>
+        </div>
+        <div>
+          <p class="font-semibold text-xs text-gray-500 mb-1">AVOID</p>
+          <ul class="text-xs space-y-1 list-disc list-inside text-red-600">
+            <li>Aggressive scarcity</li>
+            <li>Long paywalls</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mağdurlar Playbook -->
+    <div class="border-l-4 border-victim pl-4">
+      <h4 class="font-semibold mb-3 text-teal-700">🛡️ Mağdurlar Playbook</h4>
+      <div class="space-y-2 text-sm">
+        <div>
+          <p class="font-semibold text-xs text-gray-500 mb-1">PRIMARY MOTIVATION</p>
+          <p class="text-xs">Safety + Peace of mind</p>
+        </div>
+        <div>
+          <p class="font-semibold text-xs text-gray-500 mb-1">WINNING TACTICS</p>
+          <ul class="text-xs space-y-1 list-disc list-inside">
+            <li>Authority messaging</li>
+            <li>Trust signals (badges, stats)</li>
+            <li>Value reminders ("You're protected")</li>
+            <li>Educational content</li>
+          </ul>
+        </div>
+        <div>
+          <p class="font-semibold text-xs text-gray-500 mb-1">AVOID</p>
+          <ul class="text-xs space-y-1 list-disc list-inside text-red-600">
+            <li>Fear-based marketing</li>
+            <li>Complex features</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pasifler Playbook -->
+    <div class="border-l-4 border-passive pl-4">
+      <h4 class="font-semibold mb-3 text-stone-700">😴 Pasifler Playbook</h4>
+      <div class="space-y-2 text-sm">
+        <div>
+          <p class="font-semibold text-xs text-gray-500 mb-1">PRIMARY MOTIVATION</p>
+          <p class="text-xs">Set & forget utility</p>
+        </div>
+        <div>
+          <p class="font-semibold text-xs text-gray-500 mb-1">WINNING TACTICS</p>
+          <ul class="text-xs space-y-1 list-disc list-inside">
+            <li>Reciprocity ("We protected you")</li>
+            <li>Passive value delivery</li>
+            <li>Low-frequency reminders</li>
+            <li>Automation features</li>
+          </ul>
+        </div>
+        <div>
+          <p class="font-semibold text-xs text-gray-500 mb-1">AVOID</p>
+          <ul class="text-xs space-y-1 list-disc list-inside text-red-600">
+            <li>Gamification</li>
+            <li>High engagement tactics</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Hypothesis Framework -->
+<div class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl p-6 mt-6">
+  <h3 class="font-semibold mb-4 flex items-center gap-2">
+    🧪 Hypothesis Framework: How We Test
+  </h3>
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 text-sm">
+    <div class="bg-white/10 rounded-lg p-4">
+      <p class="font-semibold mb-2">1. Observation</p>
+      <p class="text-xs opacity-90">What data/behavior did we notice?</p>
+    </div>
+    <div class="bg-white/10 rounded-lg p-4">
+      <p class="font-semibold mb-2">2. Hypothesis</p>
+      <p class="text-xs opacity-90">If we change X, then Y will happen because Z</p>
+    </div>
+    <div class="bg-white/10 rounded-lg p-4">
+      <p class="font-semibold mb-2">3. Test Design</p>
+      <p class="text-xs opacity-90">A/B/C setup, sample size, duration</p>
+    </div>
+    <div class="bg-white/10 rounded-lg p-4">
+      <p class="font-semibold mb-2">4. Learn & Iterate</p>
+      <p class="text-xs opacity-90">What did we learn? What's next?</p>
+    </div>
+  </div>
+</div>
+
+</section>
+
+</div>
+
+<!-- RIGHT SIDEBAR: AI SUGGESTIONS + IMPACT CALCULATOR -->
+<div class="lg:col-span-1">
+
+  <!-- AI Suggestions -->
+  <div class="ai-sidebar">
+    <div class="bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-xl p-6 shadow-xl pulse-glow mb-6">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="text-2xl">🤖</span>
+        <h3 class="font-bold">AI Scenario Engine</h3>
+      </div>
+
+      <p class="text-sm opacity-90 mb-4">High-confidence suggestions this week:</p>
+
+      <div class="space-y-3">
+
+        <div class="bg-white/10 backdrop-blur rounded-lg p-4 hover:bg-white/20 transition cursor-pointer border border-white/20">
+          <div class="flex items-start justify-between mb-2">
+            <h4 class="font-semibold text-sm">🎯 Loss Aversion on Profile View</h4>
+            <span class="text-xs bg-green-400 text-green-900 px-2 py-0.5 rounded font-semibold">89%</span>
+          </div>
+          <p class="text-xs opacity-90 mb-2">Dedektifler | Premium</p>
+          <p class="text-xs mb-3">Show "3 people viewed you today" with partial blur</p>
+          <div class="flex gap-2 text-xs">
+            <span class="bg-white/20 px-2 py-1 rounded">+$8.7k est.</span>
+            <span class="bg-white/20 px-2 py-1 rounded">Medium effort</span>
+          </div>
+          <button class="w-full mt-3 bg-white text-purple-600 hover:bg-gray-100 px-3 py-1.5 rounded text-xs font-semibold transition">
+            Add to Planned
+          </button>
+        </div>
+
+        <div class="bg-white/10 backdrop-blur rounded-lg p-4 hover:bg-white/20 transition cursor-pointer border border-white/20">
+          <div class="flex items-start justify-between mb-2">
+            <h4 class="font-semibold text-sm">📱 Push: "Spam Wave Alert"</h4>
+            <span class="text-xs bg-green-400 text-green-900 px-2 py-0.5 rounded font-semibold">81%</span>
+          </div>
+          <p class="text-xs opacity-90 mb-2">Mağdurlar | Retention</p>
+          <p class="text-xs mb-3">Weekly digest of blocked spam calls in user's area</p>
+          <div class="flex gap-2 text-xs">
+            <span class="bg-white/20 px-2 py-1 rounded">+14% retention</span>
+            <span class="bg-white/20 px-2 py-1 rounded">Low effort</span>
+          </div>
+          <button class="w-full mt-3 bg-white text-purple-600 hover:bg-gray-100 px-3 py-1.5 rounded text-xs font-semibold transition">
+            Add to Planned
+          </button>
+        </div>
+
+        <div class="bg-white/10 backdrop-blur rounded-lg p-4 hover:bg-white/20 transition cursor-pointer border border-white/20">
+          <div class="flex items-start justify-between mb-2">
+            <h4 class="font-semibold text-sm">🏆 Achievement Badges</h4>
+            <span class="text-xs bg-yellow-400 text-yellow-900 px-2 py-0.5 rounded font-semibold">73%</span>
+          </div>
+          <p class="text-xs opacity-90 mb-2">Dedektifler | Engagement</p>
+          <p class="text-xs mb-3">"Detective" badge for 50+ queries</p>
+          <div class="flex gap-2 text-xs">
+            <span class="bg-white/20 px-2 py-1 rounded">+18% queries</span>
+            <span class="bg-white/20 px-2 py-1 rounded">Medium effort</span>
+          </div>
+          <button class="w-full mt-3 bg-white text-purple-600 hover:bg-gray-100 px-3 py-1.5 rounded text-xs font-semibold transition">
+            Add to Planned
+          </button>
+        </div>
+
+      </div>
+
+      <button class="w-full mt-4 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg text-sm font-semibold transition border border-white/30">
+        🔮 Generate More Ideas
+      </button>
+    </div>
+
+    <!-- Impact Calculator -->
+    <div class="bg-white rounded-xl shadow p-6 mb-6">
+      <h3 class="font-semibold mb-4 flex items-center gap-2 text-sm">
+        💰 Impact Calculator
+      </h3>
+
+      <div class="space-y-3 text-sm">
+        <div>
+          <label class="text-xs text-gray-500 block mb-1">Conversion Increase</label>
+          <input type="number" value="2" class="w-full border rounded px-3 py-2 text-sm" placeholder="%" />
+        </div>
+        <div>
+          <label class="text-xs text-gray-500 block mb-1">Affected Users/mo</label>
+          <input type="number" value="50000" class="w-full border rounded px-3 py-2 text-sm" />
+        </div>
+        <div>
+          <label class="text-xs text-gray-500 block mb-1">ARPU ($/user)</label>
+          <input type="number" value="4.2" class="w-full border rounded px-3 py-2 text-sm" />
+        </div>
+      </div>
+
+      <div class="mt-4 pt-4 border-t">
+        <div class="flex justify-between text-sm mb-2">
+          <span class="text-gray-600">Monthly Impact:</span>
+          <strong class="text-indigo-600 text-lg">+$4,200</strong>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span class="text-gray-600">Annual ARR:</span>
+          <strong class="text-green-600 text-lg">+$50,400</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="bg-white rounded-xl shadow p-6">
+      <h3 class="font-semibold mb-4 text-sm">⚡ Quick Stats</h3>
+      <div class="space-y-3 text-sm">
+        <div class="flex justify-between">
+          <span class="text-gray-600">Tests this month:</span>
+          <strong>12</strong>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600">In pipeline:</span>
+          <strong class="text-yellow-600">23</strong>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600">Avg test duration:</span>
+          <strong>18 days</strong>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600">Fastest win:</span>
+          <strong class="text-green-600">7 days</strong>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+</div>
 
 </main>
 
-<footer class="text-center text-xs text-gray-500 py-6">
-Behavioural Hub • Scenario Intelligence Engine
+<footer class="text-center text-xs text-gray-500 py-6 border-t mt-12">
+Behavioural Hub • Scenario Intelligence Engine • Powered by AI
 </footer>
+
+<script>
+// View Switching
+function switchView(viewName) {
+  // Hide all views
+  document.querySelectorAll('.view-section').forEach(section => {
+    section.classList.remove('active');
+  });
+
+  // Show selected view
+  document.getElementById('view-' + viewName).classList.add('active');
+
+  // Update buttons
+  document.querySelectorAll('.view-btn').forEach(btn => {
+    btn.classList.remove('bg-indigo-600', 'text-white');
+    btn.classList.add('hover:bg-gray-100');
+  });
+  event.target.classList.add('bg-indigo-600', 'text-white');
+  event.target.classList.remove('hover:bg-gray-100');
+
+  // Initialize charts if analytics view
+  if (viewName === 'analytics') {
+    setTimeout(initCharts, 100);
+  }
+}
+
+// Scenario Detail Navigation
+function openScenario(scenarioId) {
+  window.location.href = `scenario-detail.html?id=${scenarioId}`;
+}
+
+// Initialize Charts (Analytics View)
+function initCharts() {
+  // Win Rate Chart
+  const winRateCtx = document.getElementById('winRateChart');
+  if (winRateCtx && !winRateCtx.chart) {
+    winRateCtx.chart = new Chart(winRateCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Dedektifler', 'Mağdurlar', 'Pasifler', 'All Users'],
+        datasets: [{
+          label: 'Win Rate %',
+          data: [73, 61, 48, 67],
+          backgroundColor: ['#8B5CF6', '#14B8A6', '#A8A29E', '#6366F1']
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+            ticks: {
+              callback: function(value) {
+                return value + '%';
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Revenue Chart
+  const revenueCtx = document.getElementById('revenueChart');
+  if (revenueCtx && !revenueCtx.chart) {
+    revenueCtx.chart = new Chart(revenueCtx, {
+      type: 'line',
+      data: {
+        labels: ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan'],
+        datasets: [{
+          label: 'Monthly Revenue Impact ($k)',
+          data: [8, 14, 18, 12, 25, 18],
+          borderColor: '#6366F1',
+          backgroundColor: 'rgba(99, 102, 241, 0.1)',
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return '$' + value + 'k';
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+}
+</script>
 
 </body>
 </html>
