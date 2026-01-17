@@ -33,25 +33,41 @@ body { font-family: Inter, sans-serif; }
 <body class="bg-gray-50 min-h-screen">
 
 <!-- HEADER -->
-<header class="bg-gradient-to-r from-indigo-600 to-purple-700 text-white px-8 py-4 shadow-lg sticky top-0 z-50">
-  <div class="flex justify-between items-center max-w-[1800px] mx-auto">
-    <div class="flex items-center gap-4">
-      <a href="scenario-hub.html" class="text-2xl hover:opacity-80 transition">←</a>
-      <div>
-        <h1 class="text-xl font-semibold">🎯 Loss Aversion Paywall Test</h1>
-        <p class="text-xs opacity-80">Dedektifler | Premium Conversion | A/B Test</p>
+<header class="bg-gradient-to-r from-indigo-600 to-purple-700 text-white shadow-lg sticky top-0 z-50">
+  <!-- Breadcrumb Navigation -->
+  <div class="bg-white/10 backdrop-blur-sm border-b border-white/20">
+    <div class="max-w-[1800px] mx-auto px-8 py-2">
+      <div class="flex items-center gap-2 text-xs">
+        <a href="index.html" class="hover:text-white/70 transition">🏠 Dashboard</a>
+        <span class="text-white/50">/</span>
+        <a href="scenario-hub.html" class="hover:text-white/70 transition">📊 Scenario Hub</a>
+        <span class="text-white/50">/</span>
+        <span class="text-white/90 font-medium">Scenario Detail</span>
       </div>
     </div>
-    <div class="flex items-center gap-3">
-      <span class="px-3 py-1.5 bg-yellow-400 text-yellow-900 rounded-lg text-xs font-semibold animate-pulse">
-        🧪 RUNNING
-      </span>
-      <button class="px-4 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition text-sm">
-        📊 Export Report
-      </button>
-      <button class="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg transition text-sm font-semibold">
-        🛑 Stop Test
-      </button>
+  </div>
+
+  <!-- Main Header Content -->
+  <div class="px-8 py-4">
+    <div class="flex justify-between items-center max-w-[1800px] mx-auto">
+      <div class="flex items-center gap-4">
+        <a href="scenario-hub.html" class="text-2xl hover:opacity-80 transition">←</a>
+        <div>
+          <h1 class="text-xl font-semibold">🎯 Loss Aversion Paywall Test</h1>
+          <p class="text-xs opacity-80">Dedektifler | Premium Conversion | A/B Test</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="px-3 py-1.5 bg-yellow-400 text-yellow-900 rounded-lg text-xs font-semibold animate-pulse">
+          🧪 RUNNING
+        </span>
+        <button class="px-4 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition text-sm">
+          📊 Export Report
+        </button>
+        <button class="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg transition text-sm font-semibold">
+          🛑 Stop Test
+        </button>
+      </div>
     </div>
   </div>
 </header>
