@@ -1,87 +1,173 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scenario Hub - Behavioural Hub</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        detective: '#8B5CF6',
-                        victim: '#14B8A6',
-                        passive: '#A8A29E',
-                        accent: '#FB7185',
-                        insight: '#7C3AED'
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .card-hover { transition: all 0.3s ease; cursor: pointer; }
-        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
-        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .kanban-column { min-height: 600px; background: #f9fafb; border-radius: 12px; padding: 16px; }
-        .scenario-card { transition: all 0.2s ease; cursor: grab; }
-        .scenario-card:active { cursor: grabbing; }
-        .scenario-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Scenario Intelligence Hub</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        detective:'#8B5CF6',
+        victim:'#14B8A6',
+        passive:'#A8A29E',
+        accent:'#FB7185'
+      }
+    }
+  }
+}
+</script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+body { font-family: Inter, sans-serif; }
+.kanban { min-height: 520px; }
+</style>
 </head>
 
 <body class="bg-gray-50 min-h-screen">
 
-<header class="gradient-bg text-white shadow-lg">
-    <div class="max-w-[1600px] mx-auto px-6 py-6 flex justify-between items-center">
-        <h1 class="text-2xl font-light tracking-wide">🧠 Scenario Intelligence Hub</h1>
-        <a href="index.html" class="px-4 py-2 bg-white/10 rounded-lg">🏠 Dashboard</a>
+<!-- HEADER -->
+<header class="bg-gradient-to-r from-indigo-600 to-purple-700 text-white px-8 py-6 shadow">
+  <div class="flex justify-between items-center max-w-[1600px] mx-auto">
+    <div>
+      <h1 class="text-2xl font-light">🧠 Scenario Intelligence Hub</h1>
+      <p class="text-sm opacity-80">Platformun Motor Odası</p>
     </div>
+    <a href="index.html" class="px-4 py-2 bg-white/10 rounded-lg hover:bg-white/20">
+      ← Dashboard
+    </a>
+  </div>
 </header>
 
-<main class="max-w-[1600px] mx-auto px-6 py-8">
+<main class="max-w-[1600px] mx-auto px-8 py-8">
 
-    <section class="mb-8">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<!-- OVERVIEW + SEARCH -->
+<section class="mb-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-            <div>
-                <h3 class="text-sm font-bold mb-2">💡 Planlanmış</h3>
-                <div class="kanban-column">
-                    <!-- Claude’un planlanmış senaryoları burada -->
-                </div>
-            </div>
+  <div class="bg-white p-6 rounded-xl shadow">
+    <h3 class="text-sm text-gray-500 mb-2">📊 Overview</h3>
+    <div class="grid grid-cols-2 gap-4 text-sm">
+      <div><strong>247</strong><br/>Total Scenarios</div>
+      <div><strong>67%</strong><br/>Win Rate</div>
+      <div><strong>3</strong><br/>Running</div>
+      <div><strong>+$84k</strong><br/>Total Impact</div>
+    </div>
+  </div>
 
-            <div>
-                <h3 class="text-sm font-bold mb-2">🧪 Koşuyor</h3>
-                <div class="kanban-column">
-                    <!-- Claude’un aktif testleri -->
-                </div>
-            </div>
+  <div class="bg-white p-6 rounded-xl shadow lg:col-span-2">
+    <div class="flex gap-4">
+      <input class="flex-1 border rounded-lg px-4 py-2"
+        placeholder="🔍 Senaryo ara (Loss Aversion, Dedektifler, Premium)"/>
+      <select class="border rounded-lg px-3 py-2">
+        <option>👥 Segment</option>
+        <option>Dedektifler</option>
+        <option>Mağdurlar</option>
+        <option>Pasifler</option>
+      </select>
+      <select class="border rounded-lg px-3 py-2">
+        <option>🎯 Tip</option>
+        <option>Messaging</option>
+        <option>UX</option>
+        <option>Pricing</option>
+        <option>Retention</option>
+      </select>
+    </div>
+  </div>
 
-            <div>
-                <h3 class="text-sm font-bold mb-2">✅ Başarılı</h3>
-                <div class="kanban-column">
-                    <!-- Kazanan senaryolar -->
-                </div>
-            </div>
+</section>
 
-            <div>
-                <h3 class="text-sm font-bold mb-2">❌ Başarısız</h3>
-                <div class="kanban-column">
-                    <!-- Öğrenim sağlayan senaryolar -->
-                </div>
-            </div>
+<!-- KANBAN -->
+<section class="mb-10">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
 
-        </div>
-    </section>
+<!-- PLANNED -->
+<div>
+<h3 class="font-bold text-sm mb-3">💡 Planned</h3>
+<div class="kanban bg-white rounded-xl p-4 space-y-4 shadow">
+  <div class="border rounded-lg p-4">
+    <h4 class="font-semibold">🎯 Loss Aversion Paywall</h4>
+    <p class="text-xs text-gray-500 mt-1">Dedektifler | Premium</p>
+    <p class="text-xs mt-2">📊 Success: <strong>84%</strong></p>
+    <p class="text-xs">💰 Impact: +$8.7k</p>
+    <div class="flex gap-2 mt-3">
+      <button class="text-xs text-purple-600">Compare</button>
+      <button class="text-xs text-purple-600">View</button>
+      <button class="text-xs bg-purple-600 text-white px-2 py-1 rounded">Run</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- RUNNING -->
+<div>
+<h3 class="font-bold text-sm mb-3">🧪 Running</h3>
+<div class="kanban bg-white rounded-xl p-4 space-y-4 shadow">
+  <div class="border rounded-lg p-4 border-yellow-300">
+    <h4 class="font-semibold">🧪 Premium Banner Sticky</h4>
+    <p class="text-xs text-gray-500">All Users | UX</p>
+    <p class="text-xs mt-2">📊 Confidence: 67%</p>
+    <div class="w-full bg-gray-200 h-2 rounded mt-2">
+      <div class="bg-yellow-400 h-2 rounded" style="width:50%"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- WON -->
+<div>
+<h3 class="font-bold text-sm mb-3">✅ Won</h3>
+<div class="kanban bg-white rounded-xl p-4 space-y-4 shadow">
+  <div class="border rounded-lg p-4 bg-green-50">
+    <h4 class="font-semibold">🎉 Social Proof Messaging</h4>
+    <p class="text-xs text-gray-500">Dedektifler</p>
+    <p class="text-xs mt-2">📈 +18% uplift</p>
+    <p class="text-xs">💡 Insight: Authority + FOMO</p>
+  </div>
+</div>
+</div>
+
+<!-- FAILED -->
+<div>
+<h3 class="font-bold text-sm mb-3">❌ Failed</h3>
+<div class="kanban bg-white rounded-xl p-4 space-y-4 shadow">
+  <div class="border rounded-lg p-4 bg-red-50">
+    <h4 class="font-semibold">⚠️ Trial 7d → 3d</h4>
+    <p class="text-xs text-gray-500">Dedektifler | Pricing</p>
+    <p class="text-xs mt-2">📉 +8% churn</p>
+    <p class="text-xs">🧠 Too aggressive scarcity</p>
+  </div>
+</div>
+</div>
+
+</div>
+</section>
+
+<!-- AI ENGINE -->
+<section>
+<div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl p-8 shadow-xl">
+  <h3 class="text-xl font-bold mb-4">🤖 AI Scenario Engine</h3>
+
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-white/10 p-4 rounded-lg">
+      <h4 class="font-semibold">Gamification Badge System</h4>
+      <p class="text-sm opacity-90">Dedektifler için rozetler</p>
+      <p class="text-xs mt-2">📊 Success Prediction: <strong>89%</strong></p>
+    </div>
+    <div class="bg-white/10 p-4 rounded-lg">
+      <h4 class="font-semibold">Weekly Value Reminder</h4>
+      <p class="text-sm opacity-90">Pasifler için haftalık özet</p>
+      <p class="text-xs mt-2">📊 Success Prediction: <strong>71%</strong></p>
+    </div>
+  </div>
+</div>
+</section>
 
 </main>
 
-<footer class="bg-white border-t border-gray-200 mt-12 text-center py-6 text-sm text-gray-500">
-    Behavioural Hub • ❤️ Melis
+<footer class="text-center text-xs text-gray-500 py-6">
+Behavioural Hub • Scenario Intelligence Engine
 </footer>
 
 </body>
