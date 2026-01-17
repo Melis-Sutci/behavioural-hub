@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scenario Hub - Behavioural Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        detective: '#8B5CF6',
+                        victim: '#14B8A6',
+                        passive: '#A8A29E',
+                        accent: '#FB7185',
+                        insight: '#7C3AED'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .card-hover { transition: all 0.3s ease; cursor: pointer; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .kanban-column { min-height: 600px; background: #f9fafb; border-radius: 12px; padding: 16px; }
+        .scenario-card { transition: all 0.2s ease; cursor: grab; }
+        .scenario-card:active { cursor: grabbing; }
+        .scenario-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+
+<header class="gradient-bg text-white shadow-lg">
+    <div class="max-w-[1600px] mx-auto px-6 py-6 flex justify-between items-center">
+        <h1 class="text-2xl font-light tracking-wide">🧠 Scenario Intelligence Hub</h1>
+        <a href="index.html" class="px-4 py-2 bg-white/10 rounded-lg">🏠 Dashboard</a>
+    </div>
+</header>
+
+<main class="max-w-[1600px] mx-auto px-6 py-8">
+
+    <section class="mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+
+            <div>
+                <h3 class="text-sm font-bold mb-2">💡 Planlanmış</h3>
+                <div class="kanban-column">
+                    <!-- Claude’un planlanmış senaryoları burada -->
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-sm font-bold mb-2">🧪 Koşuyor</h3>
+                <div class="kanban-column">
+                    <!-- Claude’un aktif testleri -->
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-sm font-bold mb-2">✅ Başarılı</h3>
+                <div class="kanban-column">
+                    <!-- Kazanan senaryolar -->
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-sm font-bold mb-2">❌ Başarısız</h3>
+                <div class="kanban-column">
+                    <!-- Öğrenim sağlayan senaryolar -->
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+</main>
+
+<footer class="bg-white border-t border-gray-200 mt-12 text-center py-6 text-sm text-gray-500">
+    Behavioural Hub • ❤️ Melis
+</footer>
+
+</body>
+</html>
