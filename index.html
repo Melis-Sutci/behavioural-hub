@@ -161,8 +161,8 @@
                 </a>
                 <div class="flex-1"></div>
                 <div class="px-4 py-3 text-xs text-gray-500">
-                    <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">10,247 Scenarios</span>
-                    <span class="ml-2 bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full font-medium">197 Active</span>
+                    <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">247 Scenarios</span>
+                    <span class="ml-2 bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full font-medium">17 Active</span>
                 </div>
             </div>
         </div>
@@ -179,17 +179,20 @@
                 <div class="relative z-10">
                     <div class="flex items-start justify-between mb-6">
                         <div>
-                            <div class="text-sm font-medium text-green-100 mb-2">💰 TOTAL REVENUE IMPACT</div>
-                            <div class="text-6xl font-black mb-2">$2.4M</div>
+                            <div class="text-sm font-medium text-green-100 mb-2">💰 TOTAL REVENUE IMPACT (Incremental Lift)</div>
+                            <div class="text-6xl font-black mb-2">$240K</div>
                             <div class="text-lg text-green-100">
-                                ▲ <span class="font-bold">+$147K</span> this month
+                                ▲ <span class="font-bold">+$14.7K</span> this month
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-xl">
-                                <div class="text-xs text-green-100">Industry Avg</div>
-                                <div class="text-2xl font-bold">$680K</div>
+                            <div class="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-xl tooltip">
+                                <div class="text-xs text-green-100">Industry Benchmark</div>
+                                <div class="text-2xl font-bold">$68K</div>
                                 <div class="text-xs text-green-100">You're 3.5x better 🚀</div>
+                                <div class="tooltip-content text-gray-700">
+                                    Based on aggregated data from similar platforms
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -271,15 +274,15 @@
                         <div class="text-center">
                             <div class="text-4xl font-black text-purple-600">67%</div>
                             <div class="text-xs text-gray-500 mt-1">Success Rate</div>
-                            <div class="text-xs text-green-600 font-medium mt-1">Industry: 32%</div>
+                            <div class="text-xs text-green-600 font-medium mt-1">Benchmark: 32%</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-4xl font-black text-yellow-600">197</div>
+                            <div class="text-4xl font-black text-yellow-600">17</div>
                             <div class="text-xs text-gray-500 mt-1">Tests Running</div>
-                            <div class="text-xs text-orange-600 font-medium mt-1">🔥 Record high!</div>
+                            <div class="text-xs text-orange-600 font-medium mt-1">🔥 Strong momentum!</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-4xl font-black text-green-600">12</div>
+                            <div class="text-4xl font-black text-green-600">4</div>
                             <div class="text-xs text-gray-500 mt-1">Shipped This Week</div>
                             <div class="text-xs text-indigo-600 font-medium mt-1">⚡ Accelerating</div>
                         </div>
@@ -395,43 +398,66 @@
                     </h2>
 
                     <div class="space-y-3">
-                        <div class="flex gap-3 pb-3 border-b border-gray-100">
-                            <div class="text-xl">⚡</div>
-                            <div class="flex-1">
-                                <div class="text-xs text-gray-500">2 min ago</div>
-                                <div class="text-sm font-medium text-gray-800">Social Proof test reached <span class="text-green-600 font-bold">95% confidence</span></div>
+                        <div class="pb-3 border-b border-gray-100">
+                            <div class="flex gap-3 mb-2">
+                                <div class="text-xl">⚡</div>
+                                <div class="flex-1">
+                                    <div class="text-xs text-gray-500">2 min ago</div>
+                                    <div class="text-sm font-medium text-gray-800">Social Proof test reached <span class="text-green-600 font-bold">95% confidence</span></div>
+                                </div>
+                            </div>
+                            <div class="flex gap-2 ml-9">
+                                <button onclick="window.location.href='scenario-hub.html'" class="text-xs px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium">→ Ship It Now</button>
+                                <button onclick="window.location.href='scenario-detail.html'" class="text-xs px-3 py-1 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">View Details</button>
                             </div>
                         </div>
 
-                        <div class="flex gap-3 pb-3 border-b border-gray-100">
-                            <div class="text-xl">🎯</div>
-                            <div class="flex-1">
-                                <div class="text-xs text-gray-500">8 min ago</div>
-                                <div class="text-sm font-medium text-gray-800">New insight: Dedektifler <span class="text-purple-600 font-bold">+18% on Authority</span></div>
+                        <div class="pb-3 border-b border-gray-100">
+                            <div class="flex gap-3 mb-2">
+                                <div class="text-xl">🎯</div>
+                                <div class="flex-1">
+                                    <div class="text-xs text-gray-500">8 min ago</div>
+                                    <div class="text-sm font-medium text-gray-800">New insight: Dedektifler <span class="text-purple-600 font-bold">+18% on Authority</span></div>
+                                </div>
+                            </div>
+                            <div class="flex gap-2 ml-9">
+                                <button onclick="window.location.href='scenario-hub.html'" class="text-xs px-3 py-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-medium">→ Explore Pattern</button>
                             </div>
                         </div>
 
-                        <div class="flex gap-3 pb-3 border-b border-gray-100">
-                            <div class="text-xl">⚠️</div>
-                            <div class="flex-1">
-                                <div class="text-xs text-gray-500">15 min ago</div>
-                                <div class="text-sm font-medium text-gray-800">Warning: Pasifler declining <span class="text-red-600 font-bold">12%</span></div>
+                        <div class="pb-3 border-b border-gray-100">
+                            <div class="flex gap-3 mb-2">
+                                <div class="text-xl">⚠️</div>
+                                <div class="flex-1">
+                                    <div class="text-xs text-gray-500">15 min ago</div>
+                                    <div class="text-sm font-medium text-gray-800">Warning: Pasifler declining <span class="text-red-600 font-bold">12%</span></div>
+                                </div>
+                            </div>
+                            <div class="flex gap-2 ml-9">
+                                <button class="text-xs px-3 py-1 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-medium">→ See Recommendations</button>
                             </div>
                         </div>
 
-                        <div class="flex gap-3 pb-3 border-b border-gray-100">
-                            <div class="text-xl">💡</div>
-                            <div class="flex-1">
-                                <div class="text-xs text-gray-500">1 hour ago</div>
-                                <div class="text-sm font-medium text-gray-800">AI suggested new FOMO test for Mağdurlar</div>
+                        <div class="pb-3 border-b border-gray-100">
+                            <div class="flex gap-3 mb-2">
+                                <div class="text-xl">💡</div>
+                                <div class="flex-1">
+                                    <div class="text-xs text-gray-500">1 hour ago</div>
+                                    <div class="text-sm font-medium text-gray-800">AI suggested new FOMO test for Mağdurlar</div>
+                                </div>
+                            </div>
+                            <div class="flex gap-2 ml-9">
+                                <button class="text-xs px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium">→ Review Suggestion</button>
                             </div>
                         </div>
 
-                        <div class="flex gap-3">
-                            <div class="text-xl">🚀</div>
-                            <div class="flex-1">
-                                <div class="text-xs text-gray-500">2 hours ago</div>
-                                <div class="text-sm font-medium text-gray-800">Loss Aversion test shipped to production</div>
+                        <div>
+                            <div class="flex gap-3">
+                                <div class="text-xl">🚀</div>
+                                <div class="flex-1">
+                                    <div class="text-xs text-gray-500">2 hours ago</div>
+                                    <div class="text-sm font-medium text-gray-800">Loss Aversion test shipped to production</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -516,6 +542,21 @@
 
                 <!-- Dedektifler -->
                 <div class="bg-white rounded-2xl p-6 shadow-lg card-hover border-l-4 border-detective">
+                    <!-- Mini Trend Chart -->
+                    <div class="-mx-6 px-6 pt-4 pb-2 bg-gradient-to-b from-purple-50 to-transparent rounded-t-2xl mb-4">
+                        <svg viewBox="0 0 100 30" class="w-full h-16">
+                            <defs>
+                                <linearGradient id="detectiveTrendFill" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#8B5CF6" stop-opacity="0.3"/>
+                                    <stop offset="100%" stop-color="#8B5CF6" stop-opacity="0"/>
+                                </linearGradient>
+                            </defs>
+                            <path d="M0,20 L20,18 L40,19 L60,15 L80,12 L100,10 L100,30 L0,30 Z" fill="url(#detectiveTrendFill)"/>
+                            <polyline points="0,20 20,18 40,19 60,15 80,12 100,10" fill="none" stroke="#8B5CF6" stroke-width="2"/>
+                        </svg>
+                        <div class="text-xs text-purple-600 font-semibold mt-1">▲ Positive trend (7 days)</div>
+                    </div>
+
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-3">
                             <span class="text-4xl">🕵️</span>
@@ -537,7 +578,7 @@
                         </div>
                     </div>
 
-                    <div class="space-y-2 text-sm">
+                    <div class="space-y-2 text-sm mb-4">
                         <div class="flex justify-between">
                             <span class="text-gray-600">Premium Dönüşüm</span>
                             <span class="font-bold text-detective">8.2%</span>
@@ -547,10 +588,35 @@
                             <span class="font-bold text-detective">4.2x/hafta</span>
                         </div>
                     </div>
+
+                    <!-- Next Action -->
+                    <div class="pt-4 border-t border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-gray-600 font-medium">Next Action:</span>
+                            <button onclick="window.location.href='scenario-hub.html'" class="text-xs px-3 py-1.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-medium">
+                                → 2 tests ready to ship
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Mağdurlar -->
                 <div class="bg-white rounded-2xl p-6 shadow-lg card-hover border-l-4 border-victim">
+                    <!-- Mini Trend Chart -->
+                    <div class="-mx-6 px-6 pt-4 pb-2 bg-gradient-to-b from-red-50 to-transparent rounded-t-2xl mb-4">
+                        <svg viewBox="0 0 100 30" class="w-full h-16">
+                            <defs>
+                                <linearGradient id="victimTrendFill" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#ef4444" stop-opacity="0.25"/>
+                                    <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
+                                </linearGradient>
+                            </defs>
+                            <path d="M0,10 L20,13 L40,15 L60,18 L80,21 L100,23 L100,30 L0,30 Z" fill="url(#victimTrendFill)"/>
+                            <polyline points="0,10 20,13 40,15 60,18 80,21 100,23" fill="none" stroke="#ef4444" stroke-width="2"/>
+                        </svg>
+                        <div class="text-xs text-red-600 font-semibold mt-1">▼ Declining (7 days)</div>
+                    </div>
+
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-3">
                             <span class="text-4xl">🛡️</span>
@@ -572,7 +638,7 @@
                         </div>
                     </div>
 
-                    <div class="space-y-2 text-sm">
+                    <div class="space-y-2 text-sm mb-4">
                         <div class="flex justify-between">
                             <span class="text-gray-600">Premium Dönüşüm</span>
                             <span class="font-bold text-victim">5.8%</span>
@@ -582,10 +648,28 @@
                             <span class="font-bold text-victim">6.1x/hafta</span>
                         </div>
                     </div>
+
+                    <!-- Next Action -->
+                    <div class="pt-4 border-t border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-gray-600 font-medium">Next Action:</span>
+                            <button class="text-xs px-3 py-1.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-medium">
+                                → Security concern rising
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Pasifler -->
                 <div class="bg-white rounded-2xl p-6 shadow-lg card-hover border-l-4 border-passive">
+                    <!-- Mini Trend Chart -->
+                    <div class="-mx-6 px-6 pt-4 pb-2 bg-gradient-to-b from-slate-50 to-transparent rounded-t-2xl mb-4">
+                        <svg viewBox="0 0 100 30" class="w-full h-14">
+                            <polyline points="0,15 100,15" fill="none" stroke="#64748b" stroke-width="2" stroke-dasharray="3 3"/>
+                        </svg>
+                        <div class="text-xs text-slate-600 font-semibold mt-1">→ Stable (no significant change)</div>
+                    </div>
+
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-3">
                             <span class="text-4xl">😴</span>
@@ -607,7 +691,7 @@
                         </div>
                     </div>
 
-                    <div class="space-y-2 text-sm">
+                    <div class="space-y-2 text-sm mb-4">
                         <div class="flex justify-between">
                             <span class="text-gray-600">Premium Dönüşüm</span>
                             <span class="font-bold text-passive">1.2%</span>
@@ -615,6 +699,16 @@
                         <div class="flex justify-between">
                             <span class="text-gray-600">Aktivite</span>
                             <span class="font-bold text-passive">0.8x/hafta</span>
+                        </div>
+                    </div>
+
+                    <!-- Next Action -->
+                    <div class="pt-4 border-t border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-gray-600 font-medium">Next Action:</span>
+                            <button class="text-xs px-3 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium">
+                                → Reactivation needed
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -626,7 +720,7 @@
         <section class="mb-8">
             <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl shadow-2xl p-8 text-white text-center">
                 <h2 class="text-2xl font-bold mb-2">Ready to dive deeper?</h2>
-                <p class="text-indigo-100 mb-6">Explore all 10,247 scenarios with 5 view modes, AI insights & advanced filtering</p>
+                <p class="text-indigo-100 mb-6">Explore all 247 scenarios with 5 view modes, AI insights & advanced filtering</p>
                 <a href="scenario-hub.html" class="inline-flex items-center gap-3 px-8 py-4 bg-white text-indigo-600 font-bold rounded-xl hover:bg-gray-100 transition shadow-lg hover:shadow-xl">
                     <span class="text-xl">📊</span>
                     <span>Open Scenario Intelligence Hub</span>
@@ -656,7 +750,7 @@
                 labels: ['Day 1', '', '', '', 'Day 5', '', '', '', '', 'Day 10', '', '', '', '', 'Day 15', '', '', '', '', 'Day 20', '', '', '', '', 'Day 25', '', '', '', '', 'Day 30'],
                 datasets: [{
                     label: 'Revenue Impact',
-                    data: [2100000, 2120000, 2140000, 2155000, 2170000, 2185000, 2195000, 2210000, 2225000, 2240000, 2252000, 2260000, 2275000, 2285000, 2295000, 2310000, 2320000, 2330000, 2345000, 2355000, 2365000, 2372000, 2380000, 2388000, 2395000, 2401000, 2408000, 2415000, 2422000, 2400000],
+                    data: [210000, 212000, 214000, 215500, 217000, 218500, 219500, 221000, 222500, 224000, 225200, 226000, 227500, 228500, 229500, 231000, 232000, 233000, 234500, 235500, 236500, 237200, 238000, 238800, 239500, 240100, 240800, 241500, 242200, 240000],
                     borderColor: 'rgba(255, 255, 255, 0.9)',
                     backgroundColor: 'rgba(255, 255, 255, 0.2)',
                     fill: true,
@@ -673,7 +767,7 @@
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return '$' + (context.parsed.y / 1000000).toFixed(2) + 'M';
+                                return '$' + (context.parsed.y / 1000).toFixed(0) + 'K';
                             }
                         }
                     }
