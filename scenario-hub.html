@@ -76,11 +76,11 @@ body { font-family: Inter, sans-serif; }
         <a href="scenario-hub.html" class="px-4 py-3 text-sm font-medium text-white border-b-2 border-white transition">
           📊 Scenario Hub
         </a>
-        <a href="#" class="px-4 py-3 text-sm font-medium text-white/40 cursor-not-allowed transition">
-          👥 Segments
+        <a href="insights.html" class="px-4 py-3 text-sm font-medium text-white/70 hover:text-white transition">
+          🧠 Insights
         </a>
         <a href="#" class="px-4 py-3 text-sm font-medium text-white/40 cursor-not-allowed transition">
-          🧠 Insights
+          👥 Segments
         </a>
         <a href="#" class="px-4 py-3 text-sm font-medium text-white/40 cursor-not-allowed transition">
           ⚙️ Settings
@@ -119,6 +119,9 @@ body { font-family: Inter, sans-serif; }
     </button>
     <button onclick="switchView('learning')" class="view-btn flex-1 px-4 py-2 rounded-lg font-medium text-sm transition whitespace-nowrap hover:bg-gray-100">
       📚 Learning
+    </button>
+    <button onclick="switchView('library')" class="view-btn flex-1 px-4 py-2 rounded-lg font-medium text-sm transition whitespace-nowrap hover:bg-gray-100">
+      📖 Library
     </button>
   </div>
 </section>
@@ -1414,6 +1417,422 @@ body { font-family: Inter, sans-serif; }
       <p class="text-xs opacity-90">What did we learn? What's next?</p>
     </div>
   </div>
+</div>
+
+</section>
+
+<!-- ============================================ -->
+<!-- VIEW: SCENARIO LIBRARY -->
+<!-- ============================================ -->
+<section id="view-library" class="view-section">
+
+<div class="bg-white rounded-xl shadow mb-6">
+  <div class="p-6 border-b">
+    <h2 class="text-xl font-bold text-gray-800 mb-2">📖 Scenario Library</h2>
+    <p class="text-sm text-gray-600">Tüm test senaryolarının detaylı veritabanı. 247 senaryo, 1,842 varyant, 89,456 kullanıcı verisi.</p>
+  </div>
+
+  <!-- Advanced Filters -->
+  <div class="p-4 bg-gray-50 border-b">
+    <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
+      <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+        <option>All Segments</option>
+        <option>Dedektifler</option>
+        <option>Mağdurlar</option>
+        <option>Pasifler</option>
+      </select>
+      <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+        <option>All Platforms</option>
+        <option>Android Only</option>
+        <option>iOS Only</option>
+      </select>
+      <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+        <option>All Statuses</option>
+        <option>Active</option>
+        <option>Completed</option>
+        <option>Failed</option>
+      </select>
+      <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+        <option>All Categories</option>
+        <option>Onboarding</option>
+        <option>Paywall</option>
+        <option>Messaging</option>
+        <option>UX</option>
+      </select>
+      <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+        <option>All Versions</option>
+        <option>v15+</option>
+        <option>v14</option>
+        <option>v13</option>
+      </select>
+      <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+        <option>Latest First</option>
+        <option>Oldest First</option>
+        <option>Impact: High → Low</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="p-4 border-b">
+    <input type="text" placeholder="🔍 Senaryo ara (ID, isim, açıklama...)" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm">
+  </div>
+</div>
+
+<!-- Scenario Table -->
+<div class="bg-white rounded-xl shadow overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 border-b">
+      <tr>
+        <th class="text-left p-4 font-semibold">Scenario</th>
+        <th class="text-center p-4 font-semibold">Target</th>
+        <th class="text-center p-4 font-semibold">Variants</th>
+        <th class="text-center p-4 font-semibold">Date Range</th>
+        <th class="text-center p-4 font-semibold">Status</th>
+        <th class="text-right p-4 font-semibold">Result</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y">
+
+      <!-- Scenario 1 -->
+      <tr class="hover:bg-gray-50 cursor-pointer" onclick="openScenario('SN-001')">
+        <td class="p-4">
+          <div class="font-semibold text-gray-800">SN-001: Social Proof Paywall</div>
+          <div class="text-xs text-gray-500 mt-1">Dedektifler • Premium</div>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Android v15+</span>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs">A/B/C (3)</span>
+        </td>
+        <td class="text-center p-4 text-xs text-gray-600">Dec 1-15, 2025</td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">Won</span>
+        </td>
+        <td class="text-right p-4">
+          <span class="font-bold text-green-600">+18%</span>
+          <div class="text-xs text-gray-500">$18K/mo</div>
+        </td>
+      </tr>
+
+      <!-- Scenario 2 -->
+      <tr class="hover:bg-gray-50 cursor-pointer" onclick="openScenario('SN-002')">
+        <td class="p-4">
+          <div class="font-semibold text-gray-800">SN-002: Security → Curiosity Flow</div>
+          <div class="text-xs text-gray-500 mt-1">All Users • Onboarding</div>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">iOS v14+</span>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs">A/B (2)</span>
+        </td>
+        <td class="text-center p-4 text-xs text-gray-600">Nov 20 - Dec 5, 2025</td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">Won</span>
+        </td>
+        <td class="text-right p-4">
+          <span class="font-bold text-green-600">+42%</span>
+          <div class="text-xs text-gray-500">Conversion</div>
+        </td>
+      </tr>
+
+      <!-- Scenario 3 -->
+      <tr class="hover:bg-gray-50 cursor-pointer" onclick="openScenario('SN-003')">
+        <td class="p-4">
+          <div class="font-semibold text-gray-800">SN-003: Partial Info Reveal</div>
+          <div class="text-xs text-gray-500 mt-1">Dedektifler • "Kim Baktı"</div>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Android v15+</span>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs">A/B/C (3)</span>
+        </td>
+        <td class="text-center p-4 text-xs text-gray-600">Dec 10-24, 2025</td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">Won</span>
+        </td>
+        <td class="text-right p-4">
+          <span class="font-bold text-green-600">+42%</span>
+          <div class="text-xs text-gray-500">Premium</div>
+        </td>
+      </tr>
+
+      <!-- Scenario 4 -->
+      <tr class="hover:bg-gray-50 cursor-pointer" onclick="openScenario('SN-004')">
+        <td class="p-4">
+          <div class="font-semibold text-gray-800">SN-004: Hero Message After Block</div>
+          <div class="text-xs text-gray-500 mt-1">All Users • Gamification</div>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">Both</span>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs">A/B/C (3)</span>
+        </td>
+        <td class="text-center p-4 text-xs text-gray-600">Nov 15-30, 2025</td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">Won</span>
+        </td>
+        <td class="text-right p-4">
+          <span class="font-bold text-green-600">+38%</span>
+          <div class="text-xs text-gray-500">Reporting</div>
+        </td>
+      </tr>
+
+      <!-- Scenario 5 -->
+      <tr class="hover:bg-gray-50 cursor-pointer" onclick="openScenario('SN-005')">
+        <td class="p-4">
+          <div class="font-semibold text-gray-800">SN-005: Onboarding Spam Example</div>
+          <div class="text-xs text-gray-500 mt-1">All Users • Onboarding</div>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Android v15+</span>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs">A/B (2)</span>
+        </td>
+        <td class="text-center p-4 text-xs text-gray-600">Oct 20 - Nov 5, 2025</td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">Won</span>
+        </td>
+        <td class="text-right p-4">
+          <span class="font-bold text-green-600">+31%</span>
+          <div class="text-xs text-gray-500">D1 Activation</div>
+        </td>
+      </tr>
+
+      <!-- Scenario 6 -->
+      <tr class="hover:bg-gray-50 cursor-pointer" onclick="openScenario('SN-006')">
+        <td class="p-4">
+          <div class="font-semibold text-gray-800">SN-006: Cancel Prevention - Loss Frame</div>
+          <div class="text-xs text-gray-500 mt-1">Premium Users • Churn</div>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">Both</span>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs">A/B (2)</span>
+        </td>
+        <td class="text-center p-4 text-xs text-gray-600">Dec 1-14, 2025</td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">Won</span>
+        </td>
+        <td class="text-right p-4">
+          <span class="font-bold text-green-600">-34%</span>
+          <div class="text-xs text-gray-500">Churn</div>
+        </td>
+      </tr>
+
+      <!-- Scenario 7 -->
+      <tr class="hover:bg-gray-50 cursor-pointer" onclick="openScenario('SN-007')">
+        <td class="p-4">
+          <div class="font-semibold text-gray-800">SN-007: Limit Warning + Data Tease</div>
+          <div class="text-xs text-gray-500 mt-1">Free Users • Conversion</div>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Android v14+</span>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs">A/B/C (3)</span>
+        </td>
+        <td class="text-center p-4 text-xs text-gray-600">Dec 5-19, 2025</td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">Mixed</span>
+        </td>
+        <td class="text-right p-4">
+          <span class="font-bold text-yellow-600">+58% / -42%</span>
+          <div class="text-xs text-gray-500">Premium/Save</div>
+        </td>
+      </tr>
+
+      <!-- Scenario 8 -->
+      <tr class="hover:bg-gray-50 cursor-pointer" onclick="openScenario('SN-008')">
+        <td class="p-4">
+          <div class="font-semibold text-gray-800">SN-008: Caller Card Color Test</div>
+          <div class="text-xs text-gray-500 mt-1">All Users • UX</div>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">Both</span>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs">A/B (2)</span>
+        </td>
+        <td class="text-center p-4 text-xs text-gray-600">Jan 8-22, 2026</td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">Running</span>
+        </td>
+        <td class="text-right p-4">
+          <span class="font-bold text-gray-600">TBD</span>
+          <div class="text-xs text-gray-500">Day 4/14</div>
+        </td>
+      </tr>
+
+      <!-- Scenario 9 -->
+      <tr class="hover:bg-gray-50 cursor-pointer" onclick="openScenario('SN-009')">
+        <td class="p-4">
+          <div class="font-semibold text-gray-800">SN-009: Trial Period Reduction</div>
+          <div class="text-xs text-gray-500 mt-1">Dedektifler • Premium</div>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Android v15+</span>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs">A/B (2)</span>
+        </td>
+        <td class="text-center p-4 text-xs text-gray-600">Nov 10-24, 2025</td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full">Failed</span>
+        </td>
+        <td class="text-right p-4">
+          <span class="font-bold text-red-600">+8%</span>
+          <div class="text-xs text-gray-500">Churn</div>
+        </td>
+      </tr>
+
+      <!-- Scenario 10 -->
+      <tr class="hover:bg-gray-50 cursor-pointer" onclick="openScenario('SN-010')">
+        <td class="p-4">
+          <div class="font-semibold text-gray-800">SN-010: Gamification Points System</div>
+          <div class="text-xs text-gray-500 mt-1">All Users • Engagement</div>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">Both</span>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs">A/B (2)</span>
+        </td>
+        <td class="text-center p-4 text-xs text-gray-600">Oct 15-29, 2025</td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full">Failed</span>
+        </td>
+        <td class="text-right p-4">
+          <span class="font-bold text-red-600">-12%</span>
+          <div class="text-xs text-gray-500">Engagement</div>
+        </td>
+      </tr>
+
+      <!-- Scenario 11 -->
+      <tr class="hover:bg-gray-50 cursor-pointer" onclick="openScenario('SN-011')">
+        <td class="p-4">
+          <div class="font-semibold text-gray-800">SN-011: Caller ID Permissions Flow</div>
+          <div class="text-xs text-gray-500 mt-1">All Users • Onboarding</div>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Android v14+</span>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs">A/B (2)</span>
+        </td>
+        <td class="text-center p-4 text-xs text-gray-600">Oct 1-15, 2025</td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">Won</span>
+        </td>
+        <td class="text-right p-4">
+          <span class="font-bold text-green-600">+24%</span>
+          <div class="text-xs text-gray-500">Permission</div>
+        </td>
+      </tr>
+
+      <!-- Scenario 12 -->
+      <tr class="hover:bg-gray-50 cursor-pointer" onclick="openScenario('SN-012')">
+        <td class="p-4">
+          <div class="font-semibold text-gray-800">SN-012: Weekly Value Reminder</div>
+          <div class="text-xs text-gray-500 mt-1">Pasifler • Retention</div>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">Both</span>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs">A/B/C (3)</span>
+        </td>
+        <td class="text-center p-4 text-xs text-gray-600">Nov 1-21, 2025</td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">Won</span>
+        </td>
+        <td class="text-right p-4">
+          <span class="font-bold text-green-600">+12%</span>
+          <div class="text-xs text-gray-500">Re-open</div>
+        </td>
+      </tr>
+
+      <!-- Scenario 13 -->
+      <tr class="hover:bg-gray-50 cursor-pointer" onclick="openScenario('SN-013')">
+        <td class="p-4">
+          <div class="font-semibold text-gray-800">SN-013: Notification Sound Test</div>
+          <div class="text-xs text-gray-500 mt-1">Dedektifler • UX</div>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Android v15+</span>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs">A/B/C (3)</span>
+        </td>
+        <td class="text-center p-4 text-xs text-gray-600">Dec 8-22, 2025</td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">Won</span>
+        </td>
+        <td class="text-right p-4">
+          <span class="font-bold text-green-600">+18%</span>
+          <div class="text-xs text-gray-500">CTR</div>
+        </td>
+      </tr>
+
+      <!-- Scenario 14 -->
+      <tr class="hover:bg-gray-50 cursor-pointer" onclick="openScenario('SN-014')">
+        <td class="p-4">
+          <div class="font-semibold text-gray-800">SN-014: Tag Suggestion Algorithm</div>
+          <div class="text-xs text-gray-500 mt-1">All Users • Engagement</div>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">Both</span>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs">A/B (2)</span>
+        </td>
+        <td class="text-center p-4 text-xs text-gray-600">Nov 12-26, 2025</td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">Won</span>
+        </td>
+        <td class="text-right p-4">
+          <span class="font-bold text-green-600">+27%</span>
+          <div class="text-xs text-gray-500">Tag Creation</div>
+        </td>
+      </tr>
+
+      <!-- Scenario 15 -->
+      <tr class="hover:bg-gray-50 cursor-pointer" onclick="openScenario('SN-015')">
+        <td class="p-4">
+          <div class="font-semibold text-gray-800">SN-015: Profile Completion Progress</div>
+          <div class="text-xs text-gray-500 mt-1">All Users • Retention</div>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Android v15+</span>
+        </td>
+        <td class="text-center p-4">
+          <span class="text-xs">A/B (2)</span>
+        </td>
+        <td class="text-center p-4 text-xs text-gray-600">Nov 18 - Dec 2, 2025</td>
+        <td class="text-center p-4">
+          <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">Won</span>
+        </td>
+        <td class="text-right p-4">
+          <span class="font-bold text-green-600">+34%</span>
+          <div class="text-xs text-gray-500">D30 Ret</div>
+        </td>
+      </tr>
+
+      <!-- Additional scenarios continue... -->
+      <tr class="bg-gray-50">
+        <td colspan="6" class="p-4 text-center text-sm text-gray-600">
+          + 232 more scenarios <button class="text-indigo-600 hover:underline ml-2">Load More</button>
+        </td>
+      </tr>
+
+    </tbody>
+  </table>
 </div>
 
 </section>
