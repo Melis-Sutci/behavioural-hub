@@ -129,7 +129,7 @@ body { font-family: Inter, sans-serif; }
 <!-- Quick Stats -->
 <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
   <div class="bg-white p-4 rounded-xl shadow text-center">
-    <strong class="text-3xl block text-gray-900">10,247</strong>
+    <strong class="text-3xl block text-gray-900">247</strong>
     <span class="text-xs text-gray-500">Total Scenarios</span>
   </div>
   <div class="bg-white p-4 rounded-xl shadow text-center">
@@ -137,15 +137,15 @@ body { font-family: Inter, sans-serif; }
     <span class="text-xs text-gray-500">Win Rate</span>
   </div>
   <div class="bg-white p-4 rounded-xl shadow text-center">
-    <strong class="text-3xl block text-yellow-600">197</strong>
+    <strong class="text-3xl block text-yellow-600">17</strong>
     <span class="text-xs text-gray-500">Running Now</span>
   </div>
   <div class="bg-white p-4 rounded-xl shadow text-center">
-    <strong class="text-3xl block text-indigo-600">+$2.4M</strong>
+    <strong class="text-3xl block text-indigo-600">+$240K</strong>
     <span class="text-xs text-gray-500">Total Impact</span>
   </div>
   <div class="bg-white p-4 rounded-xl shadow text-center">
-    <strong class="text-3xl block text-purple-600">842</strong>
+    <strong class="text-3xl block text-purple-600">84</strong>
     <span class="text-xs text-gray-500">This Month</span>
   </div>
 </div>
@@ -1626,9 +1626,12 @@ function setViewDensity(density) {
 
 // Initialize Charts (Analytics View)
 function initCharts() {
-  // Win Rate Chart
+  // Destroy existing charts first
   const winRateCtx = document.getElementById('winRateChart');
-  if (winRateCtx && !winRateCtx.chart) {
+  if (winRateCtx) {
+    if (winRateCtx.chart) {
+      winRateCtx.chart.destroy();
+    }
     winRateCtx.chart = new Chart(winRateCtx, {
       type: 'bar',
       data: {
@@ -1636,14 +1639,23 @@ function initCharts() {
         datasets: [{
           label: 'Win Rate %',
           data: [73, 61, 48, 67],
-          backgroundColor: ['#8B5CF6', '#14B8A6', '#A8A29E', '#6366F1']
+          backgroundColor: ['#8B5CF6', '#14B8A6', '#A8A29E', '#6366F1'],
+          borderRadius: 6,
+          borderWidth: 0
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { display: false }
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.parsed.y + '%';
+              }
+            }
+          }
         },
         scales: {
           y: {
@@ -1653,6 +1665,14 @@ function initCharts() {
               callback: function(value) {
                 return value + '%';
               }
+            },
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)'
+            }
+          },
+          x: {
+            grid: {
+              display: false
             }
           }
         }
@@ -1662,33 +1682,57 @@ function initCharts() {
 
   // Revenue Chart
   const revenueCtx = document.getElementById('revenueChart');
-  if (revenueCtx && !revenueCtx.chart) {
+  if (revenueCtx) {
+    if (revenueCtx.chart) {
+      revenueCtx.chart.destroy();
+    }
     revenueCtx.chart = new Chart(revenueCtx, {
       type: 'line',
       data: {
         labels: ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan'],
         datasets: [{
-          label: 'Monthly Revenue Impact ($k)',
-          data: [8, 14, 18, 12, 25, 18],
+          label: 'Monthly Revenue Impact',
+          data: [80, 140, 180, 121, 248, 182],
           borderColor: '#6366F1',
           backgroundColor: 'rgba(99, 102, 241, 0.1)',
           tension: 0.4,
-          fill: true
+          fill: true,
+          borderWidth: 3,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#6366F1',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { display: false }
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return '$' + context.parsed.y + 'K';
+              }
+            }
+          }
         },
         scales: {
           y: {
             beginAtZero: true,
             ticks: {
               callback: function(value) {
-                return '$' + value + 'k';
+                return '$' + value + 'K';
               }
+            },
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)'
+            }
+          },
+          x: {
+            grid: {
+              display: false
             }
           }
         }
