@@ -761,7 +761,9 @@ body { font-family: Inter, sans-serif; }
     <h3 class="font-semibold mb-4 flex items-center gap-2">
       📊 Win Rate by Segment
     </h3>
-    <canvas id="winRateChart" height="200"></canvas>
+    <div style="height: 280px; min-height: 280px;">
+      <canvas id="winRateChart"></canvas>
+    </div>
   </div>
 
   <!-- Impact Over Time -->
@@ -769,7 +771,9 @@ body { font-family: Inter, sans-serif; }
     <h3 class="font-semibold mb-4 flex items-center gap-2">
       💰 Revenue Impact Over Time
     </h3>
-    <canvas id="revenueChart" height="200"></canvas>
+    <div style="height: 280px; min-height: 280px;">
+      <canvas id="revenueChart"></canvas>
+    </div>
   </div>
 
 </div>
@@ -1624,27 +1628,31 @@ function setViewDensity(density) {
 
 // Initialize Charts (Analytics View)
 function initCharts() {
-  // Destroy existing charts first
-  const winRateCtx = document.getElementById('winRateChart');
-  if (winRateCtx) {
-    if (winRateCtx.chart) {
-      winRateCtx.chart.destroy();
-    }
-    winRateCtx.chart = new Chart(winRateCtx, {
-      type: 'bar',
-      data: {
-        labels: ['Dedektifler', 'Mağdurlar', 'Pasifler', 'All Users'],
-        datasets: [{
-          label: 'Win Rate %',
-          data: [73, 61, 48, 67],
-          backgroundColor: ['#8B5CF6', '#14B8A6', '#A8A29E', '#6366F1'],
-          borderRadius: 6,
-          borderWidth: 0
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
+  // Add small delay to ensure DOM is ready
+  setTimeout(() => {
+    // Win Rate Chart
+    const winRateCtx = document.getElementById('winRateChart');
+    if (winRateCtx) {
+      if (winRateCtx.chart) {
+        winRateCtx.chart.destroy();
+      }
+
+      const ctx = winRateCtx.getContext('2d');
+      winRateCtx.chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Dedektifler', 'Mağdurlar', 'Pasifler', 'All Users'],
+          datasets: [{
+            label: 'Win Rate %',
+            data: [73, 61, 48, 67],
+            backgroundColor: ['#8B5CF6', '#14B8A6', '#A8A29E', '#6366F1'],
+            borderRadius: 6,
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
         plugins: {
           legend: { display: false },
           tooltip: {
@@ -1676,67 +1684,70 @@ function initCharts() {
         }
       }
     });
-  }
-
-  // Revenue Chart
-  const revenueCtx = document.getElementById('revenueChart');
-  if (revenueCtx) {
-    if (revenueCtx.chart) {
-      revenueCtx.chart.destroy();
     }
-    revenueCtx.chart = new Chart(revenueCtx, {
-      type: 'line',
-      data: {
-        labels: ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan'],
-        datasets: [{
-          label: 'Monthly Revenue Impact',
-          data: [80, 140, 180, 121, 248, 182],
-          borderColor: '#6366F1',
-          backgroundColor: 'rgba(99, 102, 241, 0.1)',
-          tension: 0.4,
-          fill: true,
-          borderWidth: 3,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-          pointBackgroundColor: '#6366F1',
-          pointBorderColor: '#fff',
-          pointBorderWidth: 2
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: function(context) {
-                return '$' + context.parsed.y + 'K';
-              }
-            }
-          }
+
+    // Revenue Chart
+    const revenueCtx = document.getElementById('revenueChart');
+    if (revenueCtx) {
+      if (revenueCtx.chart) {
+        revenueCtx.chart.destroy();
+      }
+
+      const ctx2 = revenueCtx.getContext('2d');
+      revenueCtx.chart = new Chart(ctx2, {
+        type: 'line',
+        data: {
+          labels: ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan'],
+          datasets: [{
+            label: 'Monthly Revenue Impact',
+            data: [80, 140, 180, 121, 248, 182],
+            borderColor: '#6366F1',
+            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+            tension: 0.4,
+            fill: true,
+            borderWidth: 3,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#6366F1',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2
+          }]
         },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              callback: function(value) {
-                return '$' + value + 'K';
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return '$' + context.parsed.y + 'K';
+                }
               }
-            },
-            grid: {
-              color: 'rgba(0, 0, 0, 0.05)'
             }
           },
-          x: {
-            grid: {
-              display: false
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return '$' + value + 'K';
+                }
+              },
+              grid: {
+                color: 'rgba(0, 0, 0, 0.05)'
+              }
+            },
+            x: {
+              grid: {
+                display: false
+              }
             }
           }
         }
-      }
-    });
-  }
+      });
+    }
+  }, 150); // End of setTimeout
 }
 </script>
 
