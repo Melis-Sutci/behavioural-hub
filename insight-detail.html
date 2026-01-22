@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insight Detail - Behavioural Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        detective: '#8B5CF6',
+                        victim: '#14B8A6',
+                        passive: '#A8A29E',
+                        accent: '#FB7185',
+                        insight: '#7C3AED'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .section-card {
+            transition: all 0.3s ease;
+        }
+        .section-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex items-center justify-between py-3">
+                <div class="flex items-center space-x-4">
+                    <a href="insights.html" class="text-gray-600 hover:text-indigo-600 transition">← Back to Insights</a>
+                    <span class="text-gray-300">|</span>
+                    <a href="index.html" class="text-sm text-gray-500 hover:text-indigo-600">🏠 Dashboard</a>
+                    <a href="scenario-hub.html" class="text-sm text-gray-500 hover:text-indigo-600">📊 Scenario Hub</a>
+                </div>
+                <button class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700">
+                    📥 Export PDF
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto px-6 py-8">
+
+        <!-- Loading State -->
+        <div id="loading" class="flex items-center justify-center py-20">
+            <div class="text-center">
+                <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+                <p class="text-gray-600">Loading insight...</p>
+            </div>
+        </div>
+
+        <!-- Content (will be populated dynamically) -->
+        <div id="content" class="hidden">
+
+            <!-- HERO SECTION -->
+            <section class="gradient-bg rounded-3xl shadow-2xl p-10 mb-8 text-white">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-3">
+                            <span id="status-badge" class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-medium">
+                                🟢 Active
+                            </span>
+                            <span id="category-badge" class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-medium">
+                                📊 Data
+                            </span>
+                        </div>
+                        <h1 id="insight-title" class="text-4xl font-black mb-4 leading-tight">
+                            Loading...
+                        </h1>
+                        <p id="insight-description" class="text-xl text-purple-100 leading-relaxed">
+                            Loading description...
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Key Metrics -->
+                <div class="grid grid-cols-3 gap-4 mt-8">
+                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4">
+                        <div class="text-xs text-purple-200 mb-1">Impact</div>
+                        <div id="metric-impact" class="text-3xl font-bold">$24K</div>
+                        <div id="metric-impact-type" class="text-xs text-purple-200 mt-1">Revenue</div>
+                    </div>
+                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4">
+                        <div class="text-xs text-purple-200 mb-1">Confidence</div>
+                        <div class="text-3xl font-bold">High</div>
+                        <div class="text-xs text-purple-200 mt-1">Validated</div>
+                    </div>
+                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4">
+                        <div class="text-xs text-purple-200 mb-1">Discovered</div>
+                        <div id="metric-date" class="text-2xl font-bold">Dec 2025</div>
+                        <div class="text-xs text-purple-200 mt-1">Active since</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- DISCOVERY STORY -->
+            <section class="section-card bg-white rounded-2xl shadow-lg p-8 mb-8 border-l-4 border-purple-500">
+                <div class="flex items-start gap-4 mb-6">
+                    <div class="text-4xl">🔍</div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2">Discovery Story</h2>
+                        <p class="text-gray-600">Bunu nasıl keşfettik?</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-6">
+                    <div class="bg-purple-50 rounded-xl p-6">
+                        <h3 class="font-semibold text-purple-900 mb-3 flex items-center gap-2">
+                            <span class="text-2xl">💭</span>
+                            İlk Soru
+                        </h3>
+                        <p class="text-gray-700 leading-relaxed">
+                            "Premium alan kullanıcılar ilk hafta ne yapıyor? Onları diğerlerinden ayıran davranış pattern'i var mı?"
+                        </p>
+                    </div>
+
+                    <div class="bg-indigo-50 rounded-xl p-6">
+                        <h3 class="font-semibold text-indigo-900 mb-3 flex items-center gap-2">
+                            <span class="text-2xl">💡</span>
+                            İlk İpucu
+                        </h3>
+                        <p class="text-gray-700 leading-relaxed">
+                            Cohort analysis'e baktığımızda, <strong>ilk 48 saatte 3+ numara sorgulayan kullanıcıların %73'ü premium aldı</strong>. 
+                            Bu oran, daha az sorgu yapanların sadece %8'iydi.
+                        </p>
+                    </div>
+
+                    <div class="bg-green-50 rounded-xl p-6">
+                        <h3 class="font-semibold text-green-900 mb-3 flex items-center gap-2">
+                            <span class="text-2xl">🎯</span>
+                            "Aha!" Anı
+                        </h3>
+                        <p class="text-gray-700 leading-relaxed">
+                            Bu bir threshold effect! İlk 48 saat içinde 3 sorgu, kullanıcının "Bu uygulamayı gerçekten kullanıyorum" 
+                            noktasına gelmesi demek. Bu eşiği geçenler <strong>6+ ay kalıyor</strong>.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VISUAL EVIDENCE -->
+            <section class="section-card bg-white rounded-2xl shadow-lg p-8 mb-8">
+                <div class="flex items-start gap-4 mb-6">
+                    <div class="text-4xl">📊</div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2">Visual Evidence</h2>
+                        <p class="text-gray-600">Veri hikayesi</p>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 rounded-xl p-6 mb-6">
+                    <h3 class="font-semibold mb-4">Conversion Rate by Query Count (First 48h)</h3>
+                    <div style="height: 320px;">
+                        <canvas id="evidenceChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-red-50 border-2 border-red-200 rounded-xl p-4">
+                        <div class="text-sm text-red-800 font-semibold mb-2">❌ 0-2 Queries</div>
+                        <div class="text-3xl font-bold text-red-600">8%</div>
+                        <div class="text-sm text-red-700 mt-1">Premium conversion</div>
+                    </div>
+                    <div class="bg-green-50 border-2 border-green-200 rounded-xl p-4">
+                        <div class="text-sm text-green-800 font-semibold mb-2">✅ 3+ Queries</div>
+                        <div class="text-3xl font-bold text-green-600">73%</div>
+                        <div class="text-sm text-green-700 mt-1">Premium conversion</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- METHODOLOGY -->
+            <section class="section-card bg-white rounded-2xl shadow-lg p-8 mb-8 border-l-4 border-blue-500">
+                <div class="flex items-start gap-4 mb-6">
+                    <div class="text-4xl">🔬</div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2">Methodology</h2>
+                        <p class="text-gray-600">Nasıl analiz ettik?</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-3">
+                            <div class="text-2xl">📅</div>
+                            <div>
+                                <div class="font-semibold text-gray-900">Zaman Aralığı</div>
+                                <div class="text-gray-600">90 günlük cohort analizi</div>
+                                <div class="text-sm text-gray-500">Oct-Dec 2025</div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-3">
+                            <div class="text-2xl">👥</div>
+                            <div>
+                                <div class="font-semibold text-gray-900">Kullanıcı Sayısı</div>
+                                <div class="text-gray-600">127,500 yeni kullanıcı</div>
+                                <div class="text-sm text-gray-500">Tüm segmentler dahil</div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-3">
+                            <div class="text-2xl">🎯</div>
+                            <div>
+                                <div class="font-semibold text-gray-900">Segmentler</div>
+                                <div class="text-gray-600">Dedektifler, Mağdurlar, Pasifler</div>
+                                <div class="text-sm text-gray-500">Her segment ayrı analiz edildi</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-xl p-6">
+                        <h3 class="font-semibold mb-4 text-gray-900">Kullanılan Araçlar</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-green-500">✓</span>
+                                <span class="text-sm">SQL Cohort Analysis</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-green-500">✓</span>
+                                <span class="text-sm">Google Analytics Events</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-green-500">✓</span>
+                                <span class="text-sm">Retention Curve Analysis</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-green-500">✓</span>
+                                <span class="text-sm">Statistical Significance Test</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PSYCHOLOGY PRINCIPLE -->
+            <section class="section-card bg-gradient-to-br from-orange-50 to-red-50 rounded-2xl shadow-lg p-8 mb-8 border-2 border-orange-200">
+                <div class="flex items-start gap-4 mb-6">
+                    <div class="text-4xl">🧠</div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2">Psychology Principle</h2>
+                        <p class="text-gray-600">Bu insight hangi psikoloji prensibine dayanıyor?</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-6 mb-6">
+                    <h3 class="text-xl font-bold text-orange-900 mb-3">🎯 Commitment & Consistency Effect</h3>
+                    <p class="text-gray-700 leading-relaxed mb-4">
+                        Sosyal psikologların Robert Cialdini'nin "Influence" kitabında detaylandırdığı bu prensibe göre, 
+                        <strong>insanlar küçük bir aksiyonu gerçekleştirdikten sonra, o davranışla tutarlı kalmak için daha büyük aksiyonlar alırlar</strong>.
+                    </p>
+                    <p class="text-gray-700 leading-relaxed">
+                        İlk 48 saatte 3 numara sorgulamak, kullanıcının "Ben bu uygulamayı kullanıyorum" kimliğini oluşturur. 
+                        Bu noktadan sonra, premium almak artık büyük bir karar değil, var olan davranışla tutarlı küçük bir adımdır.
+                    </p>
+                </div>
+
+                <div class="bg-white rounded-xl p-6">
+                    <h4 class="font-semibold text-gray-900 mb-3">🔑 Neden Önemli?</h4>
+                    <ul class="space-y-2">
+                        <li class="flex items-start gap-2">
+                            <span class="text-orange-500 mt-1">▸</span>
+                            <span class="text-gray-700"><strong>Sunk Cost Effect:</strong> 3 sorgu yapan kullanıcı "zaten zaman harcadım" hisseder</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-orange-500 mt-1">▸</span>
+                            <span class="text-gray-700"><strong>Identity Formation:</strong> "Ben bu uygulamayı kullanan biriyim" kimliği oluşur</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-orange-500 mt-1">▸</span>
+                            <span class="text-gray-700"><strong>Value Discovery:</strong> 3 sorgu, uygulamanın değerini deneyimlemeye yeter</span>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- KEY FINDINGS -->
+            <section class="section-card bg-white rounded-2xl shadow-lg p-8 mb-8">
+                <div class="flex items-start gap-4 mb-6">
+                    <div class="text-4xl">💡</div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2">Key Findings</h2>
+                        <p class="text-gray-600">Ana bulgular</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="flex gap-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border-l-4 border-green-500">
+                        <div class="text-3xl font-bold text-green-600">1</div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-900 mb-2">İlk 48 Saat Kritik Pencere</h3>
+                            <p class="text-gray-700">Kullanıcıların %80'i ilk 48 saatte engagement pattern'lerini belirliyor. Bu pencereyi kaçırırsak, churn riski %65 artıyor.</p>
+                            <div class="mt-2 text-sm text-green-700 font-medium">📈 Kanıt: 127K kullanıcı cohort analizi</div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-l-4 border-blue-500">
+                        <div class="text-3xl font-bold text-blue-600">2</div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-900 mb-2">3 Sorgu = Sihirli Sayı</h3>
+                            <p class="text-gray-700">2 sorgu yeterli değil (%12 conversion), 4+ sorgu ekstra fayda sağlamıyor (%74 conversion). 3 sorgu optimal threshold.</p>
+                            <div class="mt-2 text-sm text-blue-700 font-medium">📊 p-value: 0.0012 (istatistiksel olarak anlamlı)</div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border-l-4 border-purple-500">
+                        <div class="text-3xl font-bold text-purple-600">3</div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-900 mb-2">Segment Farklılıkları</h3>
+                            <p class="text-gray-700">Dedektifler: 2 sorgu yeterli (%68), Mağdurlar: 4 sorgu gerekiyor (%71), Pasifler: 3 sorgu optimal (%45).</p>
+                            <div class="mt-2 text-sm text-purple-700 font-medium">🎯 Insight: Segment-specific onboarding gerekli</div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border-l-4 border-yellow-500">
+                        <div class="text-3xl font-bold text-yellow-600">4</div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-900 mb-2">6+ Aylık Retention</h3>
+                            <p class="text-gray-700">3+ sorgu yapanlar sadece premium almıyor, <strong>6+ ay kalıyor</strong>. LTV 3.2x daha yüksek.</p>
+                            <div class="mt-2 text-sm text-yellow-700 font-medium">💰 Impact: $24K/mo recurring revenue</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TEST RESULTS -->
+            <section class="section-card bg-white rounded-2xl shadow-lg p-8 mb-8 border-l-4 border-green-500">
+                <div class="flex items-start gap-4 mb-6">
+                    <div class="text-4xl">🧪</div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2">Test Results</h2>
+                        <p class="text-gray-600">Bu insight'tan hangi testler çıktı?</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Test Card 1 -->
+                    <div class="bg-green-50 border-2 border-green-200 rounded-xl p-6 hover:shadow-lg transition cursor-pointer">
+                        <div class="flex items-start justify-between mb-4">
+                            <span class="px-3 py-1 bg-green-500 text-white rounded-lg text-xs font-semibold">WON ✓</span>
+                            <span class="text-xs text-gray-500">SN-042</span>
+                        </div>
+                        <h3 class="font-bold text-gray-900 mb-2">Onboarding: "3 Sorgu Challenge"</h3>
+                        <p class="text-sm text-gray-600 mb-4">İlk kullanıcılara "İlk 48 saatte 3 numara sorgula, premium kazan" challenge'ı verdik.</p>
+                        <div class="flex items-center justify-between text-sm">
+                            <div class="text-green-700 font-semibold">+31% Conversion</div>
+                            <div class="text-gray-500">Dec 2025</div>
+                        </div>
+                    </div>
+
+                    <!-- Test Card 2 -->
+                    <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-6 hover:shadow-lg transition cursor-pointer">
+                        <div class="flex items-start justify-between mb-4">
+                            <span class="px-3 py-1 bg-blue-500 text-white rounded-lg text-xs font-semibold">WON ✓</span>
+                            <span class="text-xs text-gray-500">SN-055</span>
+                        </div>
+                        <h3 class="font-bold text-gray-900 mb-2">Push Notification at Query 2</h3>
+                        <p class="text-sm text-gray-600 mb-4">2. sorguda "Bir tane daha yap, özel içeriği aç!" notification'ı gönderdik.</p>
+                        <div class="flex items-center justify-between text-sm">
+                            <div class="text-blue-700 font-semibold">+18% Query 3 Rate</div>
+                            <div class="text-gray-500">Jan 2026</div>
+                        </div>
+                    </div>
+
+                    <!-- Test Card 3 -->
+                    <div class="bg-red-50 border-2 border-red-200 rounded-xl p-6 hover:shadow-lg transition cursor-pointer">
+                        <div class="flex items-start justify-between mb-4">
+                            <span class="px-3 py-1 bg-red-500 text-white rounded-lg text-xs font-semibold">LOST ✗</span>
+                            <span class="text-xs text-gray-500">SN-061</span>
+                        </div>
+                        <h3 class="font-bold text-gray-900 mb-2">Aggressive Paywall at Query 2</h3>
+                        <p class="text-sm text-gray-600 mb-4">2. sorguda paywall gösterince, kullanıcılar churn etti (çok erken).</p>
+                        <div class="flex items-center justify-between text-sm">
+                            <div class="text-red-700 font-semibold">-12% Retention</div>
+                            <div class="text-gray-500">Nov 2025</div>
+                        </div>
+                    </div>
+
+                    <!-- Test Card 4 -->
+                    <div class="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-6 hover:shadow-lg transition cursor-pointer">
+                        <div class="flex items-start justify-between mb-4">
+                            <span class="px-3 py-1 bg-yellow-500 text-yellow-900 rounded-lg text-xs font-semibold animate-pulse">RUNNING</span>
+                            <span class="text-xs text-gray-500">SN-073</span>
+                        </div>
+                        <h3 class="font-bold text-gray-900 mb-2">Segment-Specific Thresholds</h3>
+                        <p class="text-sm text-gray-600 mb-4">Her segment için farklı threshold test ediyoruz (Dedektifler: 2, Mağdurlar: 4).</p>
+                        <div class="flex items-center justify-between text-sm">
+                            <div class="text-yellow-700 font-semibold">TBD</div>
+                            <div class="text-gray-500">Jan 2026</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ACADEMIC REFERENCES -->
+            <section class="section-card bg-gray-50 rounded-2xl shadow-lg p-8 mb-8">
+                <div class="flex items-start gap-4 mb-6">
+                    <div class="text-4xl">📚</div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2">Academic References</h2>
+                        <p class="text-gray-600">Bu insight'ı destekleyen akademik çalışmalar</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="bg-white rounded-xl p-6 hover:bg-gray-50 transition">
+                        <div class="flex items-start gap-4">
+                            <div class="text-2xl">📖</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 mb-2">Influence: The Psychology of Persuasion</h3>
+                                <p class="text-sm text-gray-600 mb-2">
+                                    Robert B. Cialdini (2006) - Commitment and Consistency principle: Small initial commitments lead to larger follow-through behaviors.
+                                </p>
+                                <a href="#" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">View on Google Scholar →</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-6 hover:bg-gray-50 transition">
+                        <div class="flex items-start gap-4">
+                            <div class="text-2xl">📖</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 mb-2">The Foot-in-the-Door Technique</h3>
+                                <p class="text-sm text-gray-600 mb-2">
+                                    Freedman & Fraser (1966) - Classic study showing small initial requests increase compliance with larger subsequent requests.
+                                </p>
+                                <a href="#" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">View on Google Scholar →</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-6 hover:bg-gray-50 transition">
+                        <div class="flex items-start gap-4">
+                            <div class="text-2xl">📖</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 mb-2">Hooked: How to Build Habit-Forming Products</h3>
+                                <p class="text-sm text-gray-600 mb-2">
+                                    Nir Eyal (2014) - Hook Model: Trigger → Action → Reward → Investment. 3 queries = investment phase.
+                                </p>
+                                <a href="#" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">View on Amazon →</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RECOMMENDATIONS -->
+            <section class="section-card bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl shadow-lg p-8 mb-8 border-2 border-indigo-200">
+                <div class="flex items-start gap-4 mb-6">
+                    <div class="text-4xl">🎯</div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2">Recommendations</h2>
+                        <p class="text-gray-600">Bu insight'tan ne yapmalıyız?</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="bg-white rounded-xl p-6">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 bg-indigo-600 text-white rounded-lg flex items-center justify-center font-bold flex-shrink-0">1</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 mb-2">Onboarding'i Güncelle</h3>
+                                <p class="text-gray-600 mb-4">
+                                    Yeni kullanıcılara ilk 48 saatte 3 sorgu yaptırmak için onboarding flow'unu değiştir. 
+                                    "İlk Adımlar" guide'ı ekle, sorgu yapma motivasyonunu artır.
+                                </p>
+                                <div class="flex gap-2">
+                                    <button class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700">
+                                        📝 Create Scenario
+                                    </button>
+                                    <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300">
+                                        👥 Assign to Team
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-6">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 bg-purple-600 text-white rounded-lg flex items-center justify-center font-bold flex-shrink-0">2</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 mb-2">Push Notification Stratejisi</h3>
+                                <p class="text-gray-600 mb-4">
+                                    2. sorguda "Harika! Bir tane daha yap, özel içeriği aç!" notification'ı gönder. 
+                                    Agressive olma, teşvik et.
+                                </p>
+                                <div class="flex gap-2">
+                                    <button class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700">
+                                        📱 Test Push Notification
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-6">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 bg-pink-600 text-white rounded-lg flex items-center justify-center font-bold flex-shrink-0">3</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 mb-2">Segment-Specific Approach</h3>
+                                <p class="text-gray-600 mb-4">
+                                    Her segment için farklı threshold uygula: Dedektifler için 2 sorgu, Mağdurlar için 4 sorgu challenge'ı.
+                                </p>
+                                <div class="flex gap-2">
+                                    <button class="px-4 py-2 bg-pink-600 text-white rounded-lg text-sm font-medium hover:bg-pink-700">
+                                        🎯 View Segment Tests
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RELATED INSIGHTS -->
+            <section class="section-card bg-white rounded-2xl shadow-lg p-8">
+                <div class="flex items-start gap-4 mb-6">
+                    <div class="text-4xl">🔗</div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2">Related Insights</h2>
+                        <p class="text-gray-600">İlişkili keşifler</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-gray-50 rounded-xl p-6 hover:shadow-lg transition cursor-pointer">
+                        <span class="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full font-medium">🧠 Psychology</span>
+                        <h3 class="font-bold text-gray-900 mt-3 mb-2">Uyku Hali: 7 Gün Aktivite Yok</h3>
+                        <p class="text-sm text-gray-600 mb-3">7 gün aktivite yok = %80 churn riski</p>
+                        <div class="text-xs text-gray-500">Nov 2025</div>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-xl p-6 hover:shadow-lg transition cursor-pointer">
+                        <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">🧪 Experiment</span>
+                        <h3 class="font-bold text-gray-900 mt-3 mb-2">Güvenlik İhtiyacı Doyan Meraka Koşuyor</h3>
+                        <p class="text-sm text-gray-600 mb-3">Önce güvenlik, sonra merak (+42%)</p>
+                        <div class="text-xs text-gray-500">Dec 2025</div>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-xl p-6 hover:shadow-lg transition cursor-pointer">
+                        <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">👥 Archetype</span>
+                        <h3 class="font-bold text-gray-900 mt-3 mb-2">Dedektiflerin Etiket Obsesyonu</h3>
+                        <p class="text-sm text-gray-600 mb-3">Etiket ekleyenler %82 daha sadık</p>
+                        <div class="text-xs text-gray-500">Oct 2025</div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="max-w-7xl mx-auto px-6 py-6 text-center">
+            <p class="text-sm text-gray-500">
+                <span class="font-medium">Behavioural Hub</span> • Insights Engine
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const API_URL = 'http://localhost:4000';
+        let insightId = null;
+
+        // Get insight ID from URL
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            insightId = urlParams.get('id');
+            
+            if (insightId) {
+                fetchInsightDetail(insightId);
+            } else {
+                document.getElementById('loading').innerHTML = `
+                    <div class="text-center py-20">
+                        <div class="text-red-500 text-lg mb-2">❌ No insight ID provided</div>
+                        <a href="insights.html" class="text-indigo-600 hover:text-indigo-800">← Back to Insights</a>
+                    </div>
+                `;
+            }
+        });
+
+        // Fetch insight detail from backend
+        async function fetchInsightDetail(id) {
+            try {
+                const response = await fetch(`${API_URL}/api/insights/${id}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    renderInsightDetail(result.data);
+                    setTimeout(initEvidenceChart, 200);
+                } else {
+                    showError('Insight not found');
+                }
+            } catch (error) {
+                console.error('Error fetching insight:', error);
+                showError('Cannot connect to backend');
+            }
+        }
+
+        // Render insight detail
+        function renderInsightDetail(insight) {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('content').classList.remove('hidden');
+
+            // Update hero section
+            document.getElementById('insight-title').textContent = insight.title;
+            document.getElementById('insight-description').textContent = insight.description || 'No description available';
+            
+            // Status badge
+            const statusBadge = document.getElementById('status-badge');
+            statusBadge.textContent = insight.status === 'active' ? '🟢 Active' : '🟡 Legacy';
+            
+            // Category badge
+            const categoryBadge = document.getElementById('category-badge');
+            const categoryLabel = getCategoryLabel(insight.category);
+            categoryBadge.textContent = `${categoryLabel.icon} ${categoryLabel.name}`;
+
+            // Metrics
+            const impactScore = parseFloat(insight.impact_score || 0);
+            document.getElementById('metric-impact').textContent = impactScore > 0 ? `$${(impactScore / 1000).toFixed(0)}K` : 'N/A';
+            document.getElementById('metric-impact-type').textContent = insight.impact_type || 'Impact';
+            
+            const date = new Date(insight.discovery_date);
+            document.getElementById('metric-date').textContent = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
+            // Update page title
+            document.title = `${insight.title} - Behavioural Hub`;
+        }
+
+        // Category labels
+        function getCategoryLabel(category) {
+            const labels = {
+                psychology: { icon: '🧠', name: 'Psychology' },
+                data: { icon: '📊', name: 'Data' },
+                experiments: { icon: '🧪', name: 'Experiment' },
+                archetypes: { icon: '👥', name: 'Archetype' }
+            };
+            return labels[category] || { icon: '📌', name: 'Other' };
+        }
+
+        // Show error
+        function showError(message) {
+            document.getElementById('loading').innerHTML = `
+                <div class="text-center py-20">
+                    <div class="text-red-500 text-lg mb-2">❌ ${message}</div>
+                    <a href="insights.html" class="text-indigo-600 hover:text-indigo-800">← Back to Insights</a>
+                </div>
+            `;
+        }
+
+        // Initialize evidence chart
+        function initEvidenceChart() {
+            const canvas = document.getElementById('evidenceChart');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['0 Queries', '1 Query', '2 Queries', '3 Queries', '4+ Queries'],
+                        datasets: [{
+                            label: 'Premium Conversion Rate',
+                            data: [5, 8, 12, 73, 74],
+                            backgroundColor: [
+                                'rgba(239, 68, 68, 0.8)',
+                                'rgba(249, 115, 22, 0.8)',
+                                'rgba(234, 179, 8, 0.8)',
+                                'rgba(34, 197, 94, 0.8)',
+                                'rgba(34, 197, 94, 0.8)'
+                            ],
+                            borderColor: [
+                                'rgb(239, 68, 68)',
+                                'rgb(249, 115, 22)',
+                                'rgb(234, 179, 8)',
+                                'rgb(34, 197, 94)',
+                                'rgb(34, 197, 94)'
+                            ],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.parsed.y + '% conversion';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 80,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+
+</body>
+</html>
