@@ -653,10 +653,29 @@ body { font-family: Inter, sans-serif; }
   <div id="tab-notes" class="tab-content hidden p-6">
 
     <div class="flex justify-between items-center mb-6">
-      <h3 class="font-semibold text-xl">💬 Team Notes & Discussion (3)</h3>
-      <button class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition">
-        + Add Note
-      </button>
+      <div class="flex items-center gap-3">
+        <h3 class="font-semibold text-xl">💬 Team Notes & Discussion (3)</h3>
+        <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-semibold animate-pulse">1 New</span>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="toggleNoteNotifications()" id="notifBtn" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-200 transition flex items-center gap-2">
+          🔔 Subscribed
+        </button>
+        <button class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition">
+          + Add Note
+        </button>
+      </div>
+    </div>
+
+    <!-- Notification Settings Info -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-sm">
+      <div class="flex items-start gap-2">
+        <span class="text-blue-600">💡</span>
+        <div class="flex-1">
+          <strong class="text-blue-900">You're subscribed to updates</strong>
+          <p class="text-blue-700 text-xs mt-1">You'll receive notifications when team members add notes, comments, or when automated insights are posted.</p>
+        </div>
+      </div>
     </div>
 
     <div class="space-y-4">
@@ -682,7 +701,9 @@ body { font-family: Inter, sans-serif; }
         </div>
       </div>
 
-      <div class="bg-white border rounded-xl p-5">
+      <!-- Unread Note -->
+      <div class="bg-blue-50 border-2 border-blue-300 rounded-xl p-5 relative">
+        <span class="absolute top-3 right-3 bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-semibold">NEW</span>
         <div class="flex items-start gap-4">
           <div class="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center font-semibold text-teal-700">
             AK
@@ -956,9 +977,35 @@ function initDeviceChart() {
   }
 }
 
+// Toggle Note Notifications
+let notificationsEnabled = true;
+
+function toggleNoteNotifications() {
+  notificationsEnabled = !notificationsEnabled;
+  const btn = document.getElementById('notifBtn');
+
+  if (notificationsEnabled) {
+    btn.innerHTML = '🔔 Subscribed';
+    btn.classList.remove('bg-gray-100', 'text-gray-700');
+    btn.classList.add('bg-green-100', 'text-green-700');
+    alert('✅ Subscribed to team notes!\n\nYou will receive notifications when:\n• Team members add new notes\n• Comments are posted\n• Automated insights are generated\n\nNotifications will appear in your dashboard and via email (if enabled).');
+  } else {
+    btn.innerHTML = '🔕 Unsubscribed';
+    btn.classList.remove('bg-green-100', 'text-green-700');
+    btn.classList.add('bg-gray-100', 'text-gray-700');
+    alert('🔕 Unsubscribed from team notes.\n\nYou will no longer receive notifications for this test.');
+  }
+}
+
 // Initialize on page load
 window.addEventListener('DOMContentLoaded', () => {
   initConversionChart();
+
+  // Set initial notification button state
+  const btn = document.getElementById('notifBtn');
+  if (notificationsEnabled) {
+    btn.classList.add('bg-green-100', 'text-green-700');
+  }
 });
 </script>
 
