@@ -31,6 +31,15 @@ body { font-family: Inter, sans-serif; }
   top: 20px;
   max-height: calc(100vh - 40px);
   overflow-y: auto;
+  transition: all 0.3s ease;
+}
+.ai-sidebar.collapsed {
+  width: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.ai-sidebar.collapsed #aiPanelContent {
+  display: none;
 }
 .scenario-card {
   cursor: pointer;
@@ -201,6 +210,11 @@ body { font-family: Inter, sans-serif; }
       <!-- Advanced Filter Toggle -->
       <button onclick="toggleAdvancedFilters()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition flex items-center gap-2">
         <span id="filterIcon">🔽</span> Filters <span id="activeFilterCount" class="hidden bg-indigo-600 text-white text-xs px-2 py-0.5 rounded-full">3</span>
+      </button>
+
+      <!-- Clear All Filters -->
+      <button onclick="clearAllFilters()" class="px-4 py-2 border border-red-300 text-red-600 rounded-lg text-sm font-medium hover:bg-red-50 transition">
+        ✕ Clear All
       </button>
     </div>
   </div>
@@ -435,71 +449,29 @@ body { font-family: Inter, sans-serif; }
 </h3>
 <div class="kanban bg-gray-50 rounded-xl p-3 space-y-3">
 
-  <!-- Card 1 -->
-  <div class="scenario-card bg-white border-l-4 border-detective rounded-lg p-4 shadow-sm" onclick="openScenario('loss-aversion-paywall')">
+  <!-- Card 1 - Simplified -->
+  <div class="scenario-card bg-white border-l-4 border-detective rounded-lg p-3 shadow-sm hover:shadow-md transition cursor-pointer" onclick="openScenario('loss-aversion-paywall')">
     <div class="flex items-start justify-between mb-2">
       <h4 class="font-semibold text-sm">🎯 Loss Aversion Paywall</h4>
-      <span class="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">A/B</span>
+      <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded font-semibold">84%</span>
     </div>
-    <p class="text-xs text-gray-500 mb-3">🕵️ Dedektifler | 💎 Premium</p>
-
-    <div class="space-y-1 text-xs mb-3">
-      <div class="flex justify-between">
-        <span class="text-gray-600">Success Prob:</span>
-        <strong class="text-green-600">84%</strong>
-      </div>
-      <div class="flex justify-between">
-        <span class="text-gray-600">Est. Impact:</span>
-        <strong class="text-indigo-600">+$8.7k/mo</strong>
-      </div>
-      <div class="flex justify-between">
-        <span class="text-gray-600">Effort:</span>
-        <span class="text-yellow-600">Medium</span>
-      </div>
-    </div>
-
-    <div class="border-t pt-2 mb-2">
-      <p class="text-xs text-gray-500">🔗 Similar to:</p>
-      <p class="text-xs text-indigo-600">• Social Proof Messaging (+18%)</p>
-    </div>
-
-    <div class="flex gap-2">
-      <button class="flex-1 text-xs text-indigo-600 hover:bg-indigo-50 px-2 py-1 rounded transition">Compare</button>
-      <button class="flex-1 text-xs bg-indigo-600 text-white hover:bg-indigo-700 px-2 py-1 rounded transition">Run Test</button>
+    <p class="text-xs text-gray-500 mb-2">🕵️ Dedektifler • Premium</p>
+    <div class="flex items-center justify-between">
+      <span class="text-sm font-bold text-indigo-600">+$8.7k</span>
+      <span class="text-xs text-gray-500">Medium effort</span>
     </div>
   </div>
 
-  <!-- Card 2 -->
-  <div class="scenario-card bg-white border-l-4 border-victim rounded-lg p-4 shadow-sm" onclick="openScenario('weekly-security-digest')">
+  <!-- Card 2 - Simplified -->
+  <div class="scenario-card bg-white border-l-4 border-victim rounded-lg p-3 shadow-sm hover:shadow-md transition cursor-pointer" onclick="openScenario('weekly-security-digest')">
     <div class="flex items-start justify-between mb-2">
       <h4 class="font-semibold text-sm">🛡️ Weekly Security Digest</h4>
-      <span class="text-xs bg-teal-100 text-teal-700 px-2 py-0.5 rounded">A/B</span>
+      <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded font-semibold">76%</span>
     </div>
-    <p class="text-xs text-gray-500 mb-3">🛡️ Mağdurlar | 📱 Push Notification</p>
-
-    <div class="space-y-1 text-xs mb-3">
-      <div class="flex justify-between">
-        <span class="text-gray-600">Success Prob:</span>
-        <strong class="text-green-600">76%</strong>
-      </div>
-      <div class="flex justify-between">
-        <span class="text-gray-600">Est. Impact:</span>
-        <strong class="text-indigo-600">+12% retention</strong>
-      </div>
-      <div class="flex justify-between">
-        <span class="text-gray-600">Effort:</span>
-        <span class="text-green-600">Low</span>
-      </div>
-    </div>
-
-    <div class="border-t pt-2 mb-2">
-      <p class="text-xs text-gray-500">🔗 Similar to:</p>
-      <p class="text-xs text-indigo-600">• Spam Report Weekly (+14%)</p>
-    </div>
-
-    <div class="flex gap-2">
-      <button class="flex-1 text-xs text-indigo-600 hover:bg-indigo-50 px-2 py-1 rounded transition">Compare</button>
-      <button class="flex-1 text-xs bg-indigo-600 text-white hover:bg-indigo-700 px-2 py-1 rounded transition">Run Test</button>
+    <p class="text-xs text-gray-500 mb-2">🛡️ Mağdurlar • Push</p>
+    <div class="flex items-center justify-between">
+      <span class="text-sm font-bold text-indigo-600">+12% retention</span>
+      <span class="text-xs text-green-600">Low effort</span>
     </div>
   </div>
 
@@ -552,38 +524,22 @@ body { font-family: Inter, sans-serif; }
     </button>
   </div>
 
-  <div class="scenario-card bg-white border-l-4 border-yellow-400 rounded-lg p-4 shadow-sm" onclick="openScenario('onboarding-profile-first')">
+  <!-- Simplified Running Card -->
+  <div class="scenario-card bg-white border-l-4 border-yellow-400 rounded-lg p-3 shadow-sm hover:shadow-md transition cursor-pointer" onclick="openScenario('onboarding-profile-first')">
     <div class="flex items-start justify-between mb-2">
       <h4 class="font-semibold text-sm">👤 Onboarding: Profile First</h4>
-      <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded animate-pulse">LIVE</span>
+      <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded animate-pulse font-semibold">LIVE</span>
     </div>
-    <p class="text-xs text-gray-500 mb-3">🕵️ Dedektifler | 🚀 Onboarding</p>
-
-    <div class="space-y-1 text-xs mb-3">
-      <div class="flex justify-between">
-        <span class="text-gray-600">Confidence:</span>
-        <strong class="text-yellow-600">82%</strong>
-      </div>
-      <div class="flex justify-between">
-        <span class="text-gray-600">Sample Size:</span>
-        <span>8.9k users</span>
-      </div>
-    </div>
+    <p class="text-xs text-gray-500 mb-2">🕵️ Dedektifler • 8.9k sample</p>
 
     <div class="w-full bg-gray-200 h-2 rounded-full mb-2">
       <div class="bg-green-400 h-2 rounded-full" style="width:82%"></div>
     </div>
 
-    <div class="border-t pt-2 mb-2 mt-3">
-      <div class="flex justify-between text-xs">
-        <span>Control: <strong>12.3%</strong></span>
-        <span>Test: <strong class="text-green-600">18.7%</strong> ↑</span>
-      </div>
+    <div class="flex items-center justify-between text-xs">
+      <span class="text-gray-600">Control: <strong>12.3%</strong></span>
+      <span class="text-green-600 font-bold">Test: 18.7% ↑</span>
     </div>
-
-    <button class="w-full text-xs bg-yellow-600 text-white hover:bg-yellow-700 px-2 py-1.5 rounded transition mt-2">
-      📊 View Live Data
-    </button>
   </div>
 
 </div>
@@ -941,10 +897,27 @@ body { font-family: Inter, sans-serif; }
 <section id="view-pattern" class="view-section">
 
 <div class="bg-white p-6 rounded-xl shadow mb-6">
-  <h3 class="font-semibold mb-4 flex items-center gap-2">
-    🧬 Pattern Matrix: Segment × Bias × Outcome
-    <span class="text-sm font-normal text-gray-500 ml-2">(Discover winning combinations)</span>
-  </h3>
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="font-semibold flex items-center gap-2">
+      🧬 Pattern Matrix: Segment × Bias × Outcome
+      <span class="text-sm font-normal text-gray-500 ml-2">(Discover winning combinations)</span>
+    </h3>
+    <!-- Legend -->
+    <div class="flex items-center gap-3 text-xs">
+      <div class="flex items-center gap-1">
+        <div class="w-4 h-4 bg-green-50 border border-green-200 rounded"></div>
+        <span class="text-gray-600">High Win Rate (>70%)</span>
+      </div>
+      <div class="flex items-center gap-1">
+        <div class="w-4 h-4 bg-yellow-50 border border-yellow-200 rounded"></div>
+        <span class="text-gray-600">Medium (50-70%)</span>
+      </div>
+      <div class="flex items-center gap-1">
+        <div class="w-4 h-4 bg-red-50 border border-red-200 rounded"></div>
+        <span class="text-gray-600">Low (<50%)</span>
+      </div>
+    </div>
+  </div>
 
   <div class="overflow-x-auto">
     <table class="w-full text-sm">
@@ -962,9 +935,12 @@ body { font-family: Inter, sans-serif; }
       <tbody class="divide-y">
         <tr>
           <td class="p-3 font-semibold border-l-4 border-detective sticky left-0 bg-white">🕵️ Dedektifler</td>
-          <td class="text-center p-3 bg-green-50">
+          <td class="text-center p-3 bg-green-50 hover:bg-green-100 transition cursor-pointer relative group" onclick="createTest('Dedektifler', 'Social Proof', 89)">
             <div class="text-green-700 font-semibold">89%</div>
             <div class="text-xs text-gray-500">12 tests</div>
+            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-green-600/90">
+              <span class="text-white text-xs font-medium">✨ Create Test</span>
+            </div>
           </td>
           <td class="text-center p-3 bg-green-50">
             <div class="text-green-700 font-semibold">84%</div>
@@ -1053,33 +1029,42 @@ body { font-family: Inter, sans-serif; }
     <div class="text-3xl mb-2">🎯</div>
     <h4 class="font-semibold mb-2">Golden Combo #1</h4>
     <p class="text-sm opacity-90 mb-3">Dedektifler + Social Proof</p>
-    <div class="bg-white/20 rounded p-3">
+    <div class="bg-white/20 rounded p-3 mb-3">
       <p class="text-2xl font-bold">89%</p>
       <p class="text-xs opacity-90">Win Rate (12 tests)</p>
     </div>
-    <p class="text-xs mt-3 opacity-80">💡 Best for: Premium conversion, Feature adoption</p>
+    <p class="text-xs mb-4 opacity-80">💡 Best for: Premium conversion, Feature adoption</p>
+    <button onclick="createTest('Dedektifler', 'Social Proof', 89)" class="w-full bg-white text-purple-600 px-4 py-2 rounded-lg font-semibold text-sm hover:bg-purple-50 transition shadow-md">
+      ✨ Create New Test
+    </button>
   </div>
 
   <div class="bg-gradient-to-br from-teal-500 to-teal-600 text-white p-6 rounded-xl shadow-lg">
     <div class="text-3xl mb-2">🛡️</div>
     <h4 class="font-semibold mb-2">Golden Combo #2</h4>
     <p class="text-sm opacity-90 mb-3">Mağdurlar + Authority</p>
-    <div class="bg-white/20 rounded p-3">
+    <div class="bg-white/20 rounded p-3 mb-3">
       <p class="text-2xl font-bold">82%</p>
       <p class="text-xs opacity-90">Win Rate (9 tests)</p>
     </div>
-    <p class="text-xs mt-3 opacity-80">💡 Best for: Trust building, Security features</p>
+    <p class="text-xs mb-4 opacity-80">💡 Best for: Trust building, Security features</p>
+    <button onclick="createTest('Mağdurlar', 'Authority', 82)" class="w-full bg-white text-teal-600 px-4 py-2 rounded-lg font-semibold text-sm hover:bg-teal-50 transition shadow-md">
+      ✨ Create New Test
+    </button>
   </div>
 
   <div class="bg-gradient-to-br from-stone-500 to-stone-600 text-white p-6 rounded-xl shadow-lg">
     <div class="text-3xl mb-2">😴</div>
     <h4 class="font-semibold mb-2">Golden Combo #3</h4>
     <p class="text-sm opacity-90 mb-3">Pasifler + Reciprocity</p>
-    <div class="bg-white/20 rounded p-3">
+    <div class="bg-white/20 rounded p-3 mb-3">
       <p class="text-2xl font-bold">71%</p>
       <p class="text-xs opacity-90">Win Rate (4 tests)</p>
     </div>
-    <p class="text-xs mt-3 opacity-80">💡 Best for: Re-engagement, Value reminders</p>
+    <p class="text-xs mb-4 opacity-80">💡 Best for: Re-engagement, Value reminders</p>
+    <button onclick="createTest('Pasifler', 'Reciprocity', 71)" class="w-full bg-white text-stone-600 px-4 py-2 rounded-lg font-semibold text-sm hover:bg-stone-50 transition shadow-md">
+      ✨ Create New Test
+    </button>
   </div>
 
 </div>
@@ -1113,10 +1098,40 @@ body { font-family: Inter, sans-serif; }
 <section id="view-timeline" class="view-section">
 
 <div class="bg-white p-6 rounded-xl shadow">
-  <h3 class="font-semibold mb-6 flex items-center gap-2">
-    ⏱️ Test Timeline
-    <span class="text-sm font-normal text-gray-500 ml-2">(Past, Present, Future)</span>
-  </h3>
+  <div class="flex items-center justify-between mb-6">
+    <h3 class="font-semibold flex items-center gap-2">
+      ⏱️ Test Timeline
+      <span class="text-sm font-normal text-gray-500 ml-2">(Past, Present, Future)</span>
+    </h3>
+    <!-- Timeline Filters -->
+    <div class="flex items-center gap-2">
+      <button class="px-3 py-1.5 text-xs font-medium bg-indigo-600 text-white rounded-lg">All</button>
+      <button class="px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200">Planned</button>
+      <button class="px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200">Running</button>
+      <button class="px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200">Won</button>
+      <button class="px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200">Failed</button>
+    </div>
+  </div>
+
+  <!-- Timeline Stats Summary -->
+  <div class="grid grid-cols-4 gap-4 mb-6">
+    <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 border border-yellow-200 rounded-lg p-3">
+      <div class="text-xl font-bold text-yellow-700">4</div>
+      <div class="text-xs text-yellow-600">Planned Tests</div>
+    </div>
+    <div class="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-3">
+      <div class="text-xl font-bold text-green-700">3</div>
+      <div class="text-xs text-green-600">Running Now</div>
+    </div>
+    <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200 rounded-lg p-3">
+      <div class="text-xl font-bold text-emerald-700">12</div>
+      <div class="text-xs text-emerald-600">Won (Last 30d)</div>
+    </div>
+    <div class="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-lg p-3">
+      <div class="text-xl font-bold text-red-700">2</div>
+      <div class="text-xs text-red-600">Failed (Last 30d)</div>
+    </div>
+  </div>
 
   <div class="relative">
     <!-- Timeline Line -->
@@ -1161,10 +1176,22 @@ body { font-family: Inter, sans-serif; }
           </div>
           <h4 class="font-semibold mb-2">🧪 Premium Banner Sticky</h4>
           <p class="text-sm text-gray-600 mb-2">All Users | UX optimization</p>
-          <div class="flex gap-4 text-xs mb-2">
+          <div class="flex gap-4 text-xs mb-3">
             <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">67% confidence</span>
             <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">7 days left</span>
           </div>
+
+          <!-- Progress Bar -->
+          <div class="mb-2">
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-gray-600">Test Progress</span>
+              <span class="font-semibold">7/14 days (50%)</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-green-500 h-2 rounded-full transition-all" style="width: 50%"></div>
+            </div>
+          </div>
+
           <div class="text-xs">
             <span class="text-gray-600">Current uplift:</span> <strong class="text-green-600">+1.6%</strong>
           </div>
@@ -1179,10 +1206,22 @@ body { font-family: Inter, sans-serif; }
           </div>
           <h4 class="font-semibold mb-2">👤 Onboarding: Profile First</h4>
           <p class="text-sm text-gray-600 mb-2">Dedektifler | Onboarding flow</p>
-          <div class="flex gap-4 text-xs mb-2">
+          <div class="flex gap-4 text-xs mb-3">
             <span class="bg-green-100 text-green-800 px-2 py-1 rounded">82% confidence</span>
             <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">3 days left</span>
           </div>
+
+          <!-- Progress Bar -->
+          <div class="mb-2">
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-gray-600">Test Progress</span>
+              <span class="font-semibold">11/14 days (79%)</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-green-500 h-2 rounded-full transition-all" style="width: 79%"></div>
+            </div>
+          </div>
+
           <div class="text-xs">
             <span class="text-gray-600">Current uplift:</span> <strong class="text-green-600">+6.4%</strong>
           </div>
@@ -1239,6 +1278,154 @@ body { font-family: Inter, sans-serif; }
 <!-- VIEW: LEARNING LIBRARY -->
 <!-- ============================================ -->
 <section id="view-learning" class="view-section">
+
+<!-- Learning Dashboard Visualization -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+  <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl p-6 shadow-lg">
+    <div class="text-3xl mb-2">📚</div>
+    <div class="text-3xl font-bold mb-1">247</div>
+    <div class="text-sm opacity-90">Total Learnings</div>
+    <div class="mt-3 text-xs opacity-75">From 193 shipped tests</div>
+  </div>
+
+  <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl p-6 shadow-lg">
+    <div class="text-3xl mb-2">🎯</div>
+    <div class="text-3xl font-bold mb-1">89%</div>
+    <div class="text-sm opacity-90">Best Win Rate</div>
+    <div class="mt-3 text-xs opacity-75">Detective + Social Proof</div>
+  </div>
+
+  <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl p-6 shadow-lg">
+    <div class="text-3xl mb-2">📈</div>
+    <div class="text-3xl font-bold mb-1">+42%</div>
+    <div class="text-sm opacity-90">Avg Improvement</div>
+    <div class="mt-3 text-xs opacity-75">When applying learnings</div>
+  </div>
+
+  <div class="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl p-6 shadow-lg">
+    <div class="text-3xl mb-2">🧠</div>
+    <div class="text-3xl font-bold mb-1">12</div>
+    <div class="text-sm opacity-90">Psych Principles</div>
+    <div class="mt-3 text-xs opacity-75">Tested & validated</div>
+  </div>
+</div>
+
+<!-- Win Rate by Segment (Visual Chart) -->
+<div class="bg-white rounded-xl shadow p-6 mb-6">
+  <h3 class="font-semibold mb-4">📊 Win Rate by Segment & Principle</h3>
+  <div class="grid grid-cols-3 gap-4">
+    <!-- Detective -->
+    <div>
+      <div class="text-center mb-3">
+        <span class="text-2xl">🕵️</span>
+        <p class="text-xs font-semibold text-gray-700 mt-1">Dedektifler</p>
+      </div>
+      <div class="space-y-2">
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-gray-600">Social Proof</span>
+            <span class="font-bold text-green-600">89%</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-green-500 h-2 rounded-full" style="width: 89%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-gray-600">Loss Aversion</span>
+            <span class="font-bold text-green-600">84%</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-green-500 h-2 rounded-full" style="width: 84%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-gray-600">FOMO</span>
+            <span class="font-bold text-green-600">76%</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-green-500 h-2 rounded-full" style="width: 76%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Victim -->
+    <div>
+      <div class="text-center mb-3">
+        <span class="text-2xl">🛡️</span>
+        <p class="text-xs font-semibold text-gray-700 mt-1">Mağdurlar</p>
+      </div>
+      <div class="space-y-2">
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-gray-600">Authority</span>
+            <span class="font-bold text-green-600">82%</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-green-500 h-2 rounded-full" style="width: 82%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-gray-600">Loss Aversion</span>
+            <span class="font-bold text-green-600">78%</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-green-500 h-2 rounded-full" style="width: 78%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-gray-600">Social Proof</span>
+            <span class="font-bold text-yellow-600">62%</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-yellow-500 h-2 rounded-full" style="width: 62%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Passive -->
+    <div>
+      <div class="text-center mb-3">
+        <span class="text-2xl">😴</span>
+        <p class="text-xs font-semibold text-gray-700 mt-1">Pasifler</p>
+      </div>
+      <div class="space-y-2">
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-gray-600">Reciprocity</span>
+            <span class="font-bold text-green-600">71%</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-green-500 h-2 rounded-full" style="width: 71%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-gray-600">Authority</span>
+            <span class="font-bold text-yellow-600">61%</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-yellow-500 h-2 rounded-full" style="width: 61%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-gray-600">Loss Aversion</span>
+            <span class="font-bold text-yellow-600">52%</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-yellow-500 h-2 rounded-full" style="width: 52%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 
@@ -1843,11 +2030,23 @@ body { font-family: Inter, sans-serif; }
 <div class="lg:col-span-1">
 
   <!-- AI Suggestions -->
-  <div class="ai-sidebar">
-    <div class="bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-xl p-6 shadow-xl pulse-glow mb-6">
-      <div class="flex items-center gap-2 mb-4">
-        <span class="text-2xl">🤖</span>
-        <h3 class="font-bold">AI Scenario Engine</h3>
+  <div class="ai-sidebar" id="aiSidebar">
+    <!-- Toggle Button (Fixed position) -->
+    <button onclick="toggleAIPanel()" class="fixed right-4 top-24 bg-purple-600 text-white rounded-full w-12 h-12 shadow-lg hover:bg-purple-700 transition z-50 flex items-center justify-center" id="aiToggleBtn">
+      <span id="aiToggleIcon">🤖</span>
+    </button>
+
+    <div class="bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-xl p-6 shadow-xl pulse-glow mb-6" id="aiPanelContent">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🤖</span>
+          <h3 class="font-bold">AI Scenario Engine</h3>
+        </div>
+        <button onclick="toggleAIPanel()" class="text-white/70 hover:text-white transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
       </div>
 
       <p class="text-sm opacity-90 mb-4">High-confidence suggestions this week:</p>
@@ -2167,6 +2366,57 @@ function initCharts() {
       });
     }
   }, 150); // End of setTimeout
+}
+
+// Clear All Filters
+function clearAllFilters() {
+  // Clear search input
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) searchInput.value = '';
+
+  // Uncheck all filter checkboxes
+  const checkboxes = document.querySelectorAll('#advancedFilters input[type="checkbox"]');
+  checkboxes.forEach(checkbox => {
+    checkbox.checked = false;
+  });
+
+  // Hide active filter count
+  const activeCount = document.getElementById('activeFilterCount');
+  if (activeCount) activeCount.classList.add('hidden');
+
+  alert('All filters cleared! Showing all scenarios.');
+}
+
+// Toggle AI Panel
+function toggleAIPanel() {
+  const sidebar = document.getElementById('aiSidebar');
+  const toggleBtn = document.getElementById('aiToggleBtn');
+  const toggleIcon = document.getElementById('aiToggleIcon');
+
+  sidebar.classList.toggle('collapsed');
+
+  if (sidebar.classList.contains('collapsed')) {
+    toggleIcon.textContent = '🤖';
+    toggleBtn.style.right = '20px';
+  } else {
+    toggleIcon.textContent = '✕';
+    toggleBtn.style.right = '380px'; // Adjust based on sidebar width
+  }
+}
+
+// Pattern Matrix CTA - Create Test from Pattern
+function createTest(segment, bias, winRate) {
+  // Show modal or redirect to test creation page
+  const confirmed = confirm(`🎯 Create new test?\n\nSegment: ${segment}\nBias: ${bias}\nHistorical Win Rate: ${winRate}%\n\nThis combination has proven successful in ${winRate}% of previous tests. Would you like to create a new test based on this pattern?`);
+
+  if (confirmed) {
+    // In a real app, this would open a test creation modal or redirect to test builder
+    // For now, we'll show a success message
+    alert(`✅ Test created!\n\nSegment: ${segment}\nPsychological Principle: ${bias}\n\nYou can now customize your test in the Scenario Hub. The test has been added to your "In Progress" pipeline.`);
+
+    // Optionally scroll to Kanban view
+    showView('kanban');
+  }
 }
 </script>
 
