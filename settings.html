@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform Settings - Behavioural Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        detective: '#8B5CF6',
+                        victim: '#14B8A6',
+                        passive: '#A8A29E',
+                        accent: '#FB7185',
+                        insight: '#7C3AED'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .setting-card {
+            transition: all 0.2s ease;
+        }
+
+        .setting-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-6 py-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                        <span class="text-2xl">🧠</span>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-light tracking-wide">Platform Configuration</h1>
+                        <p class="text-sm text-purple-200 font-light">Test Engine, AI & Integration Settings</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm font-light">All systems: <span class="font-bold text-green-300">✓ Operational</span></p>
+                    <p class="text-xs text-purple-200 mt-1">Last saved: 2 minutes ago</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex items-center space-x-1">
+                <a href="index.html" class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-50 transition rounded-t-lg">
+                    🏠 Dashboard
+                </a>
+                <a href="scenario-hub.html" class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-50 transition rounded-t-lg">
+                    📊 Scenario Hub
+                </a>
+                <a href="insights.html" class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-50 transition rounded-t-lg">
+                    🧠 Insights
+                </a>
+                <a href="segments.html" class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-50 transition rounded-t-lg">
+                    👥 Segments
+                </a>
+                <a href="settings.html" class="px-4 py-3 text-sm font-medium text-indigo-600 border-b-2 border-indigo-600 transition">
+                    ⚙️ Settings
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-6 py-8">
+
+        <!-- Settings Tabs -->
+        <div class="mb-8">
+            <div class="flex items-center gap-2 border-b border-gray-200">
+                <button onclick="showTab('testing')" id="tab-testing" class="px-4 py-3 text-sm font-medium text-indigo-600 border-b-2 border-indigo-600">
+                    🧪 Test Engine
+                </button>
+                <button onclick="showTab('ai')" id="tab-ai" class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-indigo-600">
+                    🤖 AI Behavior
+                </button>
+                <button onclick="showTab('data')" id="tab-data" class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-indigo-600">
+                    📊 Data Sources
+                </button>
+                <button onclick="showTab('segments')" id="tab-segments" class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-indigo-600">
+                    👥 Segment Rules
+                </button>
+                <button onclick="showTab('notifications')" id="tab-notifications" class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-indigo-600">
+                    🔔 Notifications
+                </button>
+                <button onclick="showTab('principles')" id="tab-principles" class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-indigo-600">
+                    🧠 Psychology Library
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB: Test Engine Configuration -->
+        <div id="content-testing" class="tab-content">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">🧪 A/B Test Engine Configuration</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- Statistical Settings -->
+                <div class="setting-card bg-white rounded-xl shadow p-6">
+                    <h3 class="font-bold text-lg mb-4">📊 Statistical Parameters</h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Default Confidence Level</label>
+                            <input type="range" min="90" max="99" value="95" class="w-full" id="confidenceLevel" oninput="updateValue('confidenceLevel', this.value + '%')">
+                            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                <span>90%</span>
+                                <span id="confidenceLevel-value" class="font-semibold text-indigo-600">95%</span>
+                                <span>99%</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Minimum Sample Size</label>
+                            <input type="number" value="5000" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                            <p class="text-xs text-gray-500 mt-1">Tests won't conclude until reaching this sample size</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Statistical Method</label>
+                            <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                                <option selected>Bayesian (Recommended)</option>
+                                <option>Frequentist</option>
+                                <option>Sequential Testing</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Auto-Ship Settings -->
+                <div class="setting-card bg-white rounded-xl shadow p-6">
+                    <h3 class="font-bold text-lg mb-4">🚀 Auto-Ship Winning Tests</h3>
+
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-semibold text-gray-800">Enable Auto-Ship</p>
+                                <p class="text-xs text-gray-500">Automatically roll out winning variations</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                            </label>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Auto-Ship Threshold</label>
+                            <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                                <option>95% confidence + 7 days minimum</option>
+                                <option selected>95% confidence + 14 days minimum</option>
+                                <option>99% confidence + 14 days minimum</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Rollout Strategy</label>
+                            <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                                <option>Immediate 100%</option>
+                                <option selected>Gradual: 25% → 50% → 100% (3 days each)</option>
+                                <option>Conservative: 10% → 25% → 50% → 100%</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Test Duration -->
+                <div class="setting-card bg-white rounded-xl shadow p-6">
+                    <h3 class="font-bold text-lg mb-4">⏱️ Test Duration & Timing</h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Maximum Test Duration</label>
+                            <input type="number" value="30" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                            <p class="text-xs text-gray-500 mt-1">Days - Tests auto-conclude after this period</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Minimum Test Duration</label>
+                            <input type="number" value="7" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                            <p class="text-xs text-gray-500 mt-1">Days - Even if significance reached earlier</p>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-semibold text-gray-800">Weekend Data</p>
+                                <p class="text-xs text-gray-500">Include weekends in analysis</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Multiple Testing -->
+                <div class="setting-card bg-white rounded-xl shadow p-6">
+                    <h3 class="font-bold text-lg mb-4">🔬 Multiple Testing Correction</h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Correction Method</label>
+                            <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                                <option>None (not recommended)</option>
+                                <option selected>Bonferroni Correction</option>
+                                <option>Benjamini-Hochberg (FDR)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Max Concurrent Tests per Segment</label>
+                            <input type="number" value="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                            <p class="text-xs text-gray-500 mt-1">Prevents interaction effects</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3">
+                <button class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition">
+                    Reset to Defaults
+                </button>
+                <button class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition shadow-md">
+                    Save Changes
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB: AI Behavior Settings -->
+        <div id="content-ai" class="tab-content hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">🤖 AI Recommendation Engine</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- Suggestion Aggressiveness -->
+                <div class="setting-card bg-white rounded-xl shadow p-6">
+                    <h3 class="font-bold text-lg mb-4">🎯 Suggestion Aggressiveness</h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-3">AI Confidence Threshold</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="ai-confidence" class="text-indigo-600">
+                                    <div>
+                                        <p class="font-semibold text-sm">Conservative (>80%)</p>
+                                        <p class="text-xs text-gray-500">Only very high-confidence patterns</p>
+                                    </div>
+                                </label>
+                                <label class="flex items-center gap-3 p-3 border-2 border-indigo-600 rounded-lg bg-indigo-50 cursor-pointer">
+                                    <input type="radio" name="ai-confidence" checked class="text-indigo-600">
+                                    <div>
+                                        <p class="font-semibold text-sm text-indigo-700">Balanced (>60%)</p>
+                                        <p class="text-xs text-indigo-600">Good balance of safety and discovery</p>
+                                    </div>
+                                </label>
+                                <label class="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="ai-confidence" class="text-indigo-600">
+                                    <div>
+                                        <p class="font-semibold text-sm">Aggressive (>40%)</p>
+                                        <p class="text-xs text-gray-500">Experimental ideas, higher false positives</p>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Auto-Generation -->
+                <div class="setting-card bg-white rounded-xl shadow p-6">
+                    <h3 class="font-bold text-lg mb-4">🔄 Auto-Generation</h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Insight Generation Frequency</label>
+                            <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                                <option>Daily</option>
+                                <option selected>Weekly</option>
+                                <option>Bi-weekly</option>
+                                <option>Monthly</option>
+                            </select>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-semibold text-gray-800">Auto-Generate Test Scenarios</p>
+                                <p class="text-xs text-gray-500">AI creates test ideas automatically</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                            </label>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-semibold text-gray-800">Pattern Detection</p>
+                                <p class="text-xs text-gray-500">Discover new user segments</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Psychology Principles Priority -->
+                <div class="setting-card bg-white rounded-xl shadow p-6 md:col-span-2">
+                    <h3 class="font-bold text-lg mb-4">🧠 Psychology Principles to Prioritize</h3>
+                    <p class="text-sm text-gray-600 mb-4">AI will favor these principles when generating suggestions</p>
+
+                    <div class="grid grid-cols-3 gap-3">
+                        <label class="flex items-center gap-2 p-3 border-2 border-indigo-600 rounded-lg bg-indigo-50 cursor-pointer">
+                            <input type="checkbox" checked class="text-indigo-600">
+                            <span class="text-sm font-medium text-indigo-700">Social Proof</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-3 border-2 border-indigo-600 rounded-lg bg-indigo-50 cursor-pointer">
+                            <input type="checkbox" checked class="text-indigo-600">
+                            <span class="text-sm font-medium text-indigo-700">Loss Aversion</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-3 border-2 border-indigo-600 rounded-lg bg-indigo-50 cursor-pointer">
+                            <input type="checkbox" checked class="text-indigo-600">
+                            <span class="text-sm font-medium text-indigo-700">Scarcity</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-3 border-2 border-indigo-600 rounded-lg bg-indigo-50 cursor-pointer">
+                            <input type="checkbox" checked class="text-indigo-600">
+                            <span class="text-sm font-medium text-indigo-700">Authority</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-3 border-2 border-indigo-600 rounded-lg bg-indigo-50 cursor-pointer">
+                            <input type="checkbox" checked class="text-indigo-600">
+                            <span class="text-sm font-medium text-indigo-700">Reciprocity</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="text-indigo-600">
+                            <span class="text-sm font-medium text-gray-700">Foot-in-door</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="text-indigo-600">
+                            <span class="text-sm font-medium text-gray-700">Anchoring</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="text-indigo-600">
+                            <span class="text-sm font-medium text-gray-700">Endowment Effect</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="text-indigo-600">
+                            <span class="text-sm font-medium text-gray-700">Curiosity Gap</span>
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3">
+                <button class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition">
+                    Reset to Defaults
+                </button>
+                <button class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition shadow-md">
+                    Save Changes
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB: Data Sources -->
+        <div id="content-data" class="tab-content hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">📊 Connected Data Sources</h2>
+
+            <div class="space-y-4">
+
+                <!-- Connected Sources -->
+                <div class="bg-white rounded-xl shadow p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-lg">✅ Active Integrations</h3>
+                        <button class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition">
+                            + Add New Source
+                        </button>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-4 border rounded-lg">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <span class="text-2xl">📊</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold">Google Analytics</h4>
+                                    <p class="text-xs text-gray-500">Connected 2 days ago • Real-time sync</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-semibold">✓ Active</span>
+                                <button class="px-3 py-1 bg-gray-100 text-gray-600 rounded text-xs hover:bg-gray-200">Configure</button>
+                                <button class="px-3 py-1 bg-red-100 text-red-600 rounded text-xs hover:bg-red-200">Disconnect</button>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between p-4 border rounded-lg">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                    <span class="text-2xl">📈</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold">Mixpanel</h4>
+                                    <p class="text-xs text-gray-500">Connected 14 days ago • Sync every 5 min</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-semibold">✓ Active</span>
+                                <button class="px-3 py-1 bg-gray-100 text-gray-600 rounded text-xs hover:bg-gray-200">Configure</button>
+                                <button class="px-3 py-1 bg-red-100 text-red-600 rounded text-xs hover:bg-red-200">Disconnect</button>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between p-4 border rounded-lg">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                    <span class="text-2xl">🗄️</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold">PostgreSQL (Internal Database)</h4>
+                                    <p class="text-xs text-gray-500">Direct connection • localhost:5432</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-semibold">✓ Active</span>
+                                <button class="px-3 py-1 bg-gray-100 text-gray-600 rounded text-xs hover:bg-gray-200">Configure</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Available Integrations -->
+                <div class="bg-white rounded-xl shadow p-6">
+                    <h3 class="font-bold text-lg mb-4">🔌 Available Integrations</h3>
+
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="border rounded-lg p-4 text-center hover:border-indigo-600 hover:bg-indigo-50 cursor-pointer transition">
+                            <div class="text-3xl mb-2">📱</div>
+                            <h4 class="font-semibold text-sm mb-1">Amplitude</h4>
+                            <p class="text-xs text-gray-500 mb-3">Product analytics</p>
+                            <button class="px-3 py-1 bg-indigo-600 text-white rounded text-xs font-semibold hover:bg-indigo-700">Connect</button>
+                        </div>
+
+                        <div class="border rounded-lg p-4 text-center hover:border-indigo-600 hover:bg-indigo-50 cursor-pointer transition">
+                            <div class="text-3xl mb-2">🔥</div>
+                            <h4 class="font-semibold text-sm mb-1">Firebase</h4>
+                            <p class="text-xs text-gray-500 mb-3">Mobile analytics</p>
+                            <button class="px-3 py-1 bg-indigo-600 text-white rounded text-xs font-semibold hover:bg-indigo-700">Connect</button>
+                        </div>
+
+                        <div class="border rounded-lg p-4 text-center hover:border-indigo-600 hover:bg-indigo-50 cursor-pointer transition">
+                            <div class="text-3xl mb-2">📊</div>
+                            <h4 class="font-semibold text-sm mb-1">Segment</h4>
+                            <p class="text-xs text-gray-500 mb-3">CDP integration</p>
+                            <button class="px-3 py-1 bg-indigo-600 text-white rounded text-xs font-semibold hover:bg-indigo-700">Connect</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event Mapping -->
+                <div class="bg-white rounded-xl shadow p-6">
+                    <h3 class="font-bold text-lg mb-4">🔗 Event Mapping</h3>
+                    <p class="text-sm text-gray-600 mb-4">Map external events to platform metrics</p>
+
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-4 p-3 border rounded-lg">
+                            <input type="text" value="purchase" class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm" placeholder="External event">
+                            <span class="text-gray-400">→</span>
+                            <select class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm">
+                                <option selected>conversion</option>
+                                <option>activation</option>
+                                <option>retention</option>
+                            </select>
+                            <button class="px-3 py-1 bg-red-100 text-red-600 rounded text-xs hover:bg-red-200">✕</button>
+                        </div>
+
+                        <div class="flex items-center gap-4 p-3 border rounded-lg">
+                            <input type="text" value="trial_start" class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm" placeholder="External event">
+                            <span class="text-gray-400">→</span>
+                            <select class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm">
+                                <option>conversion</option>
+                                <option selected>activation</option>
+                                <option>retention</option>
+                            </select>
+                            <button class="px-3 py-1 bg-red-100 text-red-600 rounded text-xs hover:bg-red-200">✕</button>
+                        </div>
+
+                        <button class="w-full px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-600 hover:border-indigo-600 hover:text-indigo-600 transition">
+                            + Add Event Mapping
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- TAB: Segment Rules -->
+        <div id="content-segments" class="tab-content hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">👥 Segment Evolution Rules</h2>
+
+            <div class="space-y-6">
+
+                <div class="setting-card bg-white rounded-xl shadow p-6">
+                    <h3 class="font-bold text-lg mb-4">🔄 Auto-Management</h3>
+
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-semibold text-gray-800">Auto-archive small segments</p>
+                                <p class="text-xs text-gray-500">Move segments with <5% population to archive</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                            </label>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-semibold text-gray-800">AI can suggest new segments</p>
+                                <p class="text-xs text-gray-500">Allow AI to discover and propose new segments</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                            </label>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-semibold text-gray-800">Require manual approval</p>
+                                <p class="text-xs text-gray-500">All segment changes need your confirmation</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                            </label>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-semibold text-gray-800">Auto-merge similar segments</p>
+                                <p class="text-xs text-gray-500">Automatically merge if >85% overlap (suggest only)</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-card bg-white rounded-xl shadow p-6">
+                    <h3 class="font-bold text-lg mb-4">📊 Data Retention</h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Historical Data for Archived Segments</label>
+                            <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                                <option>Keep for 1 year</option>
+                                <option>Keep for 3 years</option>
+                                <option selected>Keep forever</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Segment Change Log</label>
+                            <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                                <option>Keep for 1 year</option>
+                                <option selected>Keep for 5 years</option>
+                                <option>Keep forever</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3">
+                <button class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition">
+                    Reset to Defaults
+                </button>
+                <button class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition shadow-md">
+                    Save Changes
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB: Notifications -->
+        <div id="content-notifications" class="tab-content hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">🔔 Team Notifications & Collaboration</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- Personal Notifications -->
+                <div class="setting-card bg-white rounded-xl shadow p-6">
+                    <h3 class="font-bold text-lg mb-4">Your Notification Preferences</h3>
+
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 border rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xl">🔍</span>
+                                <div>
+                                    <p class="font-semibold text-sm">New segment discovered</p>
+                                    <p class="text-xs text-gray-500">Slack + Email</p>
+                                </div>
+                            </div>
+                            <input type="checkbox" checked class="text-indigo-600">
+                        </div>
+
+                        <div class="flex items-center justify-between p-3 border rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xl">🧪</span>
+                                <div>
+                                    <p class="font-semibold text-sm">Test reaches significance</p>
+                                    <p class="text-xs text-gray-500">Slack only</p>
+                                </div>
+                            </div>
+                            <input type="checkbox" checked class="text-indigo-600">
+                        </div>
+
+                        <div class="flex items-center justify-between p-3 border rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xl">💡</span>
+                                <div>
+                                    <p class="font-semibold text-sm">Major insight validated</p>
+                                    <p class="text-xs text-gray-500">Email only</p>
+                                </div>
+                            </div>
+                            <input type="checkbox" checked class="text-indigo-600">
+                        </div>
+
+                        <div class="flex items-center justify-between p-3 border rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xl">📊</span>
+                                <div>
+                                    <p class="font-semibold text-sm">Daily summary</p>
+                                    <p class="text-xs text-gray-500">Email</p>
+                                </div>
+                            </div>
+                            <input type="checkbox" class="text-indigo-600">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Team Members -->
+                <div class="setting-card bg-white rounded-xl shadow p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-lg">Team Members</h3>
+                        <button class="px-3 py-1 bg-indigo-600 text-white rounded text-xs font-semibold hover:bg-indigo-700">+ Invite</button>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 border rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center font-semibold text-purple-700">
+                                    MS
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-sm">Melis Sutci</p>
+                                    <p class="text-xs text-gray-500">Owner • All notifications</p>
+                                </div>
+                            </div>
+                            <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">Owner</span>
+                        </div>
+
+                        <div class="flex items-center justify-between p-3 border rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center font-semibold text-teal-700">
+                                    AK
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-sm">Ahmet Kaya</p>
+                                    <p class="text-xs text-gray-500">PM • Test results only</p>
+                                </div>
+                            </div>
+                            <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Editor</span>
+                        </div>
+
+                        <div class="flex items-center justify-between p-3 border rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center font-semibold text-orange-700">
+                                    DT
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-sm">Data Team</p>
+                                    <p class="text-xs text-gray-500">Read-only • No notifications</p>
+                                </div>
+                            </div>
+                            <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">Viewer</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3">
+                <button class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition shadow-md">
+                    Save Changes
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB: Psychology Library -->
+        <div id="content-principles" class="tab-content hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">🧠 Psychology Principles Library</h2>
+
+            <div class="space-y-6">
+
+                <!-- Active Principles -->
+                <div class="bg-white rounded-xl shadow p-6">
+                    <h3 class="font-bold text-lg mb-4">✓ Active Principles (12)</h3>
+
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="border-2 border-green-500 rounded-lg p-4 bg-green-50">
+                            <h4 class="font-semibold text-sm mb-2">Cialdini's 6 Principles</h4>
+                            <ul class="text-xs text-gray-600 space-y-1">
+                                <li>• Social Proof</li>
+                                <li>• Authority</li>
+                                <li>• Liking</li>
+                                <li>• Reciprocity</li>
+                                <li>• Commitment & Consistency</li>
+                                <li>• Scarcity</li>
+                            </ul>
+                            <div class="mt-3 pt-3 border-t">
+                                <span class="text-xs text-green-700 font-semibold">47 tests applied</span>
+                            </div>
+                        </div>
+
+                        <div class="border-2 border-green-500 rounded-lg p-4 bg-green-50">
+                            <h4 class="font-semibold text-sm mb-2">Kahneman's Biases</h4>
+                            <ul class="text-xs text-gray-600 space-y-1">
+                                <li>• Loss Aversion</li>
+                                <li>• Anchoring</li>
+                                <li>• Availability Heuristic</li>
+                                <li>• Framing Effect</li>
+                            </ul>
+                            <div class="mt-3 pt-3 border-t">
+                                <span class="text-xs text-green-700 font-semibold">34 tests applied</span>
+                            </div>
+                        </div>
+
+                        <div class="border-2 border-green-500 rounded-lg p-4 bg-green-50">
+                            <h4 class="font-semibold text-sm mb-2">Fogg Behavior Model</h4>
+                            <ul class="text-xs text-gray-600 space-y-1">
+                                <li>• Motivation triggers</li>
+                                <li>• Ability optimization</li>
+                                <li>• Prompt timing</li>
+                            </ul>
+                            <div class="mt-3 pt-3 border-t">
+                                <span class="text-xs text-green-700 font-semibold">18 tests applied</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custom Principles -->
+                <div class="bg-white rounded-xl shadow p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-lg">Your Custom Principles</h3>
+                        <button class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition">
+                            + Add Custom Principle
+                        </button>
+                    </div>
+
+                    <div class="text-center py-8 text-gray-500">
+                        <span class="text-4xl block mb-2">📚</span>
+                        <p class="text-sm">No custom principles yet.</p>
+                        <p class="text-xs">Add domain-specific psychology patterns unique to your product.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="max-w-7xl mx-auto px-6 py-6 text-center">
+            <p class="text-sm text-gray-500">
+                <span class="font-medium">Behavioural Hub</span> • Platform Configuration •
+                <span class="text-purple-600">Fine-tune your testing engine</span>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Tab switching
+        function showTab(tabName) {
+            // Hide all content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            // Remove active state from all tabs
+            document.querySelectorAll('[id^="tab-"]').forEach(tab => {
+                tab.classList.remove('text-indigo-600', 'border-b-2', 'border-indigo-600');
+                tab.classList.add('text-gray-600');
+            });
+
+            // Show selected content
+            document.getElementById('content-' + tabName).classList.remove('hidden');
+
+            // Add active state to selected tab
+            const selectedTab = document.getElementById('tab-' + tabName);
+            selectedTab.classList.remove('text-gray-600');
+            selectedTab.classList.add('text-indigo-600', 'border-b-2', 'border-indigo-600');
+        }
+
+        // Update slider values
+        function updateValue(id, value) {
+            document.getElementById(id + '-value').textContent = value;
+        }
+
+        // Auto-save indicator (mock)
+        let saveTimeout;
+        document.querySelectorAll('input, select').forEach(input => {
+            input.addEventListener('change', () => {
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(() => {
+                    // Show save indicator
+                    console.log('Auto-saved');
+                }, 1000);
+            });
+        });
+    </script>
+
+</body>
+</html>
