@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Segment Intelligence - Behavioural Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        detective: '#8B5CF6',
+                        victim: '#14B8A6',
+                        passive: '#A8A29E',
+                        accent: '#FB7185',
+                        insight: '#7C3AED'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .segment-card {
+            transition: all 0.3s ease;
+        }
+
+        .segment-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(139, 92, 246, 0.6); }
+        }
+
+        .pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-6 py-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                        <span class="text-2xl">🧠</span>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-light tracking-wide">Segment Intelligence</h1>
+                        <p class="text-sm text-purple-200 font-light">Living, Evolving User Archetypes</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm font-light">Active Segments: <span class="font-bold">3</span></p>
+                    <p class="text-xs text-purple-200 mt-1">AI-Discovered: 1 new pattern</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex items-center space-x-1">
+                <a href="index.html" class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-50 transition rounded-t-lg">
+                    🏠 Dashboard
+                </a>
+                <a href="scenario-hub.html" class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-50 transition rounded-t-lg">
+                    📊 Scenario Hub
+                </a>
+                <a href="insights.html" class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-50 transition rounded-t-lg">
+                    🧠 Insights
+                </a>
+                <a href="segments.html" class="px-4 py-3 text-sm font-medium text-indigo-600 border-b-2 border-indigo-600 transition">
+                    👥 Segments
+                </a>
+                <a href="settings.html" class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-50 transition rounded-t-lg">
+                    ⚙️ Settings
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-6 py-8">
+
+        <!-- Quick Stats -->
+        <section class="mb-8">
+            <div class="grid grid-cols-4 gap-4">
+                <div class="bg-white rounded-xl shadow p-6 text-center">
+                    <div class="text-3xl font-bold text-indigo-600">3</div>
+                    <div class="text-sm text-gray-500">Active Segments</div>
+                </div>
+                <div class="bg-white rounded-xl shadow p-6 text-center">
+                    <div class="text-3xl font-bold text-green-600">68%</div>
+                    <div class="text-sm text-gray-500">Avg Success Rate</div>
+                </div>
+                <div class="bg-white rounded-xl shadow p-6 text-center">
+                    <div class="text-3xl font-bold text-purple-600">$207K</div>
+                    <div class="text-sm text-gray-500">Total Revenue Impact</div>
+                </div>
+                <div class="bg-white rounded-xl shadow p-6 text-center">
+                    <div class="text-3xl font-bold text-orange-600">1</div>
+                    <div class="text-sm text-gray-500">AI Pattern Detected</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI-Discovered Pattern (Priority Alert) -->
+        <section class="mb-8">
+            <div class="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl shadow-2xl p-8 text-white pulse-glow">
+                <div class="flex items-start gap-4">
+                    <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+                        <span class="text-4xl">🤖</span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-3">
+                            <h2 class="text-2xl font-bold">AI Discovered a New Behavioral Pattern</h2>
+                            <span class="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-xs font-bold">NEW</span>
+                        </div>
+                        <p class="text-purple-100 text-lg mb-6">
+                            A distinct user group with unique behaviors has emerged from recent test data. This pattern doesn't fit existing segments.
+                        </p>
+
+                        <!-- Proposed Segment Card -->
+                        <div class="bg-white text-gray-800 rounded-xl p-6">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-4xl">😰</span>
+                                    <div>
+                                        <h3 class="text-xl font-bold">Anxious Protectors</h3>
+                                        <p class="text-sm text-gray-500">Suggested name based on behavioral traits</p>
+                                    </div>
+                                </div>
+                                <span class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm font-semibold">8.2% of users</span>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-6 mb-6">
+                                <!-- Evidence -->
+                                <div>
+                                    <h4 class="text-sm font-bold text-gray-700 mb-3">📊 Evidence</h4>
+                                    <ul class="space-y-2 text-sm text-gray-600">
+                                        <li>• 847 users identified (8.2% of base)</li>
+                                        <li>• High spam exposure but low action rate</li>
+                                        <li>• Premium trial starts but cancels after 2 days</li>
+                                        <li>• Checks app multiple times but doesn't engage</li>
+                                    </ul>
+                                </div>
+
+                                <!-- Behavioral Pattern -->
+                                <div>
+                                    <h4 class="text-sm font-bold text-gray-700 mb-3">🧠 Behavioral Pattern</h4>
+                                    <ul class="space-y-2 text-sm text-gray-600">
+                                        <li>• Wants protection but fears commitment</li>
+                                        <li>• Responds to "cancel anytime" (+34%)</li>
+                                        <li>• Ignores scarcity messaging</li>
+                                        <li>• Needs reassurance & safety signals</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                                <h4 class="text-sm font-bold text-blue-900 mb-2">📈 Why This Matters</h4>
+                                <p class="text-sm text-blue-700">
+                                    This group behaves differently from <strong>Victims</strong> (who convert on authority signals)
+                                    and <strong>Passives</strong> (who ignore until activated). They exhibit decision paralysis
+                                    from over-analysis. "Commitment-free" framing could unlock <strong>$23K/year potential</strong>.
+                                </p>
+                            </div>
+
+                            <div class="flex gap-3">
+                                <button onclick="createNewSegment()" class="flex-1 px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition shadow-lg">
+                                    ✨ Create New Segment
+                                </button>
+                                <button onclick="mergeSegment()" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition">
+                                    🔀 Merge with Victims
+                                </button>
+                                <button onclick="dismissPattern()" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition">
+                                    ✕ Dismiss
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Active Segments -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">👥 Active Segments (3)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                <!-- Dedektifler -->
+                <div class="segment-card bg-white rounded-xl shadow-lg border-t-4 border-detective">
+                    <div class="p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <span class="text-5xl">🕵️</span>
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-800">Dedektifler</h3>
+                                    <p class="text-sm text-gray-500">Curiosity-driven explorers</p>
+                                </div>
+                            </div>
+                            <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-bold">38%</span>
+                        </div>
+
+                        <!-- Metrics -->
+                        <div class="space-y-3 mb-6">
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-600">Insights Tested</span>
+                                    <strong class="text-purple-700">47</strong>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-purple-500 h-2 rounded-full" style="width: 75%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-600">Success Rate</span>
+                                    <strong class="text-green-600">72%</strong>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: 72%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-600">Revenue Impact</span>
+                                    <strong class="text-indigo-600">$94K</strong>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-indigo-500 h-2 rounded-full" style="width: 60%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Core Traits -->
+                        <div class="border-t pt-4 mb-4">
+                            <h4 class="text-xs font-bold text-gray-700 mb-2">CORE TRAITS</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="text-xs bg-purple-50 text-purple-700 px-2 py-1 rounded">High FOMO</span>
+                                <span class="text-xs bg-purple-50 text-purple-700 px-2 py-1 rounded">Info-seeking</span>
+                                <span class="text-xs bg-purple-50 text-purple-700 px-2 py-1 rounded">Social aware</span>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex gap-2">
+                            <button onclick="openSegmentDetail('detectives')" class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-semibold hover:bg-purple-700 transition">
+                                View Details
+                            </button>
+                            <button onclick="viewTimeline('detectives')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-200 transition">
+                                Timeline
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mağdurlar -->
+                <div class="segment-card bg-white rounded-xl shadow-lg border-t-4 border-victim">
+                    <div class="p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <span class="text-5xl">🛡️</span>
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-800">Mağdurlar</h3>
+                                    <p class="text-sm text-gray-500">Safety-focused protectors</p>
+                                </div>
+                            </div>
+                            <span class="bg-teal-100 text-teal-700 px-3 py-1 rounded-full text-sm font-bold">29%</span>
+                        </div>
+
+                        <!-- Metrics -->
+                        <div class="space-y-3 mb-6">
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-600">Insights Tested</span>
+                                    <strong class="text-teal-700">34</strong>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-teal-500 h-2 rounded-full" style="width: 54%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-600">Success Rate</span>
+                                    <strong class="text-green-600">68%</strong>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: 68%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-600">Revenue Impact</span>
+                                    <strong class="text-indigo-600">$71K</strong>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-indigo-500 h-2 rounded-full" style="width: 45%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Core Traits -->
+                        <div class="border-t pt-4 mb-4">
+                            <h4 class="text-xs font-bold text-gray-700 mb-2">CORE TRAITS</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="text-xs bg-teal-50 text-teal-700 px-2 py-1 rounded">Risk-averse</span>
+                                <span class="text-xs bg-teal-50 text-teal-700 px-2 py-1 rounded">Trust-focused</span>
+                                <span class="text-xs bg-teal-50 text-teal-700 px-2 py-1 rounded">Authority-responsive</span>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex gap-2">
+                            <button onclick="openSegmentDetail('victims')" class="flex-1 px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-semibold hover:bg-teal-700 transition">
+                                View Details
+                            </button>
+                            <button onclick="viewTimeline('victims')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-200 transition">
+                                Timeline
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pasifler -->
+                <div class="segment-card bg-white rounded-xl shadow-lg border-t-4 border-passive">
+                    <div class="p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <span class="text-5xl">😴</span>
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-800">Pasifler</h3>
+                                    <p class="text-sm text-gray-500">Utility-focused minimalists</p>
+                                </div>
+                            </div>
+                            <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-bold">33%</span>
+                        </div>
+
+                        <!-- Metrics -->
+                        <div class="space-y-3 mb-6">
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-600">Insights Tested</span>
+                                    <strong class="text-gray-700">28</strong>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-gray-500 h-2 rounded-full" style="width: 45%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-600">Success Rate</span>
+                                    <strong class="text-yellow-600">54%</strong>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: 54%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-600">Revenue Impact</span>
+                                    <strong class="text-indigo-600">$42K</strong>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-indigo-500 h-2 rounded-full" style="width: 27%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Core Traits -->
+                        <div class="border-t pt-4 mb-4">
+                            <h4 class="text-xs font-bold text-gray-700 mb-2">CORE TRAITS</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="text-xs bg-gray-50 text-gray-700 px-2 py-1 rounded">Low engagement</span>
+                                <span class="text-xs bg-gray-50 text-gray-700 px-2 py-1 rounded">Utility-driven</span>
+                                <span class="text-xs bg-gray-50 text-gray-700 px-2 py-1 rounded">Reciprocity-responsive</span>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex gap-2">
+                            <button onclick="openSegmentDetail('passives')" class="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg text-sm font-semibold hover:bg-gray-700 transition">
+                                View Details
+                            </button>
+                            <button onclick="viewTimeline('passives')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-200 transition">
+                                Timeline
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- AI Enhancement Suggestions -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">✨ AI-Suggested Enhancements</h2>
+            <div class="space-y-4">
+
+                <div class="bg-purple-50 border-l-4 border-purple-500 rounded-lg p-5">
+                    <div class="flex items-start gap-4">
+                        <span class="text-3xl">🕵️</span>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <h3 class="font-bold text-gray-800">Dedektifler Enhancement</h3>
+                                <span class="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs font-semibold">High Confidence</span>
+                            </div>
+                            <p class="text-sm text-gray-700 mb-3">
+                                We noticed <strong>72% of Detectives</strong> also heavily check the "Who Blocked Me" feature (avg 4.3x/week).
+                                This suggests strong <strong>curiosity about rejection/negative social feedback</strong>.
+                            </p>
+                            <div class="bg-white rounded-lg p-3 mb-3 text-sm">
+                                <strong>Proposed Trait Addition:</strong> "Rejection-curious" or "Negative feedback seeking"<br>
+                                <strong>Impact:</strong> Better targeting for features related to blocked contacts, hidden callers
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="addTrait('detectives', 'rejection-curious')" class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-semibold hover:bg-purple-700 transition">
+                                    ✅ Add Trait
+                                </button>
+                                <button onclick="viewData('detectives', 'blocked-feature')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-200 transition">
+                                    📊 View Data
+                                </button>
+                                <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-200 transition">
+                                    ✕ Dismiss
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-teal-50 border-l-4 border-teal-500 rounded-lg p-5">
+                    <div class="flex items-start gap-4">
+                        <span class="text-3xl">🛡️</span>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <h3 class="font-bold text-gray-800">Mağdurlar Enhancement</h3>
+                                <span class="bg-teal-100 text-teal-700 px-2 py-1 rounded text-xs font-semibold">Medium Confidence</span>
+                            </div>
+                            <p class="text-sm text-gray-700 mb-3">
+                                Victims who see the <strong>security badge within first 3 seconds</strong> convert <strong>28% higher</strong> to premium.
+                                This segment is extremely responsive to immediate trust signals.
+                            </p>
+                            <div class="bg-white rounded-lg p-3 mb-3 text-sm">
+                                <strong>Proposed Action:</strong> Update onboarding to show security badge first for Victims<br>
+                                <strong>Estimated Impact:</strong> +$19K/year additional revenue
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="updateOnboarding('victims')" class="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-semibold hover:bg-teal-700 transition">
+                                    ✅ Update Onboarding
+                                </button>
+                                <button onclick="testFirst('victims-badge')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-200 transition">
+                                    🧪 Test First
+                                </button>
+                                <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-200 transition">
+                                    ✕ Dismiss
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Segment Evolution Timeline -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">📅 Segment Evolution Timeline</h2>
+            <div class="bg-white rounded-xl shadow p-8">
+                <div class="relative">
+                    <!-- Timeline Line -->
+                    <div class="absolute left-8 top-0 bottom-0 w-1 bg-gray-200"></div>
+
+                    <!-- Timeline Events -->
+                    <div class="space-y-8">
+
+                        <div class="relative pl-20">
+                            <div class="absolute left-6 w-5 h-5 bg-blue-500 rounded-full border-4 border-white shadow"></div>
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <div class="text-xs text-blue-700 font-semibold mb-1">AUG 2023 - Initial Discovery</div>
+                                <h4 class="font-semibold mb-1">Platform Launch: 2 Basic Segments</h4>
+                                <p class="text-sm text-gray-600">Started with simple "Active Users" and "Passive Users" segmentation</p>
+                            </div>
+                        </div>
+
+                        <div class="relative pl-20">
+                            <div class="absolute left-6 w-5 h-5 bg-purple-500 rounded-full border-4 border-white shadow"></div>
+                            <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                                <div class="text-xs text-purple-700 font-semibold mb-1">DEC 2023 - New Pattern</div>
+                                <h4 class="font-semibold mb-1">🕵️ "Dedektifler" Segment Created</h4>
+                                <p class="text-sm text-gray-600">Discovered curiosity-driven users who check profiles frequently. Moved from "Active Users"</p>
+                            </div>
+                        </div>
+
+                        <div class="relative pl-20">
+                            <div class="absolute left-6 w-5 h-5 bg-teal-500 rounded-full border-4 border-white shadow"></div>
+                            <div class="bg-teal-50 border border-teal-200 rounded-lg p-4">
+                                <div class="text-xs text-teal-700 font-semibold mb-1">MAR 2024 - Segment Split</div>
+                                <h4 class="font-semibold mb-1">🛡️ Split "Passives" → Victims + True Passives</h4>
+                                <p class="text-sm text-gray-600">Realized passive users were two groups: spam-affected (Victims) vs truly disengaged (Passives)</p>
+                            </div>
+                        </div>
+
+                        <div class="relative pl-20">
+                            <div class="absolute left-6 w-5 h-5 bg-gray-400 rounded-full border-4 border-white shadow"></div>
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                <div class="text-xs text-gray-700 font-semibold mb-1">JUN 2024 - Merge</div>
+                                <h4 class="font-semibold mb-1">Merged "Curious Users" into Dedektifler</h4>
+                                <p class="text-sm text-gray-600">Behavioral overlap was 89%. Consolidated for clarity</p>
+                            </div>
+                        </div>
+
+                        <div class="relative pl-20">
+                            <div class="absolute left-6 w-5 h-5 bg-green-500 rounded-full border-4 border-white shadow animate-pulse"></div>
+                            <div class="bg-green-50 border-2 border-green-400 rounded-lg p-4">
+                                <div class="text-xs text-green-700 font-semibold mb-1 flex items-center gap-2">
+                                    JAN 2026 - CURRENT STATE <span class="animate-pulse">●</span>
+                                </div>
+                                <h4 class="font-semibold mb-1">3 Active Segments + 1 AI Suggestion</h4>
+                                <p class="text-sm text-gray-600">Dedektifler (38%), Mağdurlar (29%), Pasifler (33%) + New "Anxious Protectors" pattern detected</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Legacy Segments -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">📦 Legacy Segments (Archived)</h2>
+            <div class="bg-white rounded-xl shadow p-6">
+                <div class="space-y-4">
+
+                    <div class="flex items-center justify-between border-b pb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl opacity-50">🏃</span>
+                            <div>
+                                <h4 class="font-semibold text-gray-700">Active Users</h4>
+                                <p class="text-xs text-gray-500">Archived: Dec 2023 • Reason: Split into Dedektifler + Others</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="px-3 py-1 bg-gray-100 text-gray-600 rounded text-xs font-semibold hover:bg-gray-200">View Data</button>
+                            <button class="px-3 py-1 bg-gray-100 text-gray-600 rounded text-xs font-semibold hover:bg-gray-200">Reactivate</button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between pb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl opacity-50">🤔</span>
+                            <div>
+                                <h4 class="font-semibold text-gray-700">Curious Users</h4>
+                                <p class="text-xs text-gray-500">Archived: Jun 2024 • Reason: Merged into Dedektifler (89% overlap)</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="px-3 py-1 bg-gray-100 text-gray-600 rounded text-xs font-semibold hover:bg-gray-200">View Data</button>
+                            <button class="px-3 py-1 bg-gray-100 text-gray-600 rounded text-xs font-semibold hover:bg-gray-200">Reactivate</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Segment Management Tools -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">🔧 Segment Management</h2>
+            <div class="grid grid-cols-2 gap-6">
+
+                <div class="bg-white rounded-xl shadow p-6">
+                    <h3 class="font-semibold mb-4 flex items-center gap-2">
+                        <span class="text-2xl">🔀</span> Merge Segments
+                    </h3>
+                    <p class="text-sm text-gray-600 mb-4">Combine two segments when behavioral overlap is high (>70%)</p>
+                    <button class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition">
+                        Start Merge Tool
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-xl shadow p-6">
+                    <h3 class="font-semibold mb-4 flex items-center gap-2">
+                        <span class="text-2xl">✂️</span> Split Segment
+                    </h3>
+                    <p class="text-sm text-gray-600 mb-4">Divide a segment into 2+ groups based on distinct behaviors</p>
+                    <button class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition">
+                        Start Split Tool
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="max-w-7xl mx-auto px-6 py-6 text-center">
+            <p class="text-sm text-gray-500">
+                <span class="font-medium">Behavioural Hub</span> • Segment Intelligence •
+                <span class="text-purple-600">Living, Evolving Archetypes</span>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        function createNewSegment() {
+            if (confirm('🎉 Create "Anxious Protectors" segment?\n\nThis will:\n• Add new segment to active segments\n• Start tracking 847 users\n• Enable targeted testing\n\nRecommended: Test this pattern first with a small A/B test.')) {
+                alert('✅ Segment "Anxious Protectors" created!\n\n👥 847 users added\n🧪 Ready for targeted testing\n📊 Dashboard updated');
+            }
+        }
+
+        function mergeSegment() {
+            if (confirm('🔀 Merge into Victims?\n\nThis will:\n• Add "Anxious Protectors" traits to Victims\n• Update population (29% → 37.2%)\n• Preserve historical data\n\nNote: This action can be undone within 30 days.')) {
+                alert('✅ Merged into Victims segment!\n\n👥 New population: 37.2%\n📝 Traits updated\n📊 Historical data preserved');
+            }
+        }
+
+        function dismissPattern() {
+            if (confirm('❌ Dismiss this pattern?\n\nThe pattern won\'t be shown again. You can review dismissed patterns in Settings.')) {
+                alert('Pattern dismissed. You can review it later in Settings > Dismissed AI Patterns');
+                window.location.reload();
+            }
+        }
+
+        function openSegmentDetail(segment) {
+            alert(`📊 Opening detailed view for ${segment}...\n\n(This would open a modal/page with:\n• Full behavioral profile\n• Test history\n• Success patterns\n• Recommended tactics)`);
+        }
+
+        function viewTimeline(segment) {
+            alert(`📅 Viewing evolution timeline for ${segment}...\n\n(Shows how this segment changed over time)`);
+        }
+
+        function addTrait(segment, trait) {
+            if (confirm(`Add "${trait}" trait to ${segment}?\n\nThis will affect:\n• Segment targeting\n• AI recommendations\n• Test suggestions`)) {
+                alert(`✅ Trait added to ${segment}!\n\n🧠 AI will now factor this into recommendations`);
+            }
+        }
+
+        function viewData(segment, feature) {
+            alert(`📊 Viewing data for ${segment} - ${feature}...\n\n(Would show detailed analytics)`);
+        }
+
+        function updateOnboarding(segment) {
+            if (confirm(`Update onboarding for ${segment}?\n\nPotential impact: +$19K/year\nThis will create an A/B test first.`)) {
+                alert(`🧪 A/B test created!\n\nTest: Security badge first for Victims\nEstimated duration: 14 days\nYou'll be notified when results are ready`);
+            }
+        }
+
+        function testFirst(testId) {
+            alert(`🧪 Creating test: ${testId}...\n\n(Would redirect to test creation page)`);
+        }
+    </script>
+
+</body>
+</html>
