@@ -36,74 +36,74 @@ body { font-family: Inter, sans-serif; }
 <header class="bg-gradient-to-r from-indigo-600 to-purple-700 text-white shadow-lg sticky top-0 z-50">
   <!-- Breadcrumb Navigation -->
   <div class="bg-white/10 backdrop-blur-sm border-b border-white/20">
-    <div class="max-w-[1800px] mx-auto px-8 py-2">
+    <div class="max-w-7xl mx-auto px-8 py-2">
       <div class="flex items-center gap-2 text-xs">
         <a href="index.html" class="hover:text-white/70 transition">🏠 Dashboard</a>
         <span class="text-white/50">/</span>
         <a href="scenario-hub.html" class="hover:text-white/70 transition">📊 Scenario Hub</a>
         <span class="text-white/50">/</span>
-        <span class="text-white/90 font-medium">Scenario Detail</span>
+        <span class="text-white/90 font-medium">Test Detayı</span>
       </div>
     </div>
   </div>
 
   <!-- Main Header Content -->
   <div class="px-8 py-4">
-    <div class="flex justify-between items-center max-w-[1800px] mx-auto">
+    <div class="flex justify-between items-center max-w-7xl mx-auto">
       <div class="flex items-center gap-4">
         <a href="scenario-hub.html" class="text-2xl hover:opacity-80 transition">←</a>
         <div>
-          <h1 class="text-xl font-semibold">🎯 Loss Aversion Paywall Test</h1>
-          <p class="text-xs opacity-80">Dedektifler | Premium Conversion | A/B Test</p>
+          <h1 class="text-xl font-semibold">🎯 Kayıp Korkusu Paywall Testi</h1>
+          <p class="text-xs opacity-80">Dedektifler | Premium Dönüşüm | A/B Test</p>
         </div>
       </div>
       <div class="flex items-center gap-3">
         <span class="px-3 py-1.5 bg-yellow-400 text-yellow-900 rounded-lg text-xs font-semibold animate-pulse">
-          🧪 RUNNING
+          🧪 ÇALIŞIYOR
         </span>
         <button class="px-4 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition text-sm">
-          📊 Export Report
+          📊 Rapor İndir
         </button>
         <button class="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg transition text-sm font-semibold">
-          🛑 Stop Test
+          🛑 Testi Durdur
         </button>
       </div>
     </div>
   </div>
 </header>
 
-<main class="max-w-[1800px] mx-auto px-8 py-8">
+<main class="max-w-7xl mx-auto px-8 py-8">
 
 <!-- KEY METRICS BANNER -->
 <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
   <div class="bg-white p-5 rounded-xl shadow text-center border-l-4 border-green-500">
     <div class="text-3xl font-bold text-green-600">+18.4%</div>
-    <div class="text-xs text-gray-500 mt-1">Conversion Uplift</div>
-    <div class="text-xs text-green-600 mt-1">↑ Variant B winning</div>
+    <div class="text-xs text-gray-500 mt-1">Dönüşüm Artışı</div>
+    <div class="text-xs text-green-600 mt-1">↑ Varyant B kazanıyor</div>
   </div>
 
   <div class="bg-white p-5 rounded-xl shadow text-center">
     <div class="text-3xl font-bold text-indigo-600">89%</div>
-    <div class="text-xs text-gray-500 mt-1">Confidence Level</div>
-    <div class="text-xs text-gray-600 mt-1">Target: 95%</div>
+    <div class="text-xs text-gray-500 mt-1">Güven Seviyesi</div>
+    <div class="text-xs text-gray-600 mt-1">Hedef: 95%</div>
   </div>
 
   <div class="bg-white p-5 rounded-xl shadow text-center">
     <div class="text-3xl font-bold text-gray-900">24,847</div>
-    <div class="text-xs text-gray-500 mt-1">Users Tested</div>
-    <div class="text-xs text-gray-600 mt-1">50% each variant</div>
+    <div class="text-xs text-gray-500 mt-1">Test Edilen Kullanıcı</div>
+    <div class="text-xs text-gray-600 mt-1">Her varyant %50</div>
   </div>
 
   <div class="bg-white p-5 rounded-xl shadow text-center">
     <div class="text-3xl font-bold text-purple-600">+$8.7k</div>
-    <div class="text-xs text-gray-500 mt-1">Expected Impact/mo</div>
+    <div class="text-xs text-gray-500 mt-1">Beklenen Etki/ay</div>
     <div class="text-xs text-gray-600 mt-1">$104k ARR</div>
   </div>
 
   <div class="bg-white p-5 rounded-xl shadow text-center">
-    <div class="text-3xl font-bold text-yellow-600">5 days</div>
-    <div class="text-xs text-gray-500 mt-1">Time Remaining</div>
-    <div class="text-xs text-gray-600 mt-1">Started: Jan 12</div>
+    <div class="text-3xl font-bold text-yellow-600">5 gün</div>
+    <div class="text-xs text-gray-500 mt-1">Kalan Süre</div>
+    <div class="text-xs text-gray-600 mt-1">Başlangıç: 12 Ocak</div>
   </div>
 </div>
 
@@ -111,22 +111,22 @@ body { font-family: Inter, sans-serif; }
 <div class="bg-white rounded-xl shadow mb-8">
   <div class="border-b px-6 py-4 flex gap-2 overflow-x-auto">
     <button onclick="switchTab('overview')" class="tab-btn active px-4 py-2 rounded-lg font-medium text-sm transition whitespace-nowrap">
-      📊 Overview
+      📊 Genel Bakış
     </button>
     <button onclick="switchTab('variants')" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition whitespace-nowrap hover:bg-gray-100">
-      🎨 Variants (A/B)
+      🎨 Varyantlar (A/B)
     </button>
     <button onclick="switchTab('analytics')" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition whitespace-nowrap hover:bg-gray-100">
-      📈 Analytics
+      📈 Analitik
     </button>
     <button onclick="switchTab('insights')" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition whitespace-nowrap hover:bg-gray-100">
-      🤖 AI Insights
+      🤖 AI Öngörüleri
     </button>
     <button onclick="switchTab('timeline')" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition whitespace-nowrap hover:bg-gray-100">
-      ⏱️ Timeline
+      ⏱️ Zaman Çizelgesi
     </button>
     <button onclick="switchTab('notes')" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition whitespace-nowrap hover:bg-gray-100">
-      💬 Team Notes (3)
+      💬 Takım Notları (<span id="noteCount">3</span>)
     </button>
   </div>
 
@@ -421,7 +421,10 @@ body { font-family: Inter, sans-serif; }
 
       <!-- Segment Breakdown -->
       <div class="bg-white border rounded-xl p-6">
-        <h4 class="font-semibold mb-4">👥 Performance by User Cohort</h4>
+        <div class="mb-3">
+          <h4 class="font-semibold mb-1">👥 Kullanıcı Kohortuna Göre Performans</h4>
+          <p class="text-xs text-gray-500">Farklı kullanıcı gruplarının (yeni, aktif, pasif) testteki dönüşüm performansını karşılaştırır</p>
+        </div>
         <div style="height: 280px; min-height: 280px;">
           <canvas id="cohortChart"></canvas>
         </div>
@@ -429,7 +432,10 @@ body { font-family: Inter, sans-serif; }
 
       <!-- Device Breakdown -->
       <div class="bg-white border rounded-xl p-6">
-        <h4 class="font-semibold mb-4">📱 Performance by Device</h4>
+        <div class="mb-3">
+          <h4 class="font-semibold mb-1">📱 Cihaza Göre Performans</h4>
+          <p class="text-xs text-gray-500">Test sonuçlarının mobil (iOS/Android) ve desktop cihazlarda nasıl değiştiğini gösterir</p>
+        </div>
         <div style="height: 280px; min-height: 280px;">
           <canvas id="deviceChart"></canvas>
         </div>
@@ -439,12 +445,15 @@ body { font-family: Inter, sans-serif; }
 
     <!-- Funnel Analysis -->
     <div class="bg-white border rounded-xl p-6 mb-6">
-      <h4 class="font-semibold mb-4">🔻 Conversion Funnel Analysis</h4>
+      <div class="mb-4">
+        <h4 class="font-semibold mb-1">🔻 Dönüşüm Hunisi Analizi</h4>
+        <p class="text-xs text-gray-500">Kullanıcıların paywall'ı görme, tıklama ve dönüşüm aşamalarındaki ilerleyişini takip eder. Her aşamadaki düşüş oranı optimizasyon fırsatlarını gösterir.</p>
+      </div>
       <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
         <div class="text-center">
           <div class="bg-indigo-100 rounded-lg p-4 mb-2">
             <div class="text-2xl font-bold text-indigo-700">24,847</div>
-            <div class="text-xs text-gray-600 mt-1">Saw Paywall</div>
+            <div class="text-xs text-gray-600 mt-1">Paywall Gördü</div>
           </div>
           <div class="text-xs text-gray-500">100%</div>
         </div>
@@ -452,7 +461,7 @@ body { font-family: Inter, sans-serif; }
         <div class="text-center">
           <div class="bg-indigo-100 rounded-lg p-4 mb-2">
             <div class="text-2xl font-bold text-indigo-700">9,847</div>
-            <div class="text-xs text-gray-600 mt-1">Clicked CTA</div>
+            <div class="text-xs text-gray-600 mt-1">CTA Tıkladı</div>
           </div>
           <div class="text-xs text-gray-500">39.6%</div>
         </div>
@@ -460,7 +469,7 @@ body { font-family: Inter, sans-serif; }
         <div class="text-center">
           <div class="bg-green-100 rounded-lg p-4 mb-2">
             <div class="text-2xl font-bold text-green-700">2,223</div>
-            <div class="text-xs text-gray-600 mt-1">Converted</div>
+            <div class="text-xs text-gray-600 mt-1">Dönüştü</div>
           </div>
           <div class="text-xs text-green-600 font-semibold">8.95%</div>
         </div>
@@ -469,27 +478,39 @@ body { font-family: Inter, sans-serif; }
 
     <!-- Statistical Significance -->
     <div class="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-xl p-6">
-      <h4 class="font-semibold mb-4 text-indigo-900">📊 Statistical Significance</h4>
+      <div class="mb-4">
+        <h4 class="font-semibold mb-1 text-indigo-900">📊 İstatistiksel Anlamlılık</h4>
+        <p class="text-xs text-gray-600">Test sonuçlarının rastgele olmadığını, gerçek bir fark olduğunu gösterir. %95 güven seviyesine ulaşmak için yeterli veri toplamalıyız.</p>
+      </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
-          <p class="text-sm text-gray-600 mb-2">Current Confidence Level</p>
+          <div class="flex items-center gap-2 mb-2">
+            <p class="text-sm text-gray-600">Mevcut Güven Seviyesi</p>
+            <span class="cursor-help" title="Sonuçların ne kadar güvenilir olduğunu gösterir. %95'e ulaşmak idealdir.">ℹ️</span>
+          </div>
           <div class="flex items-end gap-2">
             <span class="text-4xl font-bold text-indigo-700">89%</span>
-            <span class="text-sm text-gray-500 mb-2">of 95% target</span>
+            <span class="text-sm text-gray-500 mb-2">/ %95 hedef</span>
           </div>
           <div class="w-full bg-gray-200 h-3 rounded-full mt-2">
             <div class="bg-indigo-600 h-3 rounded-full" style="width:89%"></div>
           </div>
         </div>
         <div>
-          <p class="text-sm text-gray-600 mb-2">P-Value</p>
+          <div class="flex items-center gap-2 mb-2">
+            <p class="text-sm text-gray-600">P-Değeri</p>
+            <span class="cursor-help" title="Sonucun şans eseri olma olasılığı. 0.05'ten küçükse anlamlıdır.">ℹ️</span>
+          </div>
           <div class="text-4xl font-bold text-green-700">0.012</div>
-          <p class="text-xs text-green-600 mt-2">✅ Significant (p < 0.05)</p>
+          <p class="text-xs text-green-600 mt-2">✅ Anlamlı (p < 0.05)</p>
         </div>
         <div>
-          <p class="text-sm text-gray-600 mb-2">Sample Size Needed</p>
+          <div class="flex items-center gap-2 mb-2">
+            <p class="text-sm text-gray-600">Gereken Örnek Boyutu</p>
+            <span class="cursor-help" title="%95 güvene ulaşmak için test etmemiz gereken toplam kullanıcı sayısı">ℹ️</span>
+          </div>
           <div class="text-4xl font-bold text-gray-900">~28k</div>
-          <p class="text-xs text-gray-600 mt-2">Est. 5 days to reach</p>
+          <p class="text-xs text-gray-600 mt-2">Tahmini 5 günde ulaşılır</p>
         </div>
       </div>
     </div>
@@ -500,8 +521,8 @@ body { font-family: Inter, sans-serif; }
   <div id="tab-insights" class="tab-content hidden p-6">
 
     <div class="bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-xl p-8 mb-6">
-      <h3 class="text-2xl font-bold mb-4">🤖 AI-Generated Insights</h3>
-      <p class="text-sm opacity-90">Based on 10,247 historical tests and behavioral patterns</p>
+      <h3 class="text-2xl font-bold mb-4">🤖 AI Tarafından Üretilen Öngörüler</h3>
+      <p class="text-sm opacity-90">10,247 geçmiş test ve davranışsal örüntülere dayanarak</p>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
@@ -509,20 +530,20 @@ body { font-family: Inter, sans-serif; }
       <!-- Why It's Working -->
       <div class="bg-green-50 border-2 border-green-200 rounded-xl p-6">
         <h4 class="font-semibold text-green-900 mb-4 flex items-center gap-2">
-          ✅ Why Variant B is Winning
+          ✅ Varyant B Neden Kazanıyor
         </h4>
         <div class="space-y-3 text-sm">
           <div class="bg-white rounded-lg p-3 border border-green-200">
-            <p class="font-semibold text-green-900 mb-1">🧠 Loss Aversion Trigger</p>
-            <p class="text-gray-700">Dedektifler segment has 3.2x higher response to loss-framed messaging than gain-framed. "You're missing out" creates urgency.</p>
+            <p class="font-semibold text-green-900 mb-1">🧠 Kayıp Korkusu Tetikleyicisi</p>
+            <p class="text-gray-700">Dedektifler segmenti, kazanç odaklı mesajlara göre kayıp çerçeveli mesajlara 3,2 kat daha fazla yanıt veriyor. "Kaçırıyorsun" mesajı aciliyet yaratıyor.</p>
           </div>
           <div class="bg-white rounded-lg p-3 border border-green-200">
-            <p class="font-semibold text-green-900 mb-1">📊 Personalized Data</p>
-            <p class="text-gray-700">Showing specific number ("3 people") increases perceived value by 42% vs. generic messaging.</p>
+            <p class="font-semibold text-green-900 mb-1">📊 Kişiselleştirilmiş Veri</p>
+            <p class="text-gray-700">Spesifik sayı gösterimi ("3 kişi") genel mesajlara göre algılanan değeri %42 artırıyor.</p>
           </div>
           <div class="bg-white rounded-lg p-3 border border-green-200">
-            <p class="font-semibold text-green-900 mb-1">⏱️ Faster Decision Time</p>
-            <p class="text-gray-700">Urgency framing reduced decision time by 26%, indicating stronger emotional trigger.</p>
+            <p class="font-semibold text-green-900 mb-1">⏱️ Daha Hızlı Karar Süresi</p>
+            <p class="text-gray-700">Aciliyet çerçevelemesi karar süresini %26 azalttı, bu daha güçlü duygusal tetikleyiciyi gösteriyor.</p>
           </div>
         </div>
       </div>
@@ -530,20 +551,20 @@ body { font-family: Inter, sans-serif; }
       <!-- Recommendations -->
       <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-6">
         <h4 class="font-semibold text-blue-900 mb-4 flex items-center gap-2">
-          💡 AI Recommendations
+          💡 AI Önerileri
         </h4>
         <div class="space-y-3 text-sm">
           <div class="bg-white rounded-lg p-3 border border-blue-200">
-            <p class="font-semibold text-blue-900 mb-1">🚀 Quick Win: Deploy Now</p>
-            <p class="text-gray-700">With 89% confidence and consistent performance, deploy Variant B immediately. Expected impact: +$8.7k/mo.</p>
+            <p class="font-semibold text-blue-900 mb-1">🚀 Hızlı Kazanım: Hemen Yayınla</p>
+            <p class="text-gray-700">%89 güven ve tutarlı performansla Varyant B'yi hemen yayınlayın. Beklenen etki: +$8.7k/ay.</p>
           </div>
           <div class="bg-white rounded-lg p-3 border border-blue-200">
-            <p class="font-semibold text-blue-900 mb-1">🔬 Next Test: Iterate</p>
-            <p class="text-gray-700">Test C: Add countdown timer "3 people viewed you in last 6 hours" for stronger urgency. Predicted uplift: +12-15%.</p>
+            <p class="font-semibold text-blue-900 mb-1">🔬 Sonraki Test: İterasyona Devam</p>
+            <p class="text-gray-700">Test C: "Son 6 saatte 3 kişi seni görüntüledi" geri sayım sayacı ekleyin. Tahmini artış: +%12-15.</p>
           </div>
           <div class="bg-white rounded-lg p-3 border border-blue-200">
-            <p class="font-semibold text-blue-900 mb-1">⚠️ Watch For: Churn</p>
-            <p class="text-gray-700">Monitor 30-day churn rate. Loss aversion can create buyer's remorse if not delivered value quickly.</p>
+            <p class="font-semibold text-blue-900 mb-1">⚠️ Dikkat Edilmesi Gereken: Churn</p>
+            <p class="text-gray-700">30 günlük churn oranını izleyin. Kayıp korkusu, hızlı değer verilmezse pişmanlığa yol açabilir.</p>
           </div>
         </div>
       </div>
@@ -654,29 +675,46 @@ body { font-family: Inter, sans-serif; }
 
     <div class="flex justify-between items-center mb-6">
       <div class="flex items-center gap-3">
-        <h3 class="font-semibold text-xl">💬 Team Notes & Discussion (3)</h3>
-        <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-semibold animate-pulse">1 New</span>
+        <h3 class="font-semibold text-xl">💬 Takım Notları & Tartışma (<span id="teamNoteCount">3</span>)</h3>
+        <span id="newNoteBadge" class="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-semibold animate-pulse">1 Yeni</span>
       </div>
       <div class="flex gap-2">
         <button onclick="toggleNoteNotifications()" id="notifBtn" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-200 transition flex items-center gap-2">
-          🔔 Subscribed
+          <span id="notifIcon">🔔</span> <span id="notifText">Abone Olundu</span>
         </button>
-        <button class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition">
-          + Add Note
+        <button onclick="showAddNoteForm()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition">
+          + Not Ekle
+        </button>
+      </div>
+    </div>
+
+    <!-- Add Note Form (Hidden by default) -->
+    <div id="addNoteForm" class="hidden bg-white border-2 border-indigo-300 rounded-xl p-5 mb-4">
+      <h4 class="font-semibold mb-3">✍️ Yeni Not Ekle</h4>
+      <textarea id="newNoteText" class="w-full border border-gray-300 rounded-lg p-3 text-sm mb-3" rows="4" placeholder="Notunuzu buraya yazın..."></textarea>
+      <div class="flex gap-2 justify-end">
+        <button onclick="cancelAddNote()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-50 transition">
+          İptal
+        </button>
+        <button onclick="submitNote()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition">
+          Notu Gönder
         </button>
       </div>
     </div>
 
     <!-- Notification Settings Info -->
-    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-sm">
+    <div id="notifInfo" class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-sm">
       <div class="flex items-start gap-2">
         <span class="text-blue-600">💡</span>
         <div class="flex-1">
-          <strong class="text-blue-900">You're subscribed to updates</strong>
-          <p class="text-blue-700 text-xs mt-1">You'll receive notifications when team members add notes, comments, or when automated insights are posted.</p>
+          <strong class="text-blue-900">Güncellemelere abone oldunuz</strong>
+          <p class="text-blue-700 text-xs mt-1">Takım üyeleri not veya yorum eklediğinde ya da otomatik öngörüler yayınlandığında bildirim alacaksınız.</p>
         </div>
       </div>
     </div>
+
+    <!-- Notes Container -->
+    <div id="notesContainer" class="space-y-4">
 
     <div class="space-y-4">
 
@@ -762,11 +800,14 @@ body { font-family: Inter, sans-serif; }
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
 
   <div class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-xl p-6 shadow-lg">
-    <h4 class="font-semibold mb-3">🚀 If This Wins, Test Next:</h4>
+    <div class="mb-3">
+      <h4 class="font-semibold mb-1">🚀 Kazanırsa Sonraki Adım:</h4>
+      <p class="text-xs opacity-90">Bu test başarılı olursa, aşağıdaki optimizasyonları deneyerek etkiyi daha da artırabiliriz</p>
+    </div>
     <div class="space-y-2 text-sm">
-      <div class="bg-white/10 rounded p-2">• Add countdown timer (FOMO boost)</div>
-      <div class="bg-white/10 rounded p-2">• Test on Mağdurlar segment</div>
-      <div class="bg-white/10 rounded p-2">• Try ABC test with 3 loss frames</div>
+      <div class="bg-white/10 rounded p-2">• Geri sayım sayacı ekle (FOMO etkisi)</div>
+      <div class="bg-white/10 rounded p-2">• Mağdurlar segmentinde test et</div>
+      <div class="bg-white/10 rounded p-2">• 3 farklı kayıp çerçevesi ile ABC testi yap</div>
     </div>
   </div>
 
@@ -983,23 +1024,229 @@ let notificationsEnabled = true;
 function toggleNoteNotifications() {
   notificationsEnabled = !notificationsEnabled;
   const btn = document.getElementById('notifBtn');
+  const icon = document.getElementById('notifIcon');
+  const text = document.getElementById('notifText');
+  const info = document.getElementById('notifInfo');
 
   if (notificationsEnabled) {
-    btn.innerHTML = '🔔 Subscribed';
+    icon.textContent = '🔔';
+    text.textContent = 'Abone Olundu';
     btn.classList.remove('bg-gray-100', 'text-gray-700');
     btn.classList.add('bg-green-100', 'text-green-700');
-    alert('✅ Subscribed to team notes!\n\nYou will receive notifications when:\n• Team members add new notes\n• Comments are posted\n• Automated insights are generated\n\nNotifications will appear in your dashboard and via email (if enabled).');
+    info.classList.remove('hidden');
+    alert('✅ Takım notlarına abone oldunuz!\n\nŞu durumlarda bildirim alacaksınız:\n• Takım üyeleri yeni not eklediğinde\n• Yorum yapıldığında\n• Otomatik öngörüler oluşturulduğunda\n\nBildirimler dashboard\'unuzda ve e-posta ile (aktifse) görünecek.');
   } else {
-    btn.innerHTML = '🔕 Unsubscribed';
+    icon.textContent = '🔕';
+    text.textContent = 'Abonelik İptal';
     btn.classList.remove('bg-green-100', 'text-green-700');
     btn.classList.add('bg-gray-100', 'text-gray-700');
-    alert('🔕 Unsubscribed from team notes.\n\nYou will no longer receive notifications for this test.');
+    info.classList.add('hidden');
+    alert('🔕 Takım notları aboneliğiniz iptal edildi.\n\nBu test için artık bildirim almayacaksınız.');
   }
+}
+
+// Team Notes functionality
+let teamNotes = [];
+let noteIdCounter = 4;
+
+function showAddNoteForm() {
+  document.getElementById('addNoteForm').classList.remove('hidden');
+  document.getElementById('newNoteText').focus();
+}
+
+function cancelAddNote() {
+  document.getElementById('addNoteForm').classList.add('hidden');
+  document.getElementById('newNoteText').value = '';
+}
+
+function submitNote() {
+  const noteText = document.getElementById('newNoteText').value.trim();
+  if (!noteText) {
+    alert('⚠️ Lütfen bir not yazın!');
+    return;
+  }
+
+  const newNote = {
+    id: noteIdCounter++,
+    author: 'Melis Sutci',
+    initials: 'MS',
+    date: new Date().toLocaleString('tr-TR', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }),
+    text: noteText,
+    badge: 'Owner',
+    reactions: {},
+    replies: []
+  };
+
+  teamNotes.push(newNote);
+  renderNotes();
+  cancelAddNote();
+
+  // Update note count
+  const noteCount = document.getElementById('teamNoteCount');
+  noteCount.textContent = parseInt(noteCount.textContent) + 1;
+
+  alert('✅ Notunuz başarıyla eklendi!');
+}
+
+function addReaction(noteId, emoji) {
+  const note = teamNotes.find(n => n.id === noteId);
+  if (!note) return;
+
+  if (!note.reactions[emoji]) {
+    note.reactions[emoji] = 0;
+  }
+  note.reactions[emoji]++;
+
+  renderNotes();
+}
+
+function showReplyForm(noteId) {
+  const replyForm = document.getElementById(`reply-form-${noteId}`);
+  if (replyForm) {
+    replyForm.classList.toggle('hidden');
+  }
+}
+
+function submitReply(noteId) {
+  const replyText = document.getElementById(`reply-text-${noteId}`).value.trim();
+  if (!replyText) {
+    alert('⚠️ Lütfen bir yanıt yazın!');
+    return;
+  }
+
+  const note = teamNotes.find(n => n.id === noteId);
+  if (!note) return;
+
+  note.replies.push({
+    author: 'Melis Sutci',
+    initials: 'MS',
+    text: replyText,
+    date: new Date().toLocaleString('tr-TR', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  });
+
+  renderNotes();
+  alert('✅ Yanıtınız eklendi!');
+}
+
+function renderNotes() {
+  const container = document.getElementById('notesContainer');
+  if (!container) return;
+
+  container.innerHTML = teamNotes.map(note => `
+    <div class="bg-white border rounded-xl p-5">
+      <div class="flex items-start gap-4">
+        <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center font-semibold text-purple-700">
+          ${note.initials}
+        </div>
+        <div class="flex-1">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <p class="font-semibold">${note.author}</p>
+              <p class="text-xs text-gray-500">${note.date}</p>
+            </div>
+            ${note.badge ? `<span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">${note.badge}</span>` : ''}
+          </div>
+          <p class="text-sm text-gray-700 mb-3">${note.text}</p>
+
+          <!-- Reactions and Actions -->
+          <div class="flex gap-3 items-center flex-wrap mb-3">
+            ${Object.entries(note.reactions).map(([emoji, count]) =>
+              `<button class="text-sm px-2 py-1 bg-gray-100 rounded hover:bg-gray-200">${emoji} ${count}</button>`
+            ).join('')}
+            <button onclick="addReaction(${note.id}, '👍')" class="text-sm text-gray-600 hover:text-gray-900">👍</button>
+            <button onclick="addReaction(${note.id}, '❤️')" class="text-sm text-gray-600 hover:text-gray-900">❤️</button>
+            <button onclick="addReaction(${note.id}, '🎉')" class="text-sm text-gray-600 hover:text-gray-900">🎉</button>
+            <button onclick="showReplyForm(${note.id})" class="text-sm text-gray-600 hover:text-gray-900">💬 Yanıtla</button>
+          </div>
+
+          <!-- Replies -->
+          ${note.replies.length > 0 ? `
+            <div class="ml-4 pl-4 border-l-2 border-gray-200 space-y-3">
+              ${note.replies.map(reply => `
+                <div class="text-sm">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-xs font-semibold">${reply.initials}</span>
+                    <span class="font-semibold">${reply.author}</span>
+                    <span class="text-xs text-gray-500">${reply.date}</span>
+                  </div>
+                  <p class="text-gray-700 ml-8">${reply.text}</p>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+
+          <!-- Reply Form -->
+          <div id="reply-form-${note.id}" class="hidden mt-3 ml-4 pl-4 border-l-2 border-indigo-200">
+            <textarea id="reply-text-${note.id}" class="w-full border border-gray-300 rounded-lg p-2 text-sm mb-2" rows="2" placeholder="Yanıtınızı yazın..."></textarea>
+            <div class="flex gap-2">
+              <button onclick="submitReply(${note.id})" class="px-3 py-1.5 bg-indigo-600 text-white rounded text-xs font-semibold hover:bg-indigo-700">
+                Gönder
+              </button>
+              <button onclick="showReplyForm(${note.id})" class="px-3 py-1.5 border border-gray-300 text-gray-700 rounded text-xs hover:bg-gray-50">
+                İptal
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Initialize notes with existing data
+function initializeNotes() {
+  teamNotes = [
+    {
+      id: 1,
+      author: 'Melis Sutci',
+      initials: 'MS',
+      date: '12 Oca 2026, 14:34',
+      text: 'Testi şimdi başlatıyorum! İlk göstergeler umut verici - ilk 2 saatte CTR kontrolden %8 daha yüksek. Bounce rate\'i yakından izleyelim, kayıp korkusunun ters etki yapmasını istemeyiz.',
+      badge: 'Owner',
+      reactions: {'👍': 3, '🎉': 1},
+      replies: []
+    },
+    {
+      id: 2,
+      author: 'Ahmet Kaya',
+      initials: 'AK',
+      date: '14 Oca 2026, 10:12',
+      text: '3. gün güncellemesi: Varyant B müthiş! 🚀 Dönüşüm oranı +%17-19 aralığında stabil. İlginç olan, dönüşüm süresi %30 daha hızlı. Kullanıcılar kayıp çerçevelemesi ile daha hızlı karar veriyor.',
+      badge: null,
+      reactions: {'👍': 5, '❤️': 2},
+      replies: []
+    },
+    {
+      id: 3,
+      author: 'Data Science Takımı',
+      initials: 'DS',
+      date: '16 Oca 2026, 16:45',
+      text: '📊 İstatistiksel Güncelleme: Güven seviyesi %89\'a ulaştı. %95\'e ulaşma tahmini: mevcut hızda ~5 gün daha.\n\nP-değeri: 0.012 (anlamlı)\nEtki boyutu: Orta-Büyük (Cohen\'s h = 0.42)\nGüç: 0.87',
+      badge: 'Otomatik',
+      reactions: {'📊': 4},
+      replies: []
+    }
+  ];
+
+  renderNotes();
 }
 
 // Initialize on page load
 window.addEventListener('DOMContentLoaded', () => {
   initConversionChart();
+  initializeNotes();
 
   // Set initial notification button state
   const btn = document.getElementById('notifBtn');
