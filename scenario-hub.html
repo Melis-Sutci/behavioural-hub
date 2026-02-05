@@ -47,10 +47,93 @@ body { font-family: Inter, sans-serif; }
   0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
   50% { box-shadow: 0 0 30px rgba(139, 92, 246, 0.6); }
 }
+/* Toast Notification Styles */
+#toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 400px;
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: slideIn 0.3s ease-out;
+  border-left: 4px solid;
+}
+.toast.success {
+  border-left-color: #10b981;
+}
+.toast.error {
+  border-left-color: #ef4444;
+}
+.toast.info {
+  border-left-color: #3b82f6;
+}
+.toast-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+.toast-content {
+  flex: 1;
+}
+.toast-title {
+  font-weight: 600;
+  margin-bottom: 2px;
+  color: #1f2937;
+}
+.toast-message {
+  font-size: 14px;
+  color: #6b7280;
+}
+.toast-close {
+  cursor: pointer;
+  font-size: 20px;
+  color: #9ca3af;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+.toast-close:hover {
+  color: #4b5563;
+}
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+}
+.toast.hiding {
+  animation: slideOut 0.3s ease-out forwards;
+}
 </style>
 </head>
 
 <body class="bg-gray-50 min-h-screen">
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
 
 <!-- HEADER -->
 <header class="bg-gradient-to-r from-indigo-600 to-purple-700 text-white shadow-lg">
@@ -154,24 +237,23 @@ body { font-family: Inter, sans-serif; }
 </div>
 
 <!-- Saved Filters Quick Access -->
-<div class="mb-4 flex gap-2 overflow-x-auto pb-2" id="quickFilters">
-  <button onclick="applyQuickFilter('all')" class="quick-filter-btn px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-indigo-700 transition" data-filter="all">
+<div class="mb-4 flex flex-wrap gap-2" id="quickFilters">
+  <button onclick="applyQuickFilter('all')" class="quick-filter-btn px-6 py-3 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition" data-filter="all">
     📌 Tüm Senaryolar
   </button>
-  <button onclick="applyQuickFilter('my-tests')" class="quick-filter-btn px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium whitespace-nowrap hover:bg-gray-50 transition" data-filter="my-tests">
+  <button onclick="applyQuickFilter('my-tests')" class="quick-filter-btn px-6 py-3 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition" data-filter="my-tests">
     🔥 Testlerim
   </button>
-  <button onclick="applyQuickFilter('active-week')" class="quick-filter-btn px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium whitespace-nowrap hover:bg-gray-50 transition" data-filter="active-week">
+  <button onclick="applyQuickFilter('active-week')" class="quick-filter-btn px-6 py-3 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition" data-filter="active-week">
     🧪 Bu Hafta Aktif
   </button>
-  <button onclick="applyQuickFilter('needs-review')" class="quick-filter-btn px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium whitespace-nowrap hover:bg-gray-50 transition" data-filter="needs-review">
+  <button onclick="applyQuickFilter('needs-review')" class="quick-filter-btn px-6 py-3 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition" data-filter="needs-review">
     ⚠️ İnceleme Gerekli
   </button>
-  <button onclick="applyQuickFilter('high-impact')" class="quick-filter-btn px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium whitespace-nowrap hover:bg-gray-50 transition" data-filter="high-impact">
+  <button onclick="applyQuickFilter('high-impact')" class="quick-filter-btn px-6 py-3 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition" data-filter="high-impact">
     🏆 Yüksek Etkili Kazanımlar
   </button>
-  <div class="flex-1"></div>
-  <button onclick="saveCurrentFilter()" class="px-4 py-2 bg-white border border-indigo-300 rounded-lg text-sm font-medium whitespace-nowrap hover:bg-indigo-50 transition text-indigo-600">
+  <button onclick="saveCurrentFilter()" class="px-6 py-3 bg-white border border-indigo-300 rounded-lg text-sm font-medium hover:bg-indigo-50 transition text-indigo-600 ml-auto">
     💾 Filtreyi Kaydet
   </button>
 </div>
@@ -1052,44 +1134,35 @@ body { font-family: Inter, sans-serif; }
 
   <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-xl shadow-lg">
     <div class="text-3xl mb-2">🎯</div>
-    <h4 class="font-semibold mb-2">Golden Combo #1</h4>
-    <p class="text-sm opacity-90 mb-3">Dedektifler + Social Proof</p>
+    <h4 class="font-semibold mb-2">Altın Kombinasyon #1</h4>
+    <p class="text-sm opacity-90 mb-3">Dedektifler + Sosyal Kanıt</p>
     <div class="bg-white/20 rounded p-3 mb-3">
       <p class="text-2xl font-bold">89%</p>
-      <p class="text-xs opacity-90">Win Rate (12 tests)</p>
+      <p class="text-xs opacity-90">Kazanma Oranı (12 test)</p>
     </div>
-    <p class="text-xs mb-4 opacity-80">💡 Best for: Premium conversion, Feature adoption</p>
-    <button onclick="createTest('Dedektifler', 'Social Proof', 89)" class="w-full bg-white text-purple-600 px-4 py-2 rounded-lg font-semibold text-sm hover:bg-purple-50 transition shadow-md">
-      ✨ Create New Test
-    </button>
+    <p class="text-xs opacity-80">💡 En İyi: Premium dönüşüm, Özellik benimseme</p>
   </div>
 
   <div class="bg-gradient-to-br from-teal-500 to-teal-600 text-white p-6 rounded-xl shadow-lg">
     <div class="text-3xl mb-2">🛡️</div>
-    <h4 class="font-semibold mb-2">Golden Combo #2</h4>
-    <p class="text-sm opacity-90 mb-3">Mağdurlar + Authority</p>
+    <h4 class="font-semibold mb-2">Altın Kombinasyon #2</h4>
+    <p class="text-sm opacity-90 mb-3">Mağdurlar + Otorite</p>
     <div class="bg-white/20 rounded p-3 mb-3">
       <p class="text-2xl font-bold">82%</p>
-      <p class="text-xs opacity-90">Win Rate (9 tests)</p>
+      <p class="text-xs opacity-90">Kazanma Oranı (9 test)</p>
     </div>
-    <p class="text-xs mb-4 opacity-80">💡 Best for: Trust building, Security features</p>
-    <button onclick="createTest('Mağdurlar', 'Authority', 82)" class="w-full bg-white text-teal-600 px-4 py-2 rounded-lg font-semibold text-sm hover:bg-teal-50 transition shadow-md">
-      ✨ Create New Test
-    </button>
+    <p class="text-xs opacity-80">💡 En İyi: Güven inşası, Güvenlik özellikleri</p>
   </div>
 
   <div class="bg-gradient-to-br from-stone-500 to-stone-600 text-white p-6 rounded-xl shadow-lg">
     <div class="text-3xl mb-2">😴</div>
-    <h4 class="font-semibold mb-2">Golden Combo #3</h4>
-    <p class="text-sm opacity-90 mb-3">Pasifler + Reciprocity</p>
+    <h4 class="font-semibold mb-2">Altın Kombinasyon #3</h4>
+    <p class="text-sm opacity-90 mb-3">Pasifler + Karşılıklılık</p>
     <div class="bg-white/20 rounded p-3 mb-3">
       <p class="text-2xl font-bold">71%</p>
-      <p class="text-xs opacity-90">Win Rate (4 tests)</p>
+      <p class="text-xs opacity-90">Kazanma Oranı (4 test)</p>
     </div>
-    <p class="text-xs mb-4 opacity-80">💡 Best for: Re-engagement, Value reminders</p>
-    <button onclick="createTest('Pasifler', 'Reciprocity', 71)" class="w-full bg-white text-stone-600 px-4 py-2 rounded-lg font-semibold text-sm hover:bg-stone-50 transition shadow-md">
-      ✨ Create New Test
-    </button>
+    <p class="text-xs opacity-80">💡 En İyi: Yeniden etkileşim, Değer hatırlatıcıları</p>
   </div>
 
 </div>
@@ -1097,20 +1170,20 @@ body { font-family: Inter, sans-serif; }
 <!-- Anti-patterns -->
 <div class="bg-red-50 border border-red-200 rounded-xl p-6 mt-6">
   <h4 class="font-semibold text-red-900 mb-3 flex items-center gap-2">
-    ⚠️ Anti-Patterns: Avoid These Combinations
+    ⚠️ Kaçınılması Gereken Kombinasyonlar
   </h4>
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 text-sm">
     <div class="bg-white rounded p-3 border border-red-200">
-      <p class="font-semibold text-red-700">Dedektifler + Scarcity</p>
-      <p class="text-xs text-gray-600 mt-1">38% win rate - Creates pressure, reduces trust</p>
+      <p class="font-semibold text-red-700">Dedektifler + Kıtlık</p>
+      <p class="text-xs text-gray-600 mt-1">%38 kazanma oranı - Baskı yaratır, güveni azaltır</p>
     </div>
     <div class="bg-white rounded p-3 border border-red-200">
       <p class="font-semibold text-red-700">Pasifler + FOMO</p>
-      <p class="text-xs text-gray-600 mt-1">28% win rate - Wrong motivation for this segment</p>
+      <p class="text-xs text-gray-600 mt-1">%28 kazanma oranı - Bu segment için yanlış motivasyon</p>
     </div>
     <div class="bg-white rounded p-3 border border-red-200">
-      <p class="font-semibold text-red-700">Pasifler + Social Proof</p>
-      <p class="text-xs text-gray-600 mt-1">34% win rate - They don't care what others do</p>
+      <p class="font-semibold text-red-700">Pasifler + Sosyal Kanıt</p>
+      <p class="text-xs text-gray-600 mt-1">%34 kazanma oranı - Başkalarının yaptıklarını umursamazlar</p>
     </div>
   </div>
 </div>
@@ -1125,16 +1198,16 @@ body { font-family: Inter, sans-serif; }
 <div class="bg-white p-6 rounded-xl shadow">
   <div class="flex items-center justify-between mb-6">
     <h3 class="font-semibold flex items-center gap-2">
-      ⏱️ Test Timeline
-      <span class="text-sm font-normal text-gray-500 ml-2">(Past, Present, Future)</span>
+      ⏱️ Test Zaman Çizelgesi
+      <span class="text-sm font-normal text-gray-500 ml-2">(Geçmiş, Şimdi, Gelecek)</span>
     </h3>
     <!-- Timeline Filters -->
     <div class="flex items-center gap-2">
-      <button class="px-3 py-1.5 text-xs font-medium bg-indigo-600 text-white rounded-lg">All</button>
-      <button class="px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200">Planned</button>
-      <button class="px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200">Running</button>
-      <button class="px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200">Won</button>
-      <button class="px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200">Failed</button>
+      <button class="px-3 py-1.5 text-xs font-medium bg-indigo-600 text-white rounded-lg">Tümü</button>
+      <button class="px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200">Planlanan</button>
+      <button class="px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200">Çalışıyor</button>
+      <button class="px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200">Kazanıldı</button>
+      <button class="px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200">Başarısız</button>
     </div>
   </div>
 
@@ -1142,19 +1215,19 @@ body { font-family: Inter, sans-serif; }
   <div class="grid grid-cols-4 gap-4 mb-6">
     <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 border border-yellow-200 rounded-lg p-3">
       <div class="text-xl font-bold text-yellow-700">4</div>
-      <div class="text-xs text-yellow-600">Planned Tests</div>
+      <div class="text-xs text-yellow-600">Planlanan Testler</div>
     </div>
     <div class="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-3">
       <div class="text-xl font-bold text-green-700">3</div>
-      <div class="text-xs text-green-600">Running Now</div>
+      <div class="text-xs text-green-600">Şu Anda Çalışıyor</div>
     </div>
     <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200 rounded-lg p-3">
       <div class="text-xl font-bold text-emerald-700">12</div>
-      <div class="text-xs text-emerald-600">Won (Last 30d)</div>
+      <div class="text-xs text-emerald-600">Kazanılan (Son 30 gün)</div>
     </div>
     <div class="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-lg p-3">
       <div class="text-xl font-bold text-red-700">2</div>
-      <div class="text-xs text-red-600">Failed (Last 30d)</div>
+      <div class="text-xs text-red-600">Başarısız (Son 30 gün)</div>
     </div>
   </div>
 
@@ -1169,12 +1242,12 @@ body { font-family: Inter, sans-serif; }
       <div class="relative pl-20">
         <div class="absolute left-6 w-5 h-5 bg-yellow-400 rounded-full border-4 border-white shadow"></div>
         <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <div class="text-xs text-yellow-700 font-semibold mb-1">PLANNED - Week of Jan 20</div>
-          <h4 class="font-semibold mb-2">🎯 Loss Aversion Paywall</h4>
-          <p class="text-sm text-gray-600 mb-2">Dedektifler | Premium conversion test</p>
+          <div class="text-xs text-yellow-700 font-semibold mb-1">PLANLANAN - 20 Ocak Haftası</div>
+          <h4 class="font-semibold mb-2">🎯 Kayıp Kaçınımı Ödeme Duvarı</h4>
+          <p class="text-sm text-gray-600 mb-2">Dedektifler | Premium dönüşüm testi</p>
           <div class="flex gap-4 text-xs">
-            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Expected: +$8.7k/mo</span>
-            <span class="bg-green-100 text-green-800 px-2 py-1 rounded">84% success prob</span>
+            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Beklenen: +$8.7k/ay</span>
+            <span class="bg-green-100 text-green-800 px-2 py-1 rounded">%84 başarı olasılığı</span>
           </div>
         </div>
       </div>
@@ -1182,12 +1255,12 @@ body { font-family: Inter, sans-serif; }
       <div class="relative pl-20">
         <div class="absolute left-6 w-5 h-5 bg-yellow-400 rounded-full border-4 border-white shadow"></div>
         <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <div class="text-xs text-yellow-700 font-semibold mb-1">PLANNED - Week of Jan 27</div>
-          <h4 class="font-semibold mb-2">🛡️ Weekly Security Digest</h4>
-          <p class="text-sm text-gray-600 mb-2">Mağdurlar | Retention test</p>
+          <div class="text-xs text-yellow-700 font-semibold mb-1">PLANLANAN - 27 Ocak Haftası</div>
+          <h4 class="font-semibold mb-2">🛡️ Haftalık Güvenlik Özeti</h4>
+          <p class="text-sm text-gray-600 mb-2">Mağdurlar | Elde tutma testi</p>
           <div class="flex gap-4 text-xs">
-            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Expected: +12% retention</span>
-            <span class="bg-green-100 text-green-800 px-2 py-1 rounded">76% success prob</span>
+            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Beklenen: +%12 elde tutma</span>
+            <span class="bg-green-100 text-green-800 px-2 py-1 rounded">%76 başarı olasılığı</span>
           </div>
         </div>
       </div>
@@ -1197,20 +1270,20 @@ body { font-family: Inter, sans-serif; }
         <div class="absolute left-6 w-5 h-5 bg-green-400 rounded-full border-4 border-white shadow animate-pulse"></div>
         <div class="bg-green-50 border-2 border-green-400 rounded-lg p-4">
           <div class="text-xs text-green-700 font-semibold mb-1 flex items-center gap-2">
-            RUNNING NOW <span class="animate-pulse">●</span>
+            ŞU ANDA ÇALIŞIYOR <span class="animate-pulse">●</span>
           </div>
-          <h4 class="font-semibold mb-2">🧪 Premium Banner Sticky</h4>
-          <p class="text-sm text-gray-600 mb-2">All Users | UX optimization</p>
+          <h4 class="font-semibold mb-2">🧪 Premium Banner Sabit</h4>
+          <p class="text-sm text-gray-600 mb-2">Tüm Kullanıcılar | UX optimizasyonu</p>
           <div class="flex gap-4 text-xs mb-3">
-            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">67% confidence</span>
-            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">7 days left</span>
+            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">%67 güven</span>
+            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">7 gün kaldı</span>
           </div>
 
           <!-- Progress Bar -->
           <div class="mb-2">
             <div class="flex justify-between text-xs mb-1">
-              <span class="text-gray-600">Test Progress</span>
-              <span class="font-semibold">7/14 days (50%)</span>
+              <span class="text-gray-600">Test İlerlemesi</span>
+              <span class="font-semibold">7/14 gün (%50)</span>
             </div>
             <div class="w-full bg-gray-200 rounded-full h-2">
               <div class="bg-green-500 h-2 rounded-full transition-all" style="width: 50%"></div>
@@ -1218,7 +1291,7 @@ body { font-family: Inter, sans-serif; }
           </div>
 
           <div class="text-xs">
-            <span class="text-gray-600">Current uplift:</span> <strong class="text-green-600">+1.6%</strong>
+            <span class="text-gray-600">Mevcut artış:</span> <strong class="text-green-600">+%1.6</strong>
           </div>
         </div>
       </div>
@@ -1227,20 +1300,20 @@ body { font-family: Inter, sans-serif; }
         <div class="absolute left-6 w-5 h-5 bg-green-400 rounded-full border-4 border-white shadow animate-pulse"></div>
         <div class="bg-green-50 border-2 border-green-400 rounded-lg p-4">
           <div class="text-xs text-green-700 font-semibold mb-1 flex items-center gap-2">
-            RUNNING NOW <span class="animate-pulse">●</span>
+            ŞU ANDA ÇALIŞIYOR <span class="animate-pulse">●</span>
           </div>
-          <h4 class="font-semibold mb-2">👤 Onboarding: Profile First</h4>
-          <p class="text-sm text-gray-600 mb-2">Dedektifler | Onboarding flow</p>
+          <h4 class="font-semibold mb-2">👤 Başlangıç: Önce Profil</h4>
+          <p class="text-sm text-gray-600 mb-2">Dedektifler | Başlangıç akışı</p>
           <div class="flex gap-4 text-xs mb-3">
-            <span class="bg-green-100 text-green-800 px-2 py-1 rounded">82% confidence</span>
-            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">3 days left</span>
+            <span class="bg-green-100 text-green-800 px-2 py-1 rounded">%82 güven</span>
+            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">3 gün kaldı</span>
           </div>
 
           <!-- Progress Bar -->
           <div class="mb-2">
             <div class="flex justify-between text-xs mb-1">
-              <span class="text-gray-600">Test Progress</span>
-              <span class="font-semibold">11/14 days (79%)</span>
+              <span class="text-gray-600">Test İlerlemesi</span>
+              <span class="font-semibold">11/14 gün (%79)</span>
             </div>
             <div class="w-full bg-gray-200 rounded-full h-2">
               <div class="bg-green-500 h-2 rounded-full transition-all" style="width: 79%"></div>
@@ -1248,7 +1321,7 @@ body { font-family: Inter, sans-serif; }
           </div>
 
           <div class="text-xs">
-            <span class="text-gray-600">Current uplift:</span> <strong class="text-green-600">+6.4%</strong>
+            <span class="text-gray-600">Mevcut artış:</span> <strong class="text-green-600">+%6.4</strong>
           </div>
         </div>
       </div>
@@ -1257,12 +1330,12 @@ body { font-family: Inter, sans-serif; }
       <div class="relative pl-20">
         <div class="absolute left-6 w-5 h-5 bg-green-600 rounded-full border-4 border-white shadow"></div>
         <div class="bg-white border border-green-200 rounded-lg p-4">
-          <div class="text-xs text-green-700 font-semibold mb-1">WON - Dec 15, 2025</div>
-          <h4 class="font-semibold mb-2">🎉 Social Proof Messaging</h4>
-          <p class="text-sm text-gray-600 mb-2">Dedektifler | Messaging optimization</p>
+          <div class="text-xs text-green-700 font-semibold mb-1">KAZANILDI - 15 Aralık 2025</div>
+          <h4 class="font-semibold mb-2">🎉 Sosyal Kanıt Mesajlaşması</h4>
+          <p class="text-sm text-gray-600 mb-2">Dedektifler | Mesajlaşma optimizasyonu</p>
           <div class="flex gap-4 text-xs">
-            <span class="bg-green-100 text-green-800 px-2 py-1 rounded">+18% uplift</span>
-            <span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded">+$12.3k/mo impact</span>
+            <span class="bg-green-100 text-green-800 px-2 py-1 rounded">+%18 artış</span>
+            <span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded">+$12.3k/ay etki</span>
           </div>
         </div>
       </div>
@@ -1270,12 +1343,12 @@ body { font-family: Inter, sans-serif; }
       <div class="relative pl-20">
         <div class="absolute left-6 w-5 h-5 bg-green-600 rounded-full border-4 border-white shadow"></div>
         <div class="bg-white border border-green-200 rounded-lg p-4">
-          <div class="text-xs text-green-700 font-semibold mb-1">WON - Dec 8, 2025</div>
-          <h4 class="font-semibold mb-2">📞 Caller ID Permission Flow</h4>
-          <p class="text-sm text-gray-600 mb-2">All Users | Onboarding</p>
+          <div class="text-xs text-green-700 font-semibold mb-1">KAZANILDI - 8 Aralık 2025</div>
+          <h4 class="font-semibold mb-2">📞 Arayan Kimliği İzin Akışı</h4>
+          <p class="text-sm text-gray-600 mb-2">Tüm Kullanıcılar | Başlangıç</p>
           <div class="flex gap-4 text-xs">
-            <span class="bg-green-100 text-green-800 px-2 py-1 rounded">+24% uplift</span>
-            <span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded">+31% activation</span>
+            <span class="bg-green-100 text-green-800 px-2 py-1 rounded">+%24 artış</span>
+            <span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded">+%31 aktivasyon</span>
           </div>
         </div>
       </div>
@@ -1283,13 +1356,13 @@ body { font-family: Inter, sans-serif; }
       <div class="relative pl-20">
         <div class="absolute left-6 w-5 h-5 bg-red-600 rounded-full border-4 border-white shadow"></div>
         <div class="bg-white border border-red-200 rounded-lg p-4">
-          <div class="text-xs text-red-700 font-semibold mb-1">FAILED - Nov 22, 2025</div>
-          <h4 class="font-semibold mb-2">⚠️ Trial 7d → 3d</h4>
-          <p class="text-sm text-gray-600 mb-2">Dedektifler | Pricing experiment</p>
+          <div class="text-xs text-red-700 font-semibold mb-1">BAŞARISIZ - 22 Kasım 2025</div>
+          <h4 class="font-semibold mb-2">⚠️ Deneme 7g → 3g</h4>
+          <p class="text-sm text-gray-600 mb-2">Dedektifler | Fiyatlandırma deneyi</p>
           <div class="flex gap-4 text-xs">
-            <span class="bg-red-100 text-red-800 px-2 py-1 rounded">+8% churn</span>
+            <span class="bg-red-100 text-red-800 px-2 py-1 rounded">+%8 kayıp</span>
           </div>
-          <p class="text-xs text-gray-600 mt-2">💡 Learning: Users need 5+ days for Aha Moment</p>
+          <p class="text-xs text-gray-600 mt-2">💡 Öğrenme: Kullanıcılar Aha Anı için 5+ gün gerektirir</p>
         </div>
       </div>
 
@@ -1309,35 +1382,35 @@ body { font-family: Inter, sans-serif; }
   <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl p-6 shadow-lg">
     <div class="text-3xl mb-2">📚</div>
     <div class="text-3xl font-bold mb-1">247</div>
-    <div class="text-sm opacity-90">Total Learnings</div>
-    <div class="mt-3 text-xs opacity-75">From 193 shipped tests</div>
+    <div class="text-sm opacity-90">Toplam Öğrenmeler</div>
+    <div class="mt-3 text-xs opacity-75">193 tamamlanmış testten</div>
   </div>
 
   <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl p-6 shadow-lg">
     <div class="text-3xl mb-2">🎯</div>
-    <div class="text-3xl font-bold mb-1">89%</div>
-    <div class="text-sm opacity-90">Best Win Rate</div>
-    <div class="mt-3 text-xs opacity-75">Detective + Social Proof</div>
+    <div class="text-3xl font-bold mb-1">%89</div>
+    <div class="text-sm opacity-90">En İyi Kazanma Oranı</div>
+    <div class="mt-3 text-xs opacity-75">Dedektif + Sosyal Kanıt</div>
   </div>
 
   <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl p-6 shadow-lg">
     <div class="text-3xl mb-2">📈</div>
-    <div class="text-3xl font-bold mb-1">+42%</div>
-    <div class="text-sm opacity-90">Avg Improvement</div>
-    <div class="mt-3 text-xs opacity-75">When applying learnings</div>
+    <div class="text-3xl font-bold mb-1">+%42</div>
+    <div class="text-sm opacity-90">Ort. İyileştirme</div>
+    <div class="mt-3 text-xs opacity-75">Öğrenmeleri uygularken</div>
   </div>
 
   <div class="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl p-6 shadow-lg">
     <div class="text-3xl mb-2">🧠</div>
     <div class="text-3xl font-bold mb-1">12</div>
-    <div class="text-sm opacity-90">Psych Principles</div>
-    <div class="mt-3 text-xs opacity-75">Tested & validated</div>
+    <div class="text-sm opacity-90">Psikoloji İlkeleri</div>
+    <div class="mt-3 text-xs opacity-75">Test edilmiş ve doğrulanmış</div>
   </div>
 </div>
 
 <!-- Win Rate by Segment (Visual Chart) -->
 <div class="bg-white rounded-xl shadow p-6 mb-6">
-  <h3 class="font-semibold mb-4">📊 Win Rate by Segment & Principle</h3>
+  <h3 class="font-semibold mb-4">📊 Segment ve İlkeye Göre Kazanma Oranı</h3>
   <div class="grid grid-cols-3 gap-4">
     <!-- Detective -->
     <div>
@@ -1348,8 +1421,8 @@ body { font-family: Inter, sans-serif; }
       <div class="space-y-2">
         <div>
           <div class="flex justify-between text-xs mb-1">
-            <span class="text-gray-600">Social Proof</span>
-            <span class="font-bold text-green-600">89%</span>
+            <span class="text-gray-600">Sosyal Kanıt</span>
+            <span class="font-bold text-green-600">%89</span>
           </div>
           <div class="w-full bg-gray-200 rounded-full h-2">
             <div class="bg-green-500 h-2 rounded-full" style="width: 89%"></div>
@@ -1357,8 +1430,8 @@ body { font-family: Inter, sans-serif; }
         </div>
         <div>
           <div class="flex justify-between text-xs mb-1">
-            <span class="text-gray-600">Loss Aversion</span>
-            <span class="font-bold text-green-600">84%</span>
+            <span class="text-gray-600">Kayıp Kaçınımı</span>
+            <span class="font-bold text-green-600">%84</span>
           </div>
           <div class="w-full bg-gray-200 rounded-full h-2">
             <div class="bg-green-500 h-2 rounded-full" style="width: 84%"></div>
@@ -1367,7 +1440,7 @@ body { font-family: Inter, sans-serif; }
         <div>
           <div class="flex justify-between text-xs mb-1">
             <span class="text-gray-600">FOMO</span>
-            <span class="font-bold text-green-600">76%</span>
+            <span class="font-bold text-green-600">%76</span>
           </div>
           <div class="w-full bg-gray-200 rounded-full h-2">
             <div class="bg-green-500 h-2 rounded-full" style="width: 76%"></div>
@@ -1385,8 +1458,8 @@ body { font-family: Inter, sans-serif; }
       <div class="space-y-2">
         <div>
           <div class="flex justify-between text-xs mb-1">
-            <span class="text-gray-600">Authority</span>
-            <span class="font-bold text-green-600">82%</span>
+            <span class="text-gray-600">Otorite</span>
+            <span class="font-bold text-green-600">%82</span>
           </div>
           <div class="w-full bg-gray-200 rounded-full h-2">
             <div class="bg-green-500 h-2 rounded-full" style="width: 82%"></div>
@@ -1394,8 +1467,8 @@ body { font-family: Inter, sans-serif; }
         </div>
         <div>
           <div class="flex justify-between text-xs mb-1">
-            <span class="text-gray-600">Loss Aversion</span>
-            <span class="font-bold text-green-600">78%</span>
+            <span class="text-gray-600">Kayıp Kaçınımı</span>
+            <span class="font-bold text-green-600">%78</span>
           </div>
           <div class="w-full bg-gray-200 rounded-full h-2">
             <div class="bg-green-500 h-2 rounded-full" style="width: 78%"></div>
@@ -1403,8 +1476,8 @@ body { font-family: Inter, sans-serif; }
         </div>
         <div>
           <div class="flex justify-between text-xs mb-1">
-            <span class="text-gray-600">Social Proof</span>
-            <span class="font-bold text-yellow-600">62%</span>
+            <span class="text-gray-600">Sosyal Kanıt</span>
+            <span class="font-bold text-yellow-600">%62</span>
           </div>
           <div class="w-full bg-gray-200 rounded-full h-2">
             <div class="bg-yellow-500 h-2 rounded-full" style="width: 62%"></div>
@@ -1422,8 +1495,8 @@ body { font-family: Inter, sans-serif; }
       <div class="space-y-2">
         <div>
           <div class="flex justify-between text-xs mb-1">
-            <span class="text-gray-600">Reciprocity</span>
-            <span class="font-bold text-green-600">71%</span>
+            <span class="text-gray-600">Karşılıklılık</span>
+            <span class="font-bold text-green-600">%71</span>
           </div>
           <div class="w-full bg-gray-200 rounded-full h-2">
             <div class="bg-green-500 h-2 rounded-full" style="width: 71%"></div>
@@ -1431,8 +1504,8 @@ body { font-family: Inter, sans-serif; }
         </div>
         <div>
           <div class="flex justify-between text-xs mb-1">
-            <span class="text-gray-600">Authority</span>
-            <span class="font-bold text-yellow-600">61%</span>
+            <span class="text-gray-600">Otorite</span>
+            <span class="font-bold text-yellow-600">%61</span>
           </div>
           <div class="w-full bg-gray-200 rounded-full h-2">
             <div class="bg-yellow-500 h-2 rounded-full" style="width: 61%"></div>
@@ -1440,8 +1513,8 @@ body { font-family: Inter, sans-serif; }
         </div>
         <div>
           <div class="flex justify-between text-xs mb-1">
-            <span class="text-gray-600">Loss Aversion</span>
-            <span class="font-bold text-yellow-600">52%</span>
+            <span class="text-gray-600">Kayıp Kaçınımı</span>
+            <span class="font-bold text-yellow-600">%52</span>
           </div>
           <div class="w-full bg-gray-200 rounded-full h-2">
             <div class="bg-yellow-500 h-2 rounded-full" style="width: 52%"></div>
@@ -1779,7 +1852,7 @@ body { font-family: Inter, sans-serif; }
           <div class="text-xs text-gray-500 mt-1">All Users • Gamification</div>
         </td>
         <td class="text-center p-4">
-          <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">Both</span>
+          <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">iOS ve Android</span>
         </td>
         <td class="text-center p-4">
           <span class="text-xs">A/B/C (3)</span>
@@ -1823,7 +1896,7 @@ body { font-family: Inter, sans-serif; }
           <div class="text-xs text-gray-500 mt-1">Premium Users • Churn</div>
         </td>
         <td class="text-center p-4">
-          <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">Both</span>
+          <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">iOS ve Android</span>
         </td>
         <td class="text-center p-4">
           <span class="text-xs">A/B (2)</span>
@@ -1867,7 +1940,7 @@ body { font-family: Inter, sans-serif; }
           <div class="text-xs text-gray-500 mt-1">All Users • UX</div>
         </td>
         <td class="text-center p-4">
-          <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">Both</span>
+          <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">iOS ve Android</span>
         </td>
         <td class="text-center p-4">
           <span class="text-xs">A/B (2)</span>
@@ -1911,7 +1984,7 @@ body { font-family: Inter, sans-serif; }
           <div class="text-xs text-gray-500 mt-1">All Users • Engagement</div>
         </td>
         <td class="text-center p-4">
-          <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">Both</span>
+          <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">iOS ve Android</span>
         </td>
         <td class="text-center p-4">
           <span class="text-xs">A/B (2)</span>
@@ -1955,7 +2028,7 @@ body { font-family: Inter, sans-serif; }
           <div class="text-xs text-gray-500 mt-1">Pasifler • Retention</div>
         </td>
         <td class="text-center p-4">
-          <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">Both</span>
+          <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">iOS ve Android</span>
         </td>
         <td class="text-center p-4">
           <span class="text-xs">A/B/C (3)</span>
@@ -1999,7 +2072,7 @@ body { font-family: Inter, sans-serif; }
           <div class="text-xs text-gray-500 mt-1">All Users • Engagement</div>
         </td>
         <td class="text-center p-4">
-          <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">Both</span>
+          <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">iOS ve Android</span>
         </td>
         <td class="text-center p-4">
           <span class="text-xs">A/B (2)</span>
