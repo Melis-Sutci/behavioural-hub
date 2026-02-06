@@ -319,6 +319,72 @@
             </div>
         </section>
 
+        <!-- 📊 CANLI İSTATİSTİKLER (Backend API) -->
+        <section class="mb-8">
+            <div class="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl shadow-lg p-6 text-white">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold flex items-center gap-2">
+                        <span class="w-3 h-3 bg-green-400 rounded-full live-dot"></span>
+                        Canlı İçgörü İstatistikleri
+                    </h2>
+                    <span class="text-xs bg-white/20 px-3 py-1 rounded-full">Backend API</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4">
+                        <div class="text-xs text-purple-100 mb-1">Toplam İçgörü</div>
+                        <div id="total-insights-live" class="text-4xl font-black">-</div>
+                        <div class="text-xs text-purple-100 mt-1">Database'den</div>
+                    </div>
+
+                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4">
+                        <div class="text-xs text-purple-100 mb-1">Aktif İçgörü</div>
+                        <div id="active-insights-live" class="text-4xl font-black">-</div>
+                        <div class="text-xs text-purple-100 mt-1">Kullanımda</div>
+                    </div>
+
+                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4">
+                        <div class="text-xs text-purple-100 mb-1">Son 30 Gün</div>
+                        <div id="recent-discoveries-live" class="text-4xl font-black">-</div>
+                        <div class="text-xs text-purple-100 mt-1">Yeni Keşif</div>
+                    </div>
+
+                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4">
+                        <div class="text-xs text-purple-100 mb-1">Toplam Impact</div>
+                        <div id="total-impact-live" class="text-4xl font-black">-</div>
+                        <div class="text-xs text-purple-100 mt-1">Değer</div>
+                    </div>
+                </div>
+
+                <!-- Impact by Type -->
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+                    <div class="text-sm font-semibold mb-3">Impact Dağılımı (Tip Bazlı)</div>
+                    <div id="impact-by-type-container" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div class="bg-white rounded-lg p-3 text-center text-gray-800">
+                            <div class="text-xl animate-pulse">⏳</div>
+                            <div class="text-xs text-gray-500 mt-1">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 🏆 EN BAŞARILI İÇGÖRÜLER (Top 5) -->
+        <section class="mb-8">
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-gray-800">🏆 En Başarılı İçgörüler</h2>
+                    <a href="insights.html" class="text-sm text-indigo-600 hover:text-indigo-700 font-medium">Tümünü Gör →</a>
+                </div>
+                <div id="top-insights-container" class="space-y-3">
+                    <div class="bg-gray-100 rounded-lg p-4 animate-pulse">
+                        <div class="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
+                        <div class="h-3 bg-gray-300 rounded w-1/2"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- 🚀 ŞU AN KOŞAN TESTLER -->
         <section class="mb-8">
             <div class="bg-white rounded-2xl shadow-lg p-6">
@@ -1755,6 +1821,7 @@
         // Load initial suggestion on page load
         window.addEventListener('DOMContentLoaded', () => {
             loadSuggestion(0);
+            loadDashboardAnalytics(); // Load live data from API
         });
 
         // Info Box Toggle
@@ -1771,6 +1838,144 @@
 
             // Toggle current info box
             infoBox.classList.toggle('active');
+        }
+
+        // ============================================
+        // BACKEND API INTEGRATION
+        // ============================================
+        const API_URL = 'http://localhost:4000';
+
+        async function loadDashboardAnalytics() {
+            try {
+                // Fetch analytics summary
+                const summaryRes = await fetch(`${API_URL}/api/analytics/summary`);
+                const summaryData = await summaryRes.json();
+
+                if (summaryData.success) {
+                    updateDashboardCards(summaryData.data);
+                }
+
+                // Fetch top insights
+                const topInsightsRes = await fetch(`${API_URL}/api/analytics/top-insights?limit=5`);
+                const topInsightsData = await topInsightsRes.json();
+
+                if (topInsightsData.success) {
+                    updateTopInsights(topInsightsData.data);
+                }
+
+                // Fetch impact metrics
+                const impactRes = await fetch(`${API_URL}/api/analytics/impact`);
+                const impactData = await impactRes.json();
+
+                if (impactData.success) {
+                    updateImpactMetrics(impactData.data);
+                }
+
+                console.log('✅ Dashboard analytics loaded successfully');
+            } catch (error) {
+                console.error('❌ Error loading dashboard analytics:', error);
+                showAPIError();
+            }
+        }
+
+        function updateDashboardCards(data) {
+            // Update total insights count if element exists
+            const totalElement = document.getElementById('total-insights-live');
+            if (totalElement) {
+                totalElement.textContent = data.total || 0;
+            }
+
+            // Update active insights count
+            const activeCount = data.status?.find(s => s.status === 'active')?.count || 0;
+            const activeElement = document.getElementById('active-insights-live');
+            if (activeElement) {
+                activeElement.textContent = activeCount;
+            }
+
+            // Update recent discoveries
+            const recentElement = document.getElementById('recent-discoveries-live');
+            if (recentElement) {
+                recentElement.textContent = data.recent_discoveries || 0;
+            }
+
+            // Calculate total impact
+            const totalImpact = data.impact_by_type?.reduce((sum, item) => sum + (item.total_impact || 0), 0) || 0;
+            const totalImpactElement = document.getElementById('total-impact-live');
+            if (totalImpactElement) {
+                totalImpactElement.textContent = `$${(totalImpact / 1000).toFixed(1)}K`;
+            }
+
+            console.log('📊 Dashboard cards updated:', { total: data.total, active: activeCount, impact: totalImpact });
+        }
+
+        function updateTopInsights(insights) {
+            const container = document.getElementById('top-insights-container');
+            if (!container) return;
+
+            const html = insights.map(insight => `
+                <div class="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition cursor-pointer" onclick="window.location.href='insight-detail.html?id=${insight.id}'">
+                    <div class="flex items-start justify-between mb-2">
+                        <h4 class="font-semibold text-gray-800 text-sm flex-1">${insight.title}</h4>
+                        <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full ml-2">${insight.category}</span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs text-gray-600">
+                        <span>🎯 ${insight.target_segment}</span>
+                        <span class="font-bold text-green-600">$${(insight.impact_score / 1000).toFixed(1)}K</span>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = html;
+        }
+
+        function updateImpactMetrics(data) {
+            const { overall, by_type } = data;
+
+            // Update overall metrics
+            if (overall) {
+                const avgImpactElement = document.getElementById('avg-impact-live');
+                if (avgImpactElement) {
+                    avgImpactElement.textContent = `$${(overall.avg_impact / 1000).toFixed(1)}K`;
+                }
+            }
+
+            // Update impact by type
+            const impactContainer = document.getElementById('impact-by-type-container');
+            if (impactContainer && by_type) {
+                const html = by_type.map(item => {
+                    const icons = {
+                        revenue: '💰',
+                        retention: '🔄',
+                        engagement: '⚡',
+                        unknown: '❓'
+                    };
+                    return `
+                        <div class="bg-white rounded-lg p-3 text-center">
+                            <div class="text-2xl mb-1">${icons[item.impact_type] || '📊'}</div>
+                            <div class="text-xs text-gray-500 capitalize">${item.impact_type}</div>
+                            <div class="text-lg font-bold text-indigo-600">$${(item.total_impact / 1000).toFixed(0)}K</div>
+                            <div class="text-xs text-gray-500">${item.insight_count} insights</div>
+                        </div>
+                    `;
+                }).join('');
+                impactContainer.innerHTML = html;
+            }
+        }
+
+        function showAPIError() {
+            const errorBanner = document.createElement('div');
+            errorBanner.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            errorBanner.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="text-xl">⚠️</span>
+                    <div>
+                        <div class="font-semibold">Backend API Bağlantı Hatası</div>
+                        <div class="text-sm">Backend çalışıyor mu kontrol et: http://localhost:4000</div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(errorBanner);
+            setTimeout(() => errorBanner.remove(), 5000);
         }
     </script>
 
