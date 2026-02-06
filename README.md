@@ -44,7 +44,18 @@ npm run init-db
 npm run dev
 ```
 
-The backend API will be available at `http://localhost:3001`.
+The backend API will be available at `http://localhost:4000`.
+
+### 5. Start the Frontend (Optional)
+
+For local development with HTML files:
+
+```bash
+cd ~/behavioural-hub
+python3 -m http.server 8080
+```
+
+Then open `http://localhost:8080/index.html` in your browser.
 
 ## Troubleshooting
 
