@@ -1519,6 +1519,343 @@ app.delete('/api/settings/:category/:key', (req, res) => {
   }
 });
 
+// ============================================
+// PSYCHOLOGY PRINCIPLES ENDPOINTS
+// ============================================
+
+// GET all psychology principles
+app.get('/api/principles', (req, res) => {
+  try {
+    const { category, confidence_min } = req.query;
+
+    let query = 'SELECT * FROM psychology_principles WHERE 1=1';
+    const params = [];
+
+    if (category) {
+      query += ' AND category = ?';
+      params.push(category);
+    }
+
+    if (confidence_min) {
+      query += ' AND confidence_score >= ?';
+      params.push(parseFloat(confidence_min));
+    }
+
+    query += ' ORDER BY confidence_score DESC';
+
+    const principles = db.prepare(query).all(...params);
+
+    // Parse JSON fields
+    const parsedPrinciples = principles.map(p => ({
+      ...p,
+      academic_papers: p.academic_papers ? JSON.parse(p.academic_papers) : [],
+      use_cases: p.use_cases ? JSON.parse(p.use_cases) : [],
+      real_world_examples: p.real_world_examples ? JSON.parse(p.real_world_examples) : [],
+      anti_patterns: p.anti_patterns ? JSON.parse(p.anti_patterns) : []
+    }));
+
+    res.json({
+      success: true,
+      data: parsedPrinciples,
+      count: parsedPrinciples.length
+    });
+  } catch (error) {
+    console.error('Error fetching principles:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// GET single psychology principle by ID
+app.get('/api/principles/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    const principle = db.prepare('SELECT * FROM psychology_principles WHERE id = ?').get(id);
+
+    if (!principle) {
+      return res.status(404).json({
+        success: false,
+        error: 'Principle not found'
+      });
+    }
+
+    // Parse JSON fields
+    const parsedPrinciple = {
+      ...principle,
+      academic_papers: principle.academic_papers ? JSON.parse(principle.academic_papers) : [],
+      use_cases: principle.use_cases ? JSON.parse(principle.use_cases) : [],
+      real_world_examples: principle.real_world_examples ? JSON.parse(principle.real_world_examples) : [],
+      anti_patterns: principle.anti_patterns ? JSON.parse(principle.anti_patterns) : []
+    };
+
+    // Get related sources
+    const sources = db.prepare(`
+      SELECT s.*, ps.relevance_score
+      FROM sources s
+      JOIN principle_sources ps ON s.id = ps.source_id
+      WHERE ps.principle_id = ?
+      ORDER BY ps.relevance_score DESC
+    `).all(id);
+
+    res.json({
+      success: true,
+      data: {
+        ...parsedPrinciple,
+        sources: sources
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching principle:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// GET principles by category
+app.get('/api/principles/category/:category', (req, res) => {
+  try {
+    const { category } = req.params;
+    const principles = db.prepare('SELECT * FROM psychology_principles WHERE category = ? ORDER BY confidence_score DESC').all(category);
+
+    const parsedPrinciples = principles.map(p => ({
+      ...p,
+      academic_papers: p.academic_papers ? JSON.parse(p.academic_papers) : [],
+      use_cases: p.use_cases ? JSON.parse(p.use_cases) : [],
+      real_world_examples: p.real_world_examples ? JSON.parse(p.real_world_examples) : [],
+      anti_patterns: p.anti_patterns ? JSON.parse(p.anti_patterns) : []
+    }));
+
+    res.json({
+      success: true,
+      data: parsedPrinciples,
+      count: parsedPrinciples.length
+    });
+  } catch (error) {
+    console.error('Error fetching principles by category:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// ============================================
+// SOURCES ENDPOINTS
+// ============================================
+
+// GET all sources
+app.get('/api/sources', (req, res) => {
+  try {
+    const { tier, content_type, confidence_min } = req.query;
+
+    let query = 'SELECT * FROM sources WHERE 1=1';
+    const params = [];
+
+    if (tier) {
+      query += ' AND tier = ?';
+      params.push(parseInt(tier));
+    }
+
+    if (content_type) {
+      query += ' AND content_type = ?';
+      params.push(content_type);
+    }
+
+    if (confidence_min) {
+      query += ' AND confidence_level >= ?';
+      params.push(parseFloat(confidence_min));
+    }
+
+    query += ' ORDER BY tier ASC, confidence_level DESC';
+
+    const sources = db.prepare(query).all(...params);
+
+    // Parse JSON fields
+    const parsedSources = sources.map(s => ({
+      ...s,
+      key_takeaways: s.key_takeaways ? JSON.parse(s.key_takeaways) : [],
+      relevant_principles: s.relevant_principles ? JSON.parse(s.relevant_principles) : []
+    }));
+
+    res.json({
+      success: true,
+      data: parsedSources,
+      count: parsedSources.length
+    });
+  } catch (error) {
+    console.error('Error fetching sources:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// GET single source by ID
+app.get('/api/sources/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    const source = db.prepare('SELECT * FROM sources WHERE id = ?').get(id);
+
+    if (!source) {
+      return res.status(404).json({
+        success: false,
+        error: 'Source not found'
+      });
+    }
+
+    // Parse JSON fields
+    const parsedSource = {
+      ...source,
+      key_takeaways: source.key_takeaways ? JSON.parse(source.key_takeaways) : [],
+      relevant_principles: source.relevant_principles ? JSON.parse(source.relevant_principles) : []
+    };
+
+    // Get related principles
+    const principles = db.prepare(`
+      SELECT p.*, ps.relevance_score
+      FROM psychology_principles p
+      JOIN principle_sources ps ON p.id = ps.principle_id
+      WHERE ps.source_id = ?
+      ORDER BY ps.relevance_score DESC
+    `).all(id);
+
+    res.json({
+      success: true,
+      data: {
+        ...parsedSource,
+        principles: principles
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching source:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// ============================================
+// CITATIONS ENDPOINTS
+// ============================================
+
+// GET citations for an insight
+app.get('/api/insights/:id/citations', (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const citations = db.prepare(`
+      SELECT c.*, s.title, s.author, s.url, s.tier, s.content_type
+      FROM citations c
+      JOIN sources s ON c.source_id = s.id
+      WHERE c.insight_id = ?
+      ORDER BY c.relevance_score DESC
+    `).all(id);
+
+    res.json({
+      success: true,
+      data: citations,
+      count: citations.length
+    });
+  } catch (error) {
+    console.error('Error fetching citations:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// POST create citation
+app.post('/api/citations', (req, res) => {
+  try {
+    const { insight_id, source_id, quote, relevance_score } = req.body;
+
+    if (!insight_id || !source_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'insight_id and source_id are required'
+      });
+    }
+
+    const stmt = db.prepare(`
+      INSERT INTO citations (insight_id, source_id, quote, relevance_score)
+      VALUES (?, ?, ?, ?)
+    `);
+
+    const result = stmt.run(
+      insight_id,
+      source_id,
+      quote || null,
+      relevance_score || 0.8
+    );
+
+    res.status(201).json({
+      success: true,
+      data: {
+        id: result.lastInsertRowid,
+        insight_id,
+        source_id,
+        quote,
+        relevance_score: relevance_score || 0.8
+      }
+    });
+  } catch (error) {
+    console.error('Error creating citation:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// ============================================
+// KNOWLEDGE BASE STATS
+// ============================================
+
+// GET knowledge base statistics
+app.get('/api/knowledge-base/stats', (req, res) => {
+  try {
+    const stats = {
+      principles: db.prepare('SELECT COUNT(*) as count FROM psychology_principles').get(),
+      principlesByCategory: db.prepare(`
+        SELECT category, COUNT(*) as count
+        FROM psychology_principles
+        GROUP BY category
+        ORDER BY count DESC
+      `).all(),
+      sources: db.prepare('SELECT COUNT(*) as count FROM sources').get(),
+      sourcesByTier: db.prepare(`
+        SELECT tier, COUNT(*) as count
+        FROM sources
+        GROUP BY tier
+        ORDER BY tier ASC
+      `).all(),
+      citations: db.prepare('SELECT COUNT(*) as count FROM citations').get(),
+      avgConfidence: {
+        principles: db.prepare('SELECT AVG(confidence_score) as avg FROM psychology_principles').get(),
+        sources: db.prepare('SELECT AVG(confidence_level) as avg FROM sources').get()
+      }
+    };
+
+    res.json({
+      success: true,
+      data: stats
+    });
+  } catch (error) {
+    console.error('Error fetching knowledge base stats:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 Behavioural Hub Backend running on http://localhost:${PORT}`);
@@ -1560,6 +1897,15 @@ app.listen(PORT, () => {
   console.log(`   POST   /api/settings`);
   console.log(`   PATCH  /api/settings/:category/:key`);
   console.log(`   DELETE /api/settings/:category/:key`);
+  console.log(`\n🧬 Knowledge Base Endpoints:`);
+  console.log(`   GET    /api/principles`);
+  console.log(`   GET    /api/principles/:id`);
+  console.log(`   GET    /api/principles/category/:category`);
+  console.log(`   GET    /api/sources`);
+  console.log(`   GET    /api/sources/:id`);
+  console.log(`   GET    /api/insights/:id/citations`);
+  console.log(`   POST   /api/citations`);
+  console.log(`   GET    /api/knowledge-base/stats`);
   console.log(`\n✅ GET  /health`);
 });
 
