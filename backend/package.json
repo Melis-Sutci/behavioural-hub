@@ -11,9 +11,12 @@
   "keywords": ["behavioural", "psychology", "insights"],
   "author": "",
   "license": "MIT",
+  "engines": {
+    "node": ">=22.0.0 <24.0.0"
+  },
   "dependencies": {
     "express": "^4.18.2",
     "cors": "^2.8.5",
-    "better-sqlite3": "^9.2.2"
+    "better-sqlite3": "^11.8.0"
   }
 }
