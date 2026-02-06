@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Sonuçları - Behavioural Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50">
+  <!-- Header -->
+  <header class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-6 py-4">
+      <div class="flex items-center gap-4">
+        <a href="ab-test-manager.html" class="text-gray-600 hover:text-gray-900">
+          ← Geri
+        </a>
+        <div class="flex-1">
+          <h1 class="text-2xl font-bold text-gray-900" id="experiment-name">Test Sonuçları</h1>
+          <p class="text-sm text-gray-500" id="experiment-description"></p>
+        </div>
+        <div id="status-badge"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-6 py-8">
+    <!-- Loading State -->
+    <div id="loading" class="text-center py-12">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      <p class="text-gray-600 mt-4">Veriler yükleniyor...</p>
+    </div>
+
+    <!-- Content Container -->
+    <div id="content" class="hidden space-y-8">
+      <!-- Test Info -->
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <h2 class="text-lg font-semibold mb-4">Test Bilgileri</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div>
+            <div class="text-xs text-gray-500">Başlangıç</div>
+            <div class="font-medium" id="started-at">-</div>
+          </div>
+          <div>
+            <div class="text-xs text-gray-500">Bitiş</div>
+            <div class="font-medium" id="ended-at">-</div>
+          </div>
+          <div>
+            <div class="text-xs text-gray-500">Hedef Segment</div>
+            <div class="font-medium" id="target-segment">-</div>
+          </div>
+          <div>
+            <div class="text-xs text-gray-500">Trafik Dağılımı</div>
+            <div class="font-medium" id="traffic-allocation">-</div>
+          </div>
+        </div>
+        <div class="mt-4" id="hypothesis-container" style="display: none;">
+          <div class="text-xs text-gray-500 mb-1">Hipotez</div>
+          <div class="text-sm text-gray-700 italic" id="hypothesis"></div>
+        </div>
+      </div>
+
+      <!-- Variant Comparison -->
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <h2 class="text-lg font-semibold mb-4">Varyant Karşılaştırması</h2>
+        <div id="variants-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Variants will be loaded here -->
+        </div>
+      </div>
+
+      <!-- Conversion Funnel -->
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <h2 class="text-lg font-semibold mb-4">Conversion Funnel</h2>
+        <div class="h-80">
+          <canvas id="funnelChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <h2 class="text-lg font-semibold mb-4">Event Timeline</h2>
+        <div id="timeline-container" class="space-y-2">
+          <!-- Timeline will be loaded here -->
+        </div>
+      </div>
+
+      <!-- Detailed Stats Table -->
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <h2 class="text-lg font-semibold mb-4">Detaylı İstatistikler</h2>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Varyant</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kullanıcılar</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Görüntüleme</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tıklama</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Conversion</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">CTR</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">CVR</th>
+              </tr>
+            </thead>
+            <tbody id="stats-table-body" class="divide-y divide-gray-200">
+              <!-- Stats will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const API_URL = 'http://localhost:4000/api';
+    const urlParams = new URLSearchParams(window.location.search);
+    const experimentId = urlParams.get('id');
+
+    let experimentData = null;
+    let funnelChart = null;
+
+    // Initialize
+    async function init() {
+      if (!experimentId) {
+        alert('Test ID bulunamadı!');
+        window.location.href = 'ab-test-manager.html';
+        return;
+      }
+
+      await loadResults();
+    }
+
+    // Load results
+    async function loadResults() {
+      try {
+        const response = await fetch(`${API_URL}/experiments/${experimentId}/results`);
+        const result = await response.json();
+
+        if (result.success) {
+          experimentData = result.data;
+          renderResults();
+          document.getElementById('loading').classList.add('hidden');
+          document.getElementById('content').classList.remove('hidden');
+        } else {
+          alert('Hata: ' + result.error);
+        }
+      } catch (error) {
+        console.error('Error loading results:', error);
+        alert('Sonuçlar yüklenirken hata oluştu!');
+      }
+    }
+
+    // Render results
+    function renderResults() {
+      const { experiment, variant_stats, timeline } = experimentData;
+
+      // Header
+      document.getElementById('experiment-name').textContent = experiment.name;
+      document.getElementById('experiment-description').textContent = experiment.description || '';
+
+      // Status badge
+      const statusColors = {
+        draft: 'bg-gray-100 text-gray-700',
+        running: 'bg-green-100 text-green-700',
+        completed: 'bg-blue-100 text-blue-700'
+      };
+      const statusText = {
+        draft: 'Taslak',
+        running: '🔴 Aktif',
+        completed: 'Tamamlandı'
+      };
+      document.getElementById('status-badge').innerHTML = `
+        <span class="px-4 py-2 rounded-full text-sm font-medium ${statusColors[experiment.status]}">
+          ${statusText[experiment.status]}
+        </span>
+      `;
+
+      // Test info
+      document.getElementById('started-at').textContent = experiment.started_at
+        ? new Date(experiment.started_at).toLocaleString('tr-TR')
+        : 'Başlatılmadı';
+      document.getElementById('ended-at').textContent = experiment.ended_at
+        ? new Date(experiment.ended_at).toLocaleString('tr-TR')
+        : experiment.status === 'running' ? 'Devam ediyor' : '-';
+      document.getElementById('target-segment').textContent = experiment.target_segment;
+      document.getElementById('traffic-allocation').textContent = (experiment.traffic_allocation * 100).toFixed(0) + '%';
+
+      if (experiment.hypothesis) {
+        document.getElementById('hypothesis-container').style.display = 'block';
+        document.getElementById('hypothesis').textContent = experiment.hypothesis;
+      }
+
+      // Variant cards
+      renderVariantCards(variant_stats);
+
+      // Funnel chart
+      renderFunnelChart(variant_stats);
+
+      // Timeline
+      renderTimeline(timeline);
+
+      // Stats table
+      renderStatsTable(variant_stats);
+    }
+
+    // Render variant cards
+    function renderVariantCards(variants) {
+      const container = document.getElementById('variants-grid');
+
+      // Find control for comparison
+      const control = variants.find(v => v.is_control === 1);
+
+      container.innerHTML = variants.map(variant => {
+        const isControl = variant.is_control === 1;
+        const conversionRate = variant.conversion_rate || 0;
+        const clickRate = variant.click_rate || 0;
+
+        // Calculate lift from control
+        let conversionLift = '';
+        if (!isControl && control && control.conversion_rate) {
+          const lift = ((conversionRate - control.conversion_rate) / control.conversion_rate * 100).toFixed(1);
+          const liftColor = lift > 0 ? 'text-green-600' : 'text-red-600';
+          conversionLift = `<div class="${liftColor} text-sm font-medium">${lift > 0 ? '+' : ''}${lift}% vs Control</div>`;
+        }
+
+        return `
+          <div class="border-2 ${isControl ? 'border-indigo-300 bg-indigo-50' : 'border-gray-200'} rounded-lg p-4">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-semibold text-gray-900">${variant.name}</h3>
+              ${isControl ? '<span class="text-xs bg-indigo-600 text-white px-2 py-1 rounded">Control</span>' : ''}
+            </div>
+            <div class="space-y-3">
+              <div>
+                <div class="text-xs text-gray-500">Kullanıcı Sayısı</div>
+                <div class="text-2xl font-bold">${variant.total_users}</div>
+              </div>
+              <div>
+                <div class="text-xs text-gray-500">Conversion Rate</div>
+                <div class="text-2xl font-bold text-green-600">${conversionRate.toFixed(1)}%</div>
+                ${conversionLift}
+              </div>
+              <div>
+                <div class="text-xs text-gray-500">Click Rate</div>
+                <div class="text-xl font-semibold">${clickRate.toFixed(1)}%</div>
+              </div>
+              <div class="text-xs text-gray-500 pt-2 border-t">
+                ${variant.views} görüntüleme • ${variant.clicks} tıklama • ${variant.conversions} conversion
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Render funnel chart
+    function renderFunnelChart(variants) {
+      const ctx = document.getElementById('funnelChart');
+      if (funnelChart) funnelChart.destroy();
+
+      const labels = variants.map(v => v.name);
+      const viewsData = variants.map(v => v.views);
+      const clicksData = variants.map(v => v.clicks);
+      const conversionsData = variants.map(v => v.conversions);
+
+      funnelChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Görüntüleme',
+              data: viewsData,
+              backgroundColor: 'rgba(99, 102, 241, 0.5)',
+              borderColor: 'rgb(99, 102, 241)',
+              borderWidth: 1
+            },
+            {
+              label: 'Tıklama',
+              data: clicksData,
+              backgroundColor: 'rgba(59, 130, 246, 0.5)',
+              borderColor: 'rgb(59, 130, 246)',
+              borderWidth: 1
+            },
+            {
+              label: 'Conversion',
+              data: conversionsData,
+              backgroundColor: 'rgba(16, 185, 129, 0.5)',
+              borderColor: 'rgb(16, 185, 129)',
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                precision: 0
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              position: 'top'
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false
+            }
+          }
+        }
+      });
+    }
+
+    // Render timeline
+    function renderTimeline(timeline) {
+      const container = document.getElementById('timeline-container');
+
+      if (timeline.length === 0) {
+        container.innerHTML = '<div class="text-center text-gray-500 py-8">Henüz event kaydedilmedi</div>';
+        return;
+      }
+
+      // Group by date
+      const grouped = {};
+      timeline.forEach(item => {
+        if (!grouped[item.date]) {
+          grouped[item.date] = [];
+        }
+        grouped[item.date].push(item);
+      });
+
+      container.innerHTML = Object.keys(grouped).map(date => {
+        const items = grouped[date];
+        return `
+          <div class="border-l-2 border-indigo-200 pl-4 pb-4">
+            <div class="text-sm font-medium text-gray-900 mb-2">${date}</div>
+            <div class="space-y-1">
+              ${items.map(item => `
+                <div class="text-sm text-gray-600">
+                  <span class="font-medium">${item.variant_name}</span>:
+                  ${item.count}x ${item.event_type}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Render stats table
+    function renderStatsTable(variants) {
+      const tbody = document.getElementById('stats-table-body');
+
+      tbody.innerHTML = variants.map(variant => {
+        const isControl = variant.is_control === 1;
+        return `
+          <tr class="${isControl ? 'bg-indigo-50' : ''}">
+            <td class="px-4 py-3 font-medium">${variant.name} ${isControl ? '(Control)' : ''}</td>
+            <td class="px-4 py-3">${variant.total_users}</td>
+            <td class="px-4 py-3">${variant.views}</td>
+            <td class="px-4 py-3">${variant.clicks}</td>
+            <td class="px-4 py-3 font-semibold text-green-600">${variant.conversions}</td>
+            <td class="px-4 py-3">${(variant.click_rate || 0).toFixed(2)}%</td>
+            <td class="px-4 py-3 font-semibold">${(variant.conversion_rate || 0).toFixed(2)}%</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Initialize on page load
+    init();
+
+    // Auto-refresh if experiment is running
+    setInterval(async () => {
+      if (experimentData && experimentData.experiment.status === 'running') {
+        await loadResults();
+      }
+    }, 10000); // Refresh every 10 seconds
+  </script>
+</body>
+</html>

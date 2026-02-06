@@ -223,6 +223,91 @@ if (count.count === 0) {
   console.log(`ℹ️  Database already contains ${count.count} insights`);
 }
 
+// ============================================
+// AB TESTING TABLES
+// ============================================
+
+// Create experiments table
+db.exec(`
+  CREATE TABLE IF NOT EXISTS experiments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    description TEXT,
+    hypothesis TEXT,
+    target_segment TEXT,
+    status TEXT DEFAULT 'draft',
+    traffic_allocation REAL DEFAULT 1.0,
+    started_at TEXT,
+    ended_at TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+  )
+`);
+
+console.log('✅ Table created: experiments');
+
+// Create variants table
+db.exec(`
+  CREATE TABLE IF NOT EXISTS variants (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    experiment_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    description TEXT,
+    is_control BOOLEAN DEFAULT 0,
+    traffic_weight REAL DEFAULT 1.0,
+    config TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (experiment_id) REFERENCES experiments(id) ON DELETE CASCADE
+  )
+`);
+
+console.log('✅ Table created: variants');
+
+// Create user_assignments table
+db.exec(`
+  CREATE TABLE IF NOT EXISTS user_assignments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    experiment_id INTEGER NOT NULL,
+    variant_id INTEGER NOT NULL,
+    user_id TEXT NOT NULL,
+    assigned_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (experiment_id) REFERENCES experiments(id) ON DELETE CASCADE,
+    FOREIGN KEY (variant_id) REFERENCES variants(id) ON DELETE CASCADE,
+    UNIQUE(experiment_id, user_id)
+  )
+`);
+
+console.log('✅ Table created: user_assignments');
+
+// Create events table
+db.exec(`
+  CREATE TABLE IF NOT EXISTS events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    experiment_id INTEGER NOT NULL,
+    variant_id INTEGER NOT NULL,
+    user_id TEXT NOT NULL,
+    event_type TEXT NOT NULL,
+    event_data TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (experiment_id) REFERENCES experiments(id) ON DELETE CASCADE,
+    FOREIGN KEY (variant_id) REFERENCES variants(id) ON DELETE CASCADE
+  )
+`);
+
+console.log('✅ Table created: events');
+
+// Create indexes for performance
+db.exec(`
+  CREATE INDEX IF NOT EXISTS idx_user_assignments_experiment ON user_assignments(experiment_id);
+  CREATE INDEX IF NOT EXISTS idx_user_assignments_user ON user_assignments(user_id);
+  CREATE INDEX IF NOT EXISTS idx_events_experiment ON events(experiment_id);
+  CREATE INDEX IF NOT EXISTS idx_events_variant ON events(variant_id);
+  CREATE INDEX IF NOT EXISTS idx_events_user ON events(user_id);
+  CREATE INDEX IF NOT EXISTS idx_events_type ON events(event_type);
+`);
+
+console.log('✅ Indexes created for AB testing tables');
+
 // Show summary
 const summary = db.prepare(`
   SELECT
@@ -239,6 +324,10 @@ summary.forEach(row => {
   console.log(`${row.category.padEnd(15)} ${String(row.count).padEnd(5)} insights   $${(row.total_impact / 1000).toFixed(0)}K impact`);
 });
 console.log('─────────────────────────────────────');
+
+// Check AB testing tables
+const experimentCount = db.prepare('SELECT COUNT(*) as count FROM experiments').get();
+console.log(`\n🧪 AB Testing: ${experimentCount.count} experiments`);
 
 db.close();
 console.log('\n✅ Database initialization complete!');

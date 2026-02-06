@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AB Testing Demo - Paywall Test</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="ab-tracker.js"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen p-8">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold mb-8">🧪 AB Testing Demo - Paywall Location Test</h1>
+
+    <!-- User Info -->
+    <div class="bg-gray-800 rounded-lg p-4 mb-6">
+      <p class="text-sm text-gray-400">Your User ID: <span id="user-id" class="text-green-400 font-mono"></span></p>
+      <p class="text-sm text-gray-400 mt-2">Variant: <span id="variant-name" class="text-blue-400 font-semibold">Loading...</span></p>
+    </div>
+
+    <!-- Main App Simulation -->
+    <div class="bg-gray-800 rounded-lg p-8 mb-6">
+      <h2 class="text-xl font-semibold mb-4">📱 Spam Blocker App</h2>
+
+      <div class="space-y-4">
+        <div class="bg-gray-700 p-4 rounded">
+          <p class="text-gray-300">📞 Incoming call from: +1 (555) 123-4567</p>
+          <p class="text-red-400 mt-2">⚠️ SPAM DETECTED!</p>
+          <button id="block-btn" class="mt-4 bg-red-600 hover:bg-red-700 px-4 py-2 rounded">Block Call</button>
+        </div>
+
+        <!-- Paywall container - will be shown based on variant -->
+        <div id="paywall-container" style="display: none;">
+          <div class="bg-gradient-to-r from-purple-600 to-blue-600 p-6 rounded-lg">
+            <h3 class="text-2xl font-bold mb-2">🎯 Upgrade to Premium</h3>
+            <p class="text-gray-100 mb-4">Get advanced spam detection and block 10x more spam calls!</p>
+            <ul class="text-sm mb-4 space-y-1">
+              <li>✓ Real-time threat database</li>
+              <li>✓ Advanced caller ID</li>
+              <li>✓ Priority support</li>
+            </ul>
+            <div class="flex gap-4">
+              <button id="upgrade-btn" class="bg-white text-purple-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100">
+                Upgrade Now - $9.99/month
+              </button>
+              <button id="dismiss-btn" class="border border-white px-6 py-3 rounded-lg hover:bg-white hover:bg-opacity-10">
+                Maybe Later
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="status-message" class="text-center text-gray-400 mt-4"></div>
+      </div>
+    </div>
+
+    <!-- Event Log -->
+    <div class="bg-gray-800 rounded-lg p-6">
+      <h3 class="text-lg font-semibold mb-4">📊 Event Log</h3>
+      <div id="event-log" class="space-y-2 font-mono text-sm text-gray-400">
+        <!-- Events will be logged here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Initialize tracker
+    const tracker = new ABTracker();
+
+    // Get DOM elements
+    const userIdEl = document.getElementById('user-id');
+    const variantNameEl = document.getElementById('variant-name');
+    const paywallContainer = document.getElementById('paywall-container');
+    const blockBtn = document.getElementById('block-btn');
+    const upgradeBtn = document.getElementById('upgrade-btn');
+    const dismissBtn = document.getElementById('dismiss-btn');
+    const statusMessage = document.getElementById('status-message');
+    const eventLog = document.getElementById('event-log');
+
+    // State
+    let currentVariant = null;
+    let callsBlocked = 0;
+
+    // Log event to UI
+    function logEvent(message, type = 'info') {
+      const timestamp = new Date().toLocaleTimeString();
+      const colors = {
+        info: 'text-blue-400',
+        success: 'text-green-400',
+        warning: 'text-yellow-400',
+        error: 'text-red-400'
+      };
+      const entry = document.createElement('div');
+      entry.className = colors[type] || colors.info;
+      entry.textContent = `[${timestamp}] ${message}`;
+      eventLog.prepend(entry);
+    }
+
+    // Show paywall based on variant config
+    function showPaywall() {
+      paywallContainer.style.display = 'block';
+      statusMessage.textContent = '💎 Premium paywall shown!';
+      logEvent(`Paywall shown (variant: ${currentVariant.name})`, 'warning');
+    }
+
+    // Handle block button
+    blockBtn.addEventListener('click', async () => {
+      callsBlocked++;
+      blockBtn.textContent = `Blocked ${callsBlocked} call${callsBlocked > 1 ? 's' : ''}`;
+      logEvent(`Call blocked (${callsBlocked} total)`, 'success');
+
+      if (!currentVariant) return;
+
+      const config = currentVariant.config;
+
+      // Check trigger conditions based on variant
+      if (config.trigger === 'manual') {
+        // Control - don't auto-show
+        logEvent('Control variant - no auto-trigger', 'info');
+      } else if (config.trigger === 'call_count' && callsBlocked >= config.threshold) {
+        showPaywall();
+        await tracker.trackClick(1, currentVariant.id, { trigger: 'call_threshold_reached' });
+      } else if (config.trigger === 'spam_detected' && callsBlocked >= config.threshold) {
+        showPaywall();
+        await tracker.trackClick(1, currentVariant.id, { trigger: 'spam_detected' });
+      }
+    });
+
+    // Handle upgrade button
+    upgradeBtn.addEventListener('click', async () => {
+      statusMessage.textContent = '🎉 Thank you for upgrading!';
+      paywallContainer.style.display = 'none';
+      logEvent('🎯 CONVERSION! User upgraded to premium', 'success');
+
+      await tracker.trackConversion(1, currentVariant.id, {
+        amount: 9.99,
+        currency: 'USD'
+      });
+    });
+
+    // Handle dismiss button
+    dismissBtn.addEventListener('click', () => {
+      paywallContainer.style.display = 'none';
+      statusMessage.textContent = 'Paywall dismissed';
+      logEvent('Paywall dismissed', 'info');
+    });
+
+    // Initialize experiment
+    async function init() {
+      // Show user ID
+      userIdEl.textContent = tracker.getUserId();
+      logEvent(`User ID: ${tracker.getUserId()}`, 'info');
+
+      // Get variant assignment
+      currentVariant = await tracker.run(1, (config, variant) => {
+        variantNameEl.textContent = variant.name;
+        logEvent(`Assigned to variant: ${variant.name}`, 'success');
+        logEvent(`Config: ${JSON.stringify(config)}`, 'info');
+        logEvent('View event tracked automatically', 'info');
+      });
+
+      if (!currentVariant) {
+        variantNameEl.textContent = 'Error loading variant';
+        logEvent('Failed to load variant', 'error');
+      }
+    }
+
+    // Start the demo
+    init();
+  </script>
+</body>
+</html>

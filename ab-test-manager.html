@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AB Test Manager - Behavioural Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="ab-tracker.js"></script>
+</head>
+<body class="bg-gray-50">
+  <!-- Header -->
+  <header class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">🧪 AB Test Manager</h1>
+          <p class="text-sm text-gray-500">Testlerinizi oluşturun, yönetin ve analiz edin</p>
+        </div>
+        <button onclick="openCreateModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg font-medium">
+          + Yeni Test Oluştur
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-6 py-8">
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="text-sm text-gray-500 mb-1">Toplam Test</div>
+        <div class="text-3xl font-bold text-gray-900" id="stat-total">0</div>
+      </div>
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="text-sm text-gray-500 mb-1">Aktif Testler</div>
+        <div class="text-3xl font-bold text-green-600" id="stat-running">0</div>
+      </div>
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="text-sm text-gray-500 mb-1">Taslaklar</div>
+        <div class="text-3xl font-bold text-gray-400" id="stat-draft">0</div>
+      </div>
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="text-sm text-gray-500 mb-1">Tamamlanan</div>
+        <div class="text-3xl font-bold text-blue-600" id="stat-completed">0</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow-sm p-4 mb-6 flex gap-3">
+      <button onclick="filterTests('all')" class="filter-btn px-4 py-2 rounded-lg text-sm font-medium bg-indigo-100 text-indigo-700" data-filter="all">
+        Tümü
+      </button>
+      <button onclick="filterTests('running')" class="filter-btn px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100" data-filter="running">
+        Aktif
+      </button>
+      <button onclick="filterTests('draft')" class="filter-btn px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100" data-filter="draft">
+        Taslak
+      </button>
+      <button onclick="filterTests('completed')" class="filter-btn px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100" data-filter="completed">
+        Tamamlanan
+      </button>
+    </div>
+
+    <!-- Experiments List -->
+    <div id="experiments-container" class="space-y-4">
+      <!-- Experiments will be loaded here -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="hidden bg-white rounded-lg shadow-sm p-12 text-center">
+      <div class="text-6xl mb-4">🧪</div>
+      <h3 class="text-xl font-semibold text-gray-900 mb-2">Henüz test oluşturmadınız</h3>
+      <p class="text-gray-500 mb-6">İlk AB testinizi oluşturmak için yukarıdaki butona tıklayın</p>
+      <button onclick="openCreateModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg font-medium">
+        + İlk Testinizi Oluşturun
+      </button>
+    </div>
+  </main>
+
+  <!-- Create/Edit Modal -->
+  <div id="create-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="bg-indigo-600 text-white p-6 rounded-t-xl">
+        <h2 class="text-2xl font-bold">Yeni AB Testi Oluştur</h2>
+      </div>
+
+      <form id="create-form" class="p-6 space-y-6">
+        <!-- Test Name -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Test Adı *</label>
+          <input type="text" name="name" required
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            placeholder="örn: Paywall Konum Testi">
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Açıklama</label>
+          <textarea name="description" rows="3"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            placeholder="Bu test neyi ölçüyor?"></textarea>
+        </div>
+
+        <!-- Hypothesis -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Hipotez</label>
+          <textarea name="hypothesis" rows="2"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            placeholder="Eğer X yaparsak, Y olacağını düşünüyoruz çünkü..."></textarea>
+        </div>
+
+        <!-- Segment -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Hedef Segment</label>
+          <select name="target_segment" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+            <option value="all">Tüm Kullanıcılar</option>
+            <option value="detective">Dedektifler</option>
+            <option value="victim">Mağdurlar</option>
+            <option value="passive">Pasifler</option>
+          </select>
+        </div>
+
+        <!-- Traffic Allocation -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Trafik Dağılımı (%)</label>
+          <input type="number" name="traffic_allocation" min="0" max="100" value="100" step="10"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+          <p class="text-xs text-gray-500 mt-1">Testlere dahil edilecek kullanıcı yüzdesi</p>
+        </div>
+
+        <!-- Variants -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-3">Varyantlar *</label>
+          <div id="variants-container" class="space-y-3">
+            <!-- Variant inputs will be added here -->
+          </div>
+          <button type="button" onclick="addVariant()" class="mt-3 text-indigo-600 hover:text-indigo-700 text-sm font-medium">
+            + Varyant Ekle
+          </button>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-3 pt-4 border-t">
+          <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium">
+            Test Oluştur
+          </button>
+          <button type="button" onclick="closeCreateModal()" class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50">
+            İptal
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:4000/api';
+    let allExperiments = [];
+    let currentFilter = 'all';
+    let variantCount = 0;
+
+    // Initialize
+    async function init() {
+      await loadExperiments();
+      addVariant(true); // Add control variant
+      addVariant(false); // Add first test variant
+    }
+
+    // Load experiments
+    async function loadExperiments() {
+      try {
+        const response = await fetch(`${API_URL}/experiments`);
+        const result = await response.json();
+
+        if (result.success) {
+          allExperiments = result.data;
+          updateStats();
+          renderExperiments();
+        }
+      } catch (error) {
+        console.error('Error loading experiments:', error);
+      }
+    }
+
+    // Update stats
+    function updateStats() {
+      const stats = {
+        total: allExperiments.length,
+        running: allExperiments.filter(e => e.status === 'running').length,
+        draft: allExperiments.filter(e => e.status === 'draft').length,
+        completed: allExperiments.filter(e => e.status === 'completed').length
+      };
+
+      document.getElementById('stat-total').textContent = stats.total;
+      document.getElementById('stat-running').textContent = stats.running;
+      document.getElementById('stat-draft').textContent = stats.draft;
+      document.getElementById('stat-completed').textContent = stats.completed;
+    }
+
+    // Render experiments
+    function renderExperiments() {
+      const container = document.getElementById('experiments-container');
+      const emptyState = document.getElementById('empty-state');
+
+      let filtered = allExperiments;
+      if (currentFilter !== 'all') {
+        filtered = allExperiments.filter(e => e.status === currentFilter);
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      container.innerHTML = filtered.map(exp => {
+        const statusColors = {
+          draft: 'bg-gray-100 text-gray-700',
+          running: 'bg-green-100 text-green-700',
+          completed: 'bg-blue-100 text-blue-700'
+        };
+
+        const statusText = {
+          draft: 'Taslak',
+          running: 'Aktif',
+          completed: 'Tamamlandı'
+        };
+
+        return `
+          <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer" onclick="viewExperiment(${exp.id})">
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-2">
+                  <h3 class="text-lg font-semibold text-gray-900">${exp.name}</h3>
+                  <span class="px-3 py-1 rounded-full text-xs font-medium ${statusColors[exp.status]}">
+                    ${statusText[exp.status]}
+                  </span>
+                </div>
+                <p class="text-sm text-gray-600">${exp.description || 'Açıklama yok'}</p>
+              </div>
+              <div class="flex gap-2">
+                ${exp.status === 'draft' ? `
+                  <button onclick="startExperiment(${exp.id}); event.stopPropagation();" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg">
+                    Başlat
+                  </button>
+                ` : ''}
+                ${exp.status === 'running' ? `
+                  <button onclick="stopExperiment(${exp.id}); event.stopPropagation();" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg">
+                    Durdur
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+
+            <div class="grid grid-cols-4 gap-4 pt-4 border-t">
+              <div>
+                <div class="text-xs text-gray-500">Varyantlar</div>
+                <div class="text-lg font-semibold">${exp.variant_count}</div>
+              </div>
+              <div>
+                <div class="text-xs text-gray-500">Kullanıcılar</div>
+                <div class="text-lg font-semibold">${exp.user_count}</div>
+              </div>
+              <div>
+                <div class="text-xs text-gray-500">Events</div>
+                <div class="text-lg font-semibold">${exp.event_count}</div>
+              </div>
+              <div>
+                <div class="text-xs text-gray-500">Segment</div>
+                <div class="text-sm font-medium">${exp.target_segment}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Filter tests
+    function filterTests(filter) {
+      currentFilter = filter;
+
+      // Update button styles
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        if (btn.dataset.filter === filter) {
+          btn.classList.add('bg-indigo-100', 'text-indigo-700');
+          btn.classList.remove('text-gray-600', 'hover:bg-gray-100');
+        } else {
+          btn.classList.remove('bg-indigo-100', 'text-indigo-700');
+          btn.classList.add('text-gray-600', 'hover:bg-gray-100');
+        }
+      });
+
+      renderExperiments();
+    }
+
+    // Open create modal
+    function openCreateModal() {
+      document.getElementById('create-modal').classList.remove('hidden');
+    }
+
+    // Close create modal
+    function closeCreateModal() {
+      document.getElementById('create-modal').classList.add('hidden');
+      document.getElementById('create-form').reset();
+      document.getElementById('variants-container').innerHTML = '';
+      variantCount = 0;
+      addVariant(true);
+      addVariant(false);
+    }
+
+    // Add variant
+    function addVariant(isControl = false) {
+      variantCount++;
+      const container = document.getElementById('variants-container');
+      const variantId = 'variant-' + variantCount;
+
+      const variantHtml = `
+        <div class="border border-gray-200 rounded-lg p-4" id="${variantId}">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-medium text-gray-900">
+              ${isControl ? '🎯 Control (Mevcut Durum)' : `Varyant ${variantCount - 1}`}
+            </h4>
+            ${!isControl ? `<button type="button" onclick="removeVariant('${variantId}')" class="text-red-600 hover:text-red-700 text-sm">Sil</button>` : ''}
+          </div>
+          <input type="hidden" name="variants[${variantCount}][is_control]" value="${isControl ? '1' : '0'}">
+          <div class="space-y-3">
+            <input type="text" name="variants[${variantCount}][name]" required
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              placeholder="Varyant adı" value="${isControl ? 'Control' : ''}">
+            <textarea name="variants[${variantCount}][description]" rows="2"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              placeholder="Varyant açıklaması"></textarea>
+            <input type="number" name="variants[${variantCount}][traffic_weight]" min="1" value="1" step="0.1"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              placeholder="Trafik ağırlığı (1 = %50 iki varyant için)">
+          </div>
+        </div>
+      `;
+
+      container.insertAdjacentHTML('beforeend', variantHtml);
+    }
+
+    // Remove variant
+    function removeVariant(variantId) {
+      document.getElementById(variantId).remove();
+    }
+
+    // Handle form submit
+    document.getElementById('create-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+
+      // Build experiment object
+      const experiment = {
+        name: formData.get('name'),
+        description: formData.get('description'),
+        hypothesis: formData.get('hypothesis'),
+        target_segment: formData.get('target_segment'),
+        traffic_allocation: parseFloat(formData.get('traffic_allocation')) / 100,
+        variants: []
+      };
+
+      // Extract variants
+      const variantKeys = [...formData.keys()].filter(k => k.startsWith('variants['));
+      const variantIds = [...new Set(variantKeys.map(k => k.match(/\[(\d+)\]/)[1]))];
+
+      variantIds.forEach(id => {
+        experiment.variants.push({
+          name: formData.get(`variants[${id}][name]`),
+          description: formData.get(`variants[${id}][description]`),
+          is_control: formData.get(`variants[${id}][is_control]`) === '1',
+          traffic_weight: parseFloat(formData.get(`variants[${id}][traffic_weight]`))
+        });
+      });
+
+      // Create experiment
+      try {
+        const response = await fetch(`${API_URL}/experiments`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(experiment)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          alert('✅ Test başarıyla oluşturuldu!');
+          closeCreateModal();
+          await loadExperiments();
+        } else {
+          alert('❌ Hata: ' + result.error);
+        }
+      } catch (error) {
+        alert('❌ Bağlantı hatası: ' + error.message);
+      }
+    });
+
+    // Start experiment
+    async function startExperiment(id) {
+      if (!confirm('Bu testi başlatmak istediğinizden emin misiniz?')) return;
+
+      try {
+        const response = await fetch(`${API_URL}/experiments/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'running' })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          alert('✅ Test başlatıldı!');
+          await loadExperiments();
+        }
+      } catch (error) {
+        alert('❌ Hata: ' + error.message);
+      }
+    }
+
+    // Stop experiment
+    async function stopExperiment(id) {
+      if (!confirm('Bu testi durdurmak istediğinizden emin misiniz?')) return;
+
+      try {
+        const response = await fetch(`${API_URL}/experiments/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'completed' })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          alert('✅ Test durduruldu!');
+          await loadExperiments();
+        }
+      } catch (error) {
+        alert('❌ Hata: ' + error.message);
+      }
+    }
+
+    // View experiment results
+    function viewExperiment(id) {
+      window.location.href = `ab-test-results.html?id=${id}`;
+    }
+
+    // Initialize on page load
+    init();
+  </script>
+</body>
+</html>
