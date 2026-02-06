@@ -810,6 +810,139 @@
     </footer>
 
     <script>
+        const API_BASE = 'http://localhost:3001/api';
+
+        // Settings storage key
+        const SETTINGS_KEY = 'behavioural_hub_settings';
+
+        // Default settings
+        const DEFAULT_SETTINGS = {
+            testing: {
+                confidenceLevel: 95,
+                minSampleSize: 5000,
+                statisticalMethod: 'Bayesian (Recommended)',
+                autoShipEnabled: true,
+                autoShipThreshold: '95% confidence + 14 days minimum',
+                rolloutStrategy: 'Gradual: 25% → 50% → 100% (3 days each)',
+                maxTestDuration: 30,
+                minTestDuration: 7,
+                includeWeekends: true,
+                correctionMethod: 'Bonferroni Correction',
+                maxConcurrentTests: 3
+            },
+            ai: {
+                confidenceThreshold: 'balanced',
+                insightFrequency: 'Weekly',
+                autoGenerateTests: true,
+                patternDetection: true,
+                prioritizedPrinciples: ['social-proof', 'loss-aversion', 'scarcity', 'authority', 'reciprocity']
+            }
+        };
+
+        // Load settings from localStorage
+        function loadSettings() {
+            try {
+                const stored = localStorage.getItem(SETTINGS_KEY);
+                return stored ? JSON.parse(stored) : DEFAULT_SETTINGS;
+            } catch (error) {
+                console.error('Error loading settings:', error);
+                return DEFAULT_SETTINGS;
+            }
+        }
+
+        // Save settings to localStorage
+        function saveSettings(settings) {
+            try {
+                localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+                updateLastSaved();
+                showToast('Settings saved successfully!', 'success');
+            } catch (error) {
+                console.error('Error saving settings:', error);
+                showToast('Failed to save settings', 'error');
+            }
+        }
+
+        // Update "last saved" timestamp
+        function updateLastSaved() {
+            const now = new Date();
+            const timeStr = 'just now';
+            document.querySelectorAll('.text-purple-200.mt-1').forEach(el => {
+                if (el.textContent.includes('Last saved')) {
+                    el.textContent = `Last saved: ${timeStr}`;
+                }
+            });
+        }
+
+        // Gather current form values
+        function gatherSettings() {
+            const settings = loadSettings();
+
+            // Testing settings
+            settings.testing.confidenceLevel = parseInt(document.getElementById('confidenceLevel')?.value || 95);
+            settings.testing.minSampleSize = parseInt(document.querySelector('input[type="number"][value="5000"]')?.value || 5000);
+
+            return settings;
+        }
+
+        // Save button handler
+        function handleSaveSettings() {
+            const settings = gatherSettings();
+            saveSettings(settings);
+        }
+
+        // Reset to defaults
+        function handleResetSettings() {
+            if (confirm('Reset all settings to defaults?\n\nThis will:\n• Restore original values\n• Clear all customizations\n\nThis action cannot be undone.')) {
+                saveSettings(DEFAULT_SETTINGS);
+                showToast('Settings reset to defaults', 'info');
+                setTimeout(() => location.reload(), 1000);
+            }
+        }
+
+        // Toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500'
+            };
+            toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white ${colors[type] || colors.info} z-50 animate-fade-in`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load existing settings
+            const settings = loadSettings();
+
+            // Apply loaded settings to form
+            if (document.getElementById('confidenceLevel')) {
+                document.getElementById('confidenceLevel').value = settings.testing?.confidenceLevel || 95;
+                updateValue('confidenceLevel', settings.testing?.confidenceLevel || 95);
+            }
+
+            // Attach save button handlers
+            document.querySelectorAll('button').forEach(button => {
+                if (button.textContent.includes('Save Changes')) {
+                    button.addEventListener('click', handleSaveSettings);
+                }
+                if (button.textContent.includes('Reset to Defaults')) {
+                    button.addEventListener('click', handleResetSettings);
+                }
+            });
+
+            // Show loaded confirmation
+            console.log('Settings loaded:', settings);
+        });
+
         // Tab switching
         function showTab(tabName) {
             // Hide all content
@@ -834,18 +967,19 @@
 
         // Update slider values
         function updateValue(id, value) {
-            document.getElementById(id + '-value').textContent = value;
+            document.getElementById(id + '-value').textContent = value + '%';
         }
 
-        // Auto-save indicator (mock)
+        // Auto-save indicator
         let saveTimeout;
         document.querySelectorAll('input, select').forEach(input => {
             input.addEventListener('change', () => {
                 clearTimeout(saveTimeout);
-                saveTimeout = setTimeout(() => {
-                    // Show save indicator
-                    console.log('Auto-saved');
-                }, 1000);
+                // Visual feedback that changes are pending
+                const header = document.querySelector('.text-purple-200.mt-1');
+                if (header && header.textContent.includes('Last saved')) {
+                    header.textContent = 'Unsaved changes...';
+                }
             });
         });
     </script>
