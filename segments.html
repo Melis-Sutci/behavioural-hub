@@ -6,6 +6,7 @@
     <title>Segment Intelligence - Behavioural Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="config.js"></script>
+    <script src="ui-common.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -644,17 +645,21 @@
 
         // Load segment data from backend
         async function loadSegmentData() {
+            LoadingStates.showPageLoading('Loading segments...');
+
             try {
-                const response = await fetch(`${API_BASE}/analytics/by-segment`);
-                const result = await response.json();
+                const result = await API.get('/analytics/by-segment');
 
                 if (result.success) {
                     renderSegments(result.data);
                     updateQuickStats(result.data);
+                } else {
+                    ErrorHandler.showError('Failed to load segment data');
                 }
             } catch (error) {
-                console.error('Error loading segment data:', error);
-                showToast('Failed to load segment data', 'error');
+                ErrorHandler.handleApiError(error, 'Loading segments');
+            } finally {
+                LoadingStates.hidePageLoading();
             }
         }
 

@@ -6,6 +6,7 @@
     <title>Platform Settings - Behavioural Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="config.js"></script>
+    <script src="ui-common.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -887,8 +888,17 @@
 
         // Save button handler
         function handleSaveSettings() {
-            const settings = gatherSettings();
-            saveSettings(settings);
+            LoadingStates.showPageLoading('Saving settings...');
+
+            try {
+                const settings = gatherSettings();
+                saveSettings(settings);
+                ErrorHandler.showSuccess('Settings saved successfully!');
+            } catch (error) {
+                ErrorHandler.showError('Failed to save settings: ' + error.message);
+            } finally {
+                LoadingStates.hidePageLoading();
+            }
         }
 
         // Reset to defaults

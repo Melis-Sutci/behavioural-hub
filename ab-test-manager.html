@@ -7,15 +7,26 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="config.js"></script>
   <script src="ab-tracker.js"></script>
+  <script src="ui-common.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+  </style>
 </head>
 <body class="bg-gray-50">
   <!-- Header -->
-  <header class="bg-white shadow-sm border-b">
-    <div class="max-w-7xl mx-auto px-6 py-4">
+  <header class="gradient-bg text-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-6 py-6">
       <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900">🧪 AB Test Manager</h1>
-          <p class="text-sm text-gray-500">Testlerinizi oluşturun, yönetin ve analiz edin</p>
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+            <span class="text-2xl">🧪</span>
+          </div>
+          <div>
+            <h1 class="text-2xl font-light tracking-wide">AB Test Manager</h1>
+            <p class="text-sm text-purple-200 font-light">Testlerinizi oluşturun, yönetin ve analiz edin</p>
+          </div>
         </div>
         <button onclick="openCreateModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg font-medium">
           + Yeni Test Oluştur
@@ -168,17 +179,20 @@
 
     // Load experiments
     async function loadExperiments() {
+      LoadingStates.showSkeletonLoader('experiments-container');
+
       try {
-        const response = await fetch(`${API_URL}/experiments`);
-        const result = await response.json();
+        const result = await API.get('/experiments');
 
         if (result.success) {
           allExperiments = result.data;
           updateStats();
           renderExperiments();
+        } else {
+          ErrorHandler.showError('Failed to load experiments');
         }
       } catch (error) {
-        console.error('Error loading experiments:', error);
+        ErrorHandler.handleApiError(error, 'Loading experiments');
       }
     }
 
@@ -350,6 +364,14 @@
     // Handle form submit
     document.getElementById('create-form').addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      // Validate form
+      const validation = Validator.validateForm('create-form');
+      if (!validation.valid) {
+        validation.errors.forEach(error => ErrorHandler.showWarning(error));
+        return;
+      }
+
       const formData = new FormData(e.target);
 
       // Build experiment object
@@ -361,6 +383,18 @@
         traffic_allocation: parseFloat(formData.get('traffic_allocation')) / 100,
         variants: []
       };
+
+      // Validate traffic allocation
+      const trafficValidation = Validator.validateNumberRange(
+        formData.get('traffic_allocation'),
+        0,
+        100,
+        'Traffic allocation'
+      );
+      if (!trafficValidation.valid) {
+        ErrorHandler.showWarning(trafficValidation.error);
+        return;
+      }
 
       // Extract variants
       const variantKeys = [...formData.keys()].filter(k => k.startsWith('variants['));
@@ -375,25 +409,29 @@
         });
       });
 
-      // Create experiment
-      try {
-        const response = await fetch(`${API_URL}/experiments`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(experiment)
-        });
+      // Validate at least 2 variants
+      if (experiment.variants.length < 2) {
+        ErrorHandler.showWarning('At least 2 variants are required (control + 1 variation)');
+        return;
+      }
 
-        const result = await response.json();
+      // Create experiment with loading state
+      LoadingStates.showPageLoading('Creating experiment...');
+
+      try {
+        const result = await API.post('/experiments', experiment);
 
         if (result.success) {
-          alert('✅ Test başarıyla oluşturuldu!');
+          ErrorHandler.showSuccess('Test başarıyla oluşturuldu!');
           closeCreateModal();
           await loadExperiments();
         } else {
-          alert('❌ Hata: ' + result.error);
+          ErrorHandler.showError(result.error || 'Failed to create experiment');
         }
       } catch (error) {
-        alert('❌ Bağlantı hatası: ' + error.message);
+        ErrorHandler.handleApiError(error, 'Creating experiment');
+      } finally {
+        LoadingStates.hidePageLoading();
       }
     });
 
@@ -401,20 +439,24 @@
     async function startExperiment(id) {
       if (!confirm('Bu testi başlatmak istediğinizden emin misiniz?')) return;
 
+      LoadingStates.showPageLoading('Starting experiment...');
+
       try {
-        const response = await fetch(`${API_URL}/experiments/${id}`, {
+        const result = await API.request(`/experiments/${id}`, {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status: 'running' })
         });
 
-        const result = await response.json();
         if (result.success) {
-          alert('✅ Test başlatıldı!');
+          ErrorHandler.showSuccess('Test başlatıldı!');
           await loadExperiments();
+        } else {
+          ErrorHandler.showError(result.error || 'Failed to start experiment');
         }
       } catch (error) {
-        alert('❌ Hata: ' + error.message);
+        ErrorHandler.handleApiError(error, 'Starting experiment');
+      } finally {
+        LoadingStates.hidePageLoading();
       }
     }
 
@@ -422,20 +464,24 @@
     async function stopExperiment(id) {
       if (!confirm('Bu testi durdurmak istediğinizden emin misiniz?')) return;
 
+      LoadingStates.showPageLoading('Stopping experiment...');
+
       try {
-        const response = await fetch(`${API_URL}/experiments/${id}`, {
+        const result = await API.request(`/experiments/${id}`, {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status: 'completed' })
         });
 
-        const result = await response.json();
         if (result.success) {
-          alert('✅ Test durduruldu!');
+          ErrorHandler.showSuccess('Test durduruldu!');
           await loadExperiments();
+        } else {
+          ErrorHandler.showError(result.error || 'Failed to stop experiment');
         }
       } catch (error) {
-        alert('❌ Hata: ' + error.message);
+        ErrorHandler.handleApiError(error, 'Stopping experiment');
+      } finally {
+        LoadingStates.hidePageLoading();
       }
     }
 
