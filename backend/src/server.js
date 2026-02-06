@@ -834,6 +834,691 @@ app.get('/api/experiments/:id/results', (req, res) => {
   }
 });
 
+// ============================================
+// SEGMENTS ENDPOINTS
+// ============================================
+
+// GET all segments
+app.get('/api/segments', (req, res) => {
+  try {
+    const { status } = req.query;
+
+    let query = 'SELECT * FROM segments';
+    const params = [];
+
+    if (status) {
+      query += ' WHERE status = ?';
+      params.push(status);
+    }
+
+    query += ' ORDER BY population_percentage DESC';
+
+    const segments = db.prepare(query).all(...params);
+
+    // Parse traits JSON
+    segments.forEach(segment => {
+      try {
+        segment.traits = JSON.parse(segment.traits);
+      } catch (e) {
+        segment.traits = [];
+      }
+    });
+
+    res.json({
+      success: true,
+      data: segments,
+      count: segments.length
+    });
+  } catch (error) {
+    console.error('Error fetching segments:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// GET single segment by ID or slug
+app.get('/api/segments/:identifier', (req, res) => {
+  try {
+    const { identifier } = req.params;
+
+    // Try to find by ID first, then by slug
+    let segment;
+    if (!isNaN(identifier)) {
+      segment = db.prepare('SELECT * FROM segments WHERE id = ?').get(identifier);
+    }
+    if (!segment) {
+      segment = db.prepare('SELECT * FROM segments WHERE slug = ?').get(identifier);
+    }
+
+    if (!segment) {
+      return res.status(404).json({
+        success: false,
+        error: 'Segment not found'
+      });
+    }
+
+    // Parse traits
+    try {
+      segment.traits = JSON.parse(segment.traits);
+    } catch (e) {
+      segment.traits = [];
+    }
+
+    // Get rules
+    const rules = db.prepare('SELECT * FROM segment_rules WHERE segment_id = ?').all(segment.id);
+
+    // Get history
+    const history = db.prepare(`
+      SELECT * FROM segment_history
+      WHERE segment_id = ?
+      ORDER BY created_at DESC
+      LIMIT 20
+    `).all(segment.id);
+
+    res.json({
+      success: true,
+      data: {
+        ...segment,
+        rules,
+        history
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching segment:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// POST create new segment
+app.post('/api/segments', (req, res) => {
+  try {
+    const {
+      name,
+      slug,
+      description,
+      emoji,
+      color,
+      traits,
+      discovery_method,
+      created_by
+    } = req.body;
+
+    if (!name || !slug || !description) {
+      return res.status(400).json({
+        success: false,
+        error: 'name, slug, and description are required'
+      });
+    }
+
+    // Insert segment
+    const stmt = db.prepare(`
+      INSERT INTO segments (
+        name, slug, description, emoji, color, traits,
+        discovery_method, created_by, status
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'draft')
+    `);
+
+    const result = stmt.run(
+      name,
+      slug,
+      description,
+      emoji || '👥',
+      color || 'gray',
+      JSON.stringify(traits || []),
+      discovery_method || 'manual',
+      created_by || 'user'
+    );
+
+    const segmentId = result.lastInsertRowid;
+
+    // Log creation in history
+    db.prepare(`
+      INSERT INTO segment_history (segment_id, action, description, performed_by)
+      VALUES (?, 'created', ?, ?)
+    `).run(segmentId, `Segment "${name}" created`, created_by || 'user');
+
+    res.status(201).json({
+      success: true,
+      data: {
+        id: segmentId,
+        message: 'Segment created successfully'
+      }
+    });
+  } catch (error) {
+    console.error('Error creating segment:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// PATCH update segment
+app.patch('/api/segments/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+
+    const segment = db.prepare('SELECT * FROM segments WHERE id = ?').get(id);
+    if (!segment) {
+      return res.status(404).json({
+        success: false,
+        error: 'Segment not found'
+      });
+    }
+
+    // Build update query dynamically
+    const allowedFields = [
+      'name', 'description', 'emoji', 'color', 'status',
+      'population_count', 'population_percentage', 'insights_tested',
+      'success_rate', 'total_revenue_impact', 'avg_impact_score'
+    ];
+
+    const updateFields = [];
+    const values = [];
+
+    Object.keys(updates).forEach(key => {
+      if (allowedFields.includes(key)) {
+        updateFields.push(`${key} = ?`);
+        if (key === 'traits') {
+          values.push(JSON.stringify(updates[key]));
+        } else {
+          values.push(updates[key]);
+        }
+      }
+    });
+
+    if (updateFields.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'No valid fields to update'
+      });
+    }
+
+    updateFields.push('updated_at = CURRENT_TIMESTAMP');
+    values.push(id);
+
+    const query = `UPDATE segments SET ${updateFields.join(', ')} WHERE id = ?`;
+    db.prepare(query).run(...values);
+
+    // Log update in history
+    db.prepare(`
+      INSERT INTO segment_history (segment_id, action, description, changes, performed_by)
+      VALUES (?, 'updated', ?, ?, ?)
+    `).run(
+      id,
+      'Segment updated',
+      JSON.stringify(updates),
+      updates.updated_by || 'user'
+    );
+
+    res.json({
+      success: true,
+      message: 'Segment updated successfully'
+    });
+  } catch (error) {
+    console.error('Error updating segment:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// POST add trait to segment
+app.post('/api/segments/:id/traits', (req, res) => {
+  try {
+    const { id } = req.params;
+    const { trait } = req.body;
+
+    if (!trait) {
+      return res.status(400).json({
+        success: false,
+        error: 'trait is required'
+      });
+    }
+
+    const segment = db.prepare('SELECT traits FROM segments WHERE id = ?').get(id);
+    if (!segment) {
+      return res.status(404).json({
+        success: false,
+        error: 'Segment not found'
+      });
+    }
+
+    const traits = JSON.parse(segment.traits);
+    if (!traits.includes(trait)) {
+      traits.push(trait);
+
+      db.prepare('UPDATE segments SET traits = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
+        .run(JSON.stringify(traits), id);
+
+      // Log in history
+      db.prepare(`
+        INSERT INTO segment_history (segment_id, action, description, performed_by)
+        VALUES (?, 'trait_added', ?, 'user')
+      `).run(id, `Added trait: ${trait}`);
+
+      res.json({
+        success: true,
+        message: 'Trait added successfully',
+        data: { traits }
+      });
+    } else {
+      res.json({
+        success: true,
+        message: 'Trait already exists',
+        data: { traits }
+      });
+    }
+  } catch (error) {
+    console.error('Error adding trait:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// DELETE remove trait from segment
+app.delete('/api/segments/:id/traits/:trait', (req, res) => {
+  try {
+    const { id, trait } = req.params;
+
+    const segment = db.prepare('SELECT traits FROM segments WHERE id = ?').get(id);
+    if (!segment) {
+      return res.status(404).json({
+        success: false,
+        error: 'Segment not found'
+      });
+    }
+
+    const traits = JSON.parse(segment.traits);
+    const index = traits.indexOf(trait);
+
+    if (index > -1) {
+      traits.splice(index, 1);
+
+      db.prepare('UPDATE segments SET traits = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
+        .run(JSON.stringify(traits), id);
+
+      // Log in history
+      db.prepare(`
+        INSERT INTO segment_history (segment_id, action, description, performed_by)
+        VALUES (?, 'trait_removed', ?, 'user')
+      `).run(id, `Removed trait: ${trait}`);
+
+      res.json({
+        success: true,
+        message: 'Trait removed successfully',
+        data: { traits }
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        error: 'Trait not found'
+      });
+    }
+  } catch (error) {
+    console.error('Error removing trait:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// POST archive segment
+app.post('/api/segments/:id/archive', (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const segment = db.prepare('SELECT * FROM segments WHERE id = ?').get(id);
+    if (!segment) {
+      return res.status(404).json({
+        success: false,
+        error: 'Segment not found'
+      });
+    }
+
+    db.prepare(`
+      UPDATE segments
+      SET status = 'archived', archived_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).run(id);
+
+    // Log in history
+    db.prepare(`
+      INSERT INTO segment_history (segment_id, action, description, performed_by)
+      VALUES (?, 'archived', 'Segment archived', 'user')
+    `).run(id);
+
+    res.json({
+      success: true,
+      message: 'Segment archived successfully'
+    });
+  } catch (error) {
+    console.error('Error archiving segment:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// POST reactivate segment
+app.post('/api/segments/:id/reactivate', (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const segment = db.prepare('SELECT * FROM segments WHERE id = ?').get(id);
+    if (!segment) {
+      return res.status(404).json({
+        success: false,
+        error: 'Segment not found'
+      });
+    }
+
+    db.prepare(`
+      UPDATE segments
+      SET status = 'active', archived_at = NULL, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).run(id);
+
+    // Log in history
+    db.prepare(`
+      INSERT INTO segment_history (segment_id, action, description, performed_by)
+      VALUES (?, 'reactivated', 'Segment reactivated', 'user')
+    `).run(id);
+
+    res.json({
+      success: true,
+      message: 'Segment reactivated successfully'
+    });
+  } catch (error) {
+    console.error('Error reactivating segment:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// GET segment history
+app.get('/api/segments/:id/history', (req, res) => {
+  try {
+    const { id } = req.params;
+    const { limit = 50 } = req.query;
+
+    const history = db.prepare(`
+      SELECT * FROM segment_history
+      WHERE segment_id = ?
+      ORDER BY created_at DESC
+      LIMIT ?
+    `).all(id, parseInt(limit));
+
+    res.json({
+      success: true,
+      data: history,
+      count: history.length
+    });
+  } catch (error) {
+    console.error('Error fetching segment history:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// ============================================
+// SETTINGS ENDPOINTS
+// ============================================
+
+// GET all settings
+app.get('/api/settings', (req, res) => {
+  try {
+    const settings = db.prepare('SELECT * FROM settings ORDER BY category, key').all();
+
+    // Group by category
+    const grouped = settings.reduce((acc, setting) => {
+      if (!acc[setting.category]) {
+        acc[setting.category] = {};
+      }
+
+      // Parse value based on type
+      let parsedValue = setting.value;
+      try {
+        if (setting.value_type === 'number') {
+          parsedValue = parseFloat(setting.value);
+        } else if (setting.value_type === 'boolean') {
+          parsedValue = setting.value === 'true';
+        } else if (setting.value_type === 'json') {
+          parsedValue = JSON.parse(setting.value);
+        }
+      } catch (e) {
+        console.error(`Error parsing setting ${setting.category}.${setting.key}:`, e);
+      }
+
+      acc[setting.category][setting.key] = {
+        value: parsedValue,
+        type: setting.value_type,
+        description: setting.description,
+        updated_at: setting.updated_at
+      };
+
+      return acc;
+    }, {});
+
+    res.json({
+      success: true,
+      data: grouped
+    });
+  } catch (error) {
+    console.error('Error fetching settings:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// GET settings by category
+app.get('/api/settings/:category', (req, res) => {
+  try {
+    const { category } = req.params;
+    const settings = db.prepare('SELECT * FROM settings WHERE category = ? ORDER BY key').all(category);
+
+    if (settings.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: `No settings found for category: ${category}`
+      });
+    }
+
+    // Parse values
+    const parsed = settings.reduce((acc, setting) => {
+      let parsedValue = setting.value;
+      try {
+        if (setting.value_type === 'number') {
+          parsedValue = parseFloat(setting.value);
+        } else if (setting.value_type === 'boolean') {
+          parsedValue = setting.value === 'true';
+        } else if (setting.value_type === 'json') {
+          parsedValue = JSON.parse(setting.value);
+        }
+      } catch (e) {
+        console.error(`Error parsing setting ${setting.key}:`, e);
+      }
+
+      acc[setting.key] = {
+        value: parsedValue,
+        type: setting.value_type,
+        description: setting.description,
+        updated_at: setting.updated_at
+      };
+
+      return acc;
+    }, {});
+
+    res.json({
+      success: true,
+      category,
+      data: parsed
+    });
+  } catch (error) {
+    console.error('Error fetching settings by category:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// POST create or update setting
+app.post('/api/settings', (req, res) => {
+  try {
+    const { category, key, value, value_type, description } = req.body;
+
+    if (!category || !key || value === undefined) {
+      return res.status(400).json({
+        success: false,
+        error: 'category, key, and value are required'
+      });
+    }
+
+    // Convert value to string for storage
+    let stringValue = value;
+    if (value_type === 'json' && typeof value === 'object') {
+      stringValue = JSON.stringify(value);
+    } else if (value_type === 'boolean') {
+      stringValue = value ? 'true' : 'false';
+    } else {
+      stringValue = String(value);
+    }
+
+    // Upsert setting
+    const stmt = db.prepare(`
+      INSERT INTO settings (category, key, value, value_type, description, updated_at)
+      VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+      ON CONFLICT(category, key) DO UPDATE SET
+        value = excluded.value,
+        value_type = excluded.value_type,
+        description = excluded.description,
+        updated_at = CURRENT_TIMESTAMP
+    `);
+
+    stmt.run(
+      category,
+      key,
+      stringValue,
+      value_type || 'string',
+      description || null
+    );
+
+    res.json({
+      success: true,
+      message: 'Setting saved successfully',
+      data: { category, key, value }
+    });
+  } catch (error) {
+    console.error('Error saving setting:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// PATCH update setting value
+app.patch('/api/settings/:category/:key', (req, res) => {
+  try {
+    const { category, key } = req.params;
+    const { value } = req.body;
+
+    if (value === undefined) {
+      return res.status(400).json({
+        success: false,
+        error: 'value is required'
+      });
+    }
+
+    // Check if setting exists
+    const existing = db.prepare('SELECT * FROM settings WHERE category = ? AND key = ?').get(category, key);
+
+    if (!existing) {
+      return res.status(404).json({
+        success: false,
+        error: `Setting not found: ${category}.${key}`
+      });
+    }
+
+    // Convert value to string based on existing type
+    let stringValue = value;
+    if (existing.value_type === 'json' && typeof value === 'object') {
+      stringValue = JSON.stringify(value);
+    } else if (existing.value_type === 'boolean') {
+      stringValue = value ? 'true' : 'false';
+    } else {
+      stringValue = String(value);
+    }
+
+    // Update setting
+    const stmt = db.prepare(`
+      UPDATE settings
+      SET value = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE category = ? AND key = ?
+    `);
+
+    stmt.run(stringValue, category, key);
+
+    res.json({
+      success: true,
+      message: 'Setting updated successfully',
+      data: { category, key, value }
+    });
+  } catch (error) {
+    console.error('Error updating setting:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// DELETE setting
+app.delete('/api/settings/:category/:key', (req, res) => {
+  try {
+    const { category, key } = req.params;
+
+    const stmt = db.prepare('DELETE FROM settings WHERE category = ? AND key = ?');
+    const result = stmt.run(category, key);
+
+    if (result.changes === 0) {
+      return res.status(404).json({
+        success: false,
+        error: `Setting not found: ${category}.${key}`
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Setting deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting setting:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 Behavioural Hub Backend running on http://localhost:${PORT}`);
@@ -859,6 +1544,22 @@ app.listen(PORT, () => {
   console.log(`   GET    /api/experiments/:id/assign?user_id=xxx`);
   console.log(`   GET    /api/experiments/:id/results`);
   console.log(`   POST   /api/events/track`);
+  console.log(`\n👥 Segments Endpoints:`);
+  console.log(`   GET    /api/segments`);
+  console.log(`   GET    /api/segments/:id`);
+  console.log(`   POST   /api/segments`);
+  console.log(`   PATCH  /api/segments/:id`);
+  console.log(`   POST   /api/segments/:id/traits`);
+  console.log(`   DELETE /api/segments/:id/traits/:trait`);
+  console.log(`   POST   /api/segments/:id/archive`);
+  console.log(`   POST   /api/segments/:id/reactivate`);
+  console.log(`   GET    /api/segments/:id/history`);
+  console.log(`\n⚙️  Settings Endpoints:`);
+  console.log(`   GET    /api/settings`);
+  console.log(`   GET    /api/settings/:category`);
+  console.log(`   POST   /api/settings`);
+  console.log(`   PATCH  /api/settings/:category/:key`);
+  console.log(`   DELETE /api/settings/:category/:key`);
   console.log(`\n✅ GET  /health`);
 });
 
