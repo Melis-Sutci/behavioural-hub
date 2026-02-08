@@ -35,7 +35,7 @@ class PaywallGenerator {
   }
 
   /**
-   * Generate new paywall designs
+   * Generate new paywall designs with optional visual references
    */
   async generatePaywalls(params) {
     if (!this.isAvailable()) {
@@ -48,7 +48,8 @@ class PaywallGenerator {
       objective = 'maximize_conversions',
       appContext = {},
       seasonalContext = null,
-      sessionId = null
+      sessionId = null,
+      uploadedFiles = []
     } = params;
 
     // Get user persona description
@@ -69,7 +70,7 @@ class PaywallGenerator {
     `, [category]);
 
     // Format prompt
-    const prompt = AUTOPILOT_PROMPTS.PAYWALL_DESIGN_GENERATE
+    let prompt = AUTOPILOT_PROMPTS.PAYWALL_DESIGN_GENERATE
       .replace('{category}', category)
       .replace('{targetSegment}', targetSegment)
       .replace('{segmentDescription}', personaDescription.description)
@@ -80,17 +81,38 @@ class PaywallGenerator {
       .replace('{benchmarks}', this.formatBenchmarks(benchmarks))
       .replace('{seasonalContext}', seasonalContext ? JSON.stringify(seasonalContext, null, 2) : 'None');
 
+    // Add context about uploaded files if present
+    if (uploadedFiles.length > 0) {
+      prompt += `\n\nIMPORTANT: The user has provided ${uploadedFiles.length} visual reference(s). Please analyze these images/documents carefully and use them as inspiration for design consistency, color schemes, typography, and visual style. Ensure your generated paywall designs match the visual identity shown in these references.`;
+    }
+
     console.log('🎨 Generating paywall designs with Claude API...');
     const startTime = Date.now();
 
-    // Call Claude
+    // Build message content (multimodal if files are provided)
+    const messageContent = [];
+
+    // Add uploaded files first (for context)
+    if (uploadedFiles.length > 0) {
+      uploadedFiles.forEach(file => {
+        messageContent.push(file);
+      });
+    }
+
+    // Add text prompt
+    messageContent.push({
+      type: 'text',
+      text: prompt
+    });
+
+    // Call Claude with vision support
     const response = await this.anthropic.messages.create({
       model: 'claude-sonnet-4-5-20250929',
       max_tokens: 16000,
       temperature: 0.6, // Higher for creative designs
       messages: [{
         role: 'user',
-        content: prompt
+        content: messageContent
       }]
     });
 
@@ -145,7 +167,7 @@ class PaywallGenerator {
   }
 
   /**
-   * Refine existing paywall based on user feedback
+   * Refine existing paywall based on user feedback with optional visual references
    */
   async refinePaywall(params) {
     if (!this.isAvailable()) {
@@ -157,7 +179,8 @@ class PaywallGenerator {
       userFeedback,
       targetSegment,
       objective,
-      sessionId
+      sessionId,
+      uploadedFiles = []
     } = params;
 
     // Get current design
@@ -177,14 +200,35 @@ class PaywallGenerator {
     };
 
     // Format prompt
-    const prompt = AUTOPILOT_PROMPTS.PAYWALL_REFINE
+    let prompt = AUTOPILOT_PROMPTS.PAYWALL_REFINE
       .replace('{currentDesign}', JSON.stringify(currentDesign, null, 2))
       .replace('{userFeedback}', userFeedback)
       .replace('{targetSegment}', targetSegment)
       .replace('{objective}', objective);
 
+    // Add context about uploaded files if present
+    if (uploadedFiles.length > 0) {
+      prompt += `\n\nIMPORTANT: The user has provided ${uploadedFiles.length} visual reference(s) with their feedback. Please analyze these images/documents and incorporate their design elements, colors, and style into the refined paywall designs.`;
+    }
+
     console.log('🔄 Refining paywall with user feedback...');
     const startTime = Date.now();
+
+    // Build message content (multimodal if files are provided)
+    const messageContent = [];
+
+    // Add uploaded files first (for context)
+    if (uploadedFiles.length > 0) {
+      uploadedFiles.forEach(file => {
+        messageContent.push(file);
+      });
+    }
+
+    // Add text prompt
+    messageContent.push({
+      type: 'text',
+      text: prompt
+    });
 
     const response = await this.anthropic.messages.create({
       model: 'claude-sonnet-4-5-20250929',
@@ -192,7 +236,7 @@ class PaywallGenerator {
       temperature: 0.5,
       messages: [{
         role: 'user',
-        content: prompt
+        content: messageContent
       }]
     });
 
@@ -393,17 +437,29 @@ class PaywallGenerator {
   }
 
   /**
-   * Create new chat session
+   * Create new chat session with optional file uploads
    */
   async createChatSession(params) {
     const {
       objective,
       targetSegment,
       initialPrompt,
-      contextData = {}
+      contextData = {},
+      uploadedFiles = []
     } = params;
 
     const sessionId = generateId();
+
+    // Process uploaded files for AI analysis
+    const fileProcessor = require('./fileProcessor');
+    const processedFiles = await fileProcessor.processMultipleFilesForAI(uploadedFiles);
+
+    // Add file descriptions to prompt if files were uploaded
+    let enhancedPrompt = initialPrompt;
+    if (uploadedFiles.length > 0) {
+      const fileDescriptions = uploadedFiles.map(f => fileProcessor.getFileDescription(f)).join('\n');
+      enhancedPrompt = `${initialPrompt}\n\n**Uploaded files for reference:**\n${fileDescriptions}`;
+    }
 
     this.db.run(`
       INSERT INTO paywall_chat_sessions (
@@ -413,21 +469,31 @@ class PaywallGenerator {
       sessionId,
       objective,
       targetSegment,
-      initialPrompt,
+      enhancedPrompt,
       JSON.stringify(contextData),
       'active'
     ]);
 
     // Add initial message
-    await this.addChatMessage(sessionId, 'user', initialPrompt);
+    await this.addChatMessage(sessionId, 'user', enhancedPrompt, {
+      uploadedFiles: uploadedFiles.map(f => ({
+        filename: f.originalname,
+        size: f.size,
+        mimetype: f.mimetype
+      }))
+    });
 
-    // Generate initial paywalls
+    // Generate initial paywalls (with file context)
     const result = await this.generatePaywalls({
       ...contextData,
       targetSegment,
       objective,
-      sessionId
+      sessionId,
+      uploadedFiles: processedFiles
     });
+
+    // Clean up uploaded files after processing
+    await fileProcessor.cleanupFiles(uploadedFiles);
 
     // Add AI response
     const assistantMessage = this.formatAssistantMessage(result);
@@ -449,12 +515,28 @@ class PaywallGenerator {
   }
 
   /**
-   * Continue chat session
+   * Continue chat session with optional file uploads
    */
-  async continueChat(sessionId, userMessage, refinementRequest) {
+  async continueChat(sessionId, userMessage, refinementRequest, uploadedFiles = []) {
+    // Process uploaded files for AI analysis
+    const fileProcessor = require('./fileProcessor');
+    const processedFiles = await fileProcessor.processMultipleFilesForAI(uploadedFiles);
+
+    // Add file descriptions to message if files were uploaded
+    let enhancedMessage = userMessage;
+    if (uploadedFiles.length > 0) {
+      const fileDescriptions = uploadedFiles.map(f => fileProcessor.getFileDescription(f)).join('\n');
+      enhancedMessage = `${userMessage}\n\n**Uploaded files:**\n${fileDescriptions}`;
+    }
+
     // Add user message
-    await this.addChatMessage(sessionId, 'user', userMessage, {
-      refinementRequest
+    await this.addChatMessage(sessionId, 'user', enhancedMessage, {
+      refinementRequest,
+      uploadedFiles: uploadedFiles.map(f => ({
+        filename: f.originalname,
+        size: f.size,
+        mimetype: f.mimetype
+      }))
     });
 
     // Get session
@@ -470,14 +552,18 @@ class PaywallGenerator {
     const lastTemplates = JSON.parse(session.generated_templates || '[]');
     const templateId = lastTemplates[0]; // Use first template as base
 
-    // Refine based on feedback
+    // Refine based on feedback (with file context)
     const result = await this.refinePaywall({
       templateId,
       userFeedback: userMessage,
       targetSegment: session.target_segment,
       objective: session.objective,
-      sessionId
+      sessionId,
+      uploadedFiles: processedFiles
     });
+
+    // Clean up uploaded files after processing
+    await fileProcessor.cleanupFiles(uploadedFiles);
 
     // Add AI response
     const assistantMessage = this.formatAssistantMessage(result);

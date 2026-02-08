@@ -3,6 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 // Fix: Use default imports instead of destructuring
 const AutopilotAIService = require('../services/autopilot/aiService');
 const PaywallGenerator = require('../services/autopilot/paywallGenerator');
+const PaywallExporter = require('../services/autopilot/paywallExporter');
 const PatternDetector = require('../services/autopilot/patternDetector');
 const BehavioralClusteringEngine = require('../services/segmentation/clusteringEngine');
 const RFMAnalysisEngine = require('../services/segmentation/rfmEngine');
@@ -10,6 +11,9 @@ const ChurnPredictor = require('../services/predictive/churnPredictor');
 const LTVPredictor = require('../services/predictive/ltvPredictor');
 const GrowthLoopDetector = require('../services/growthLoops/loopDetector');
 const ViralCoefficientCalculator = require('../services/growthLoops/viralCalculator');
+
+// Import upload middleware
+const { uploadMultiple, handleUploadError } = require('../middleware/upload');
 
 // Import validation middleware
 const {
@@ -28,6 +32,7 @@ module.exports = (db) => {
   // Initialize services with db parameter
   const aiService = new AutopilotAIService(db);
   const paywallGenerator = new PaywallGenerator(db);
+  const paywallExporter = new PaywallExporter(db);
   const patternDetector = new PatternDetector(db);
   const clusteringEngine = new BehavioralClusteringEngine(db);
   const rfmEngine = new RFMAnalysisEngine(db);
@@ -937,14 +942,14 @@ module.exports = (db) => {
     }
   });
 
-  // POST /api/autopilot/paywall/chat/start - Start chat session
-  router.post('/paywall/chat/start', async (req, res) => {
+  // POST /api/autopilot/paywall/chat/start - Start chat session with optional file uploads
+  router.post('/paywall/chat/start', uploadMultiple, handleUploadError, async (req, res) => {
     try {
       const {
         objective,
         targetSegment,
         initialPrompt,
-        contextData = {}
+        contextData = '{}'
       } = req.body;
 
       if (!objective || !initialPrompt) {
@@ -954,11 +959,15 @@ module.exports = (db) => {
         });
       }
 
+      // Parse contextData if it's a string
+      const parsedContextData = typeof contextData === 'string' ? JSON.parse(contextData) : contextData;
+
       const result = await paywallGenerator.createChatSession({
         objective,
         targetSegment,
         initialPrompt,
-        contextData
+        contextData: parsedContextData,
+        uploadedFiles: req.files || []
       });
 
       res.json({
@@ -971,8 +980,8 @@ module.exports = (db) => {
     }
   });
 
-  // POST /api/autopilot/paywall/chat/continue - Continue chat session
-  router.post('/paywall/chat/continue', async (req, res) => {
+  // POST /api/autopilot/paywall/chat/continue - Continue chat session with optional file uploads
+  router.post('/paywall/chat/continue', uploadMultiple, handleUploadError, async (req, res) => {
     try {
       const { sessionId, userMessage, refinementRequest } = req.body;
 
@@ -986,7 +995,8 @@ module.exports = (db) => {
       const result = await paywallGenerator.continueChat(
         sessionId,
         userMessage,
-        refinementRequest
+        refinementRequest,
+        req.files || []
       );
 
       res.json({
@@ -1019,6 +1029,60 @@ module.exports = (db) => {
       });
     } catch (error) {
       console.error('Error completing chat session:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  // Export endpoints
+
+  // GET /api/autopilot/paywall/export/:templateId/html - Export as standalone HTML
+  router.get('/paywall/export/:templateId/html', async (req, res) => {
+    try {
+      const { templateId } = req.params;
+
+      const result = await paywallExporter.exportAsHTML(templateId);
+
+      // Set headers for HTML download
+      res.setHeader('Content-Type', 'text/html');
+      res.setHeader('Content-Disposition', `attachment; filename="${result.name.replace(/[^a-z0-9]/gi, '-')}.html"`);
+
+      res.send(result.html);
+    } catch (error) {
+      console.error('Error exporting HTML:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  // GET /api/autopilot/paywall/export/:templateId/json - Export as JSON
+  router.get('/paywall/export/:templateId/json', async (req, res) => {
+    try {
+      const { templateId } = req.params;
+
+      const result = await paywallExporter.exportAsJSON(templateId);
+
+      // Set headers for JSON download
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', `attachment; filename="${result.name.replace(/[^a-z0-9]/gi, '-')}.json"`);
+
+      res.json(result);
+    } catch (error) {
+      console.error('Error exporting JSON:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  // GET /api/autopilot/paywall/export/:templateId/preview - Get HTML preview for screenshot
+  router.get('/paywall/export/:templateId/preview', async (req, res) => {
+    try {
+      const { templateId } = req.params;
+
+      const result = await paywallExporter.exportAsHTML(templateId);
+
+      // Return HTML for in-browser rendering (no download)
+      res.setHeader('Content-Type', 'text/html');
+      res.send(result.html);
+    } catch (error) {
+      console.error('Error getting preview:', error);
       res.status(500).json({ success: false, error: error.message });
     }
   });
