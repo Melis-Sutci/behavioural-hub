@@ -54,6 +54,12 @@ COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
 COPY --chown=nodejs:nodejs package*.json ./
 COPY --chown=nodejs:nodejs src ./src
 COPY --chown=nodejs:nodejs migrations ./migrations
+COPY --chown=nodejs:nodejs run-migrations.js ./
+COPY --chown=nodejs:nodejs docker-entrypoint.sh ./
+
+# Make entrypoint executable
+USER root
+RUN chmod +x docker-entrypoint.sh
 
 # Create necessary directories
 RUN mkdir -p logs && chown -R nodejs:nodejs logs
@@ -64,12 +70,12 @@ USER nodejs
 # Expose port
 EXPOSE 4000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+# Health check - increased start period to allow for database initialization
+HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \
   CMD node -e "require('http').get('http://localhost:4000/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"
 
 # Use dumb-init to handle signals properly
-ENTRYPOINT ["dumb-init", "--"]
+ENTRYPOINT ["dumb-init", "--", "./docker-entrypoint.sh"]
 
 # Start application
 CMD ["node", "src/server.js"]
