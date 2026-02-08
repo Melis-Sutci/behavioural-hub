@@ -76,13 +76,37 @@ jobs:
             -e JWT_SECRET=test-secret \
             -e JWT_REFRESH_SECRET=test-refresh-secret \
             -e ALLOWED_ORIGINS=http://localhost:3000 \
+            -e DATABASE_PATH=/app/data/behavioural_hub.db \
             behavioural-hub-api:${{ github.sha }}
 
-          # Wait for container to start
-          sleep 5
+          # Wait for container to start and initialize database
+          echo "Waiting for container to start..."
+          sleep 10
 
-          # Test health endpoint
-          curl --fail http://localhost:4000/health || exit 1
+          # Show container logs for debugging
+          echo "Container logs:"
+          docker logs test-container
+
+          # Wait for health endpoint to be ready (with retries)
+          echo "Testing health endpoint..."
+          max_attempts=12
+          attempt=0
+          until curl -f http://localhost:4000/health || [ $attempt -eq $max_attempts ]; do
+            attempt=$((attempt + 1))
+            echo "Attempt $attempt/$max_attempts failed, waiting 5 seconds..."
+            sleep 5
+          done
+
+          if [ $attempt -eq $max_attempts ]; then
+            echo "Health check failed after $max_attempts attempts"
+            echo "Final container logs:"
+            docker logs test-container
+            docker stop test-container
+            docker rm test-container
+            exit 1
+          fi
+
+          echo "✅ Health check passed!"
 
           # Cleanup
           docker stop test-container
