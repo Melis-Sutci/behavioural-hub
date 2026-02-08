@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Growth Autopilot - Behavioural Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="config.js"></script>
+    <script src="ui-common.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(139, 92, 246, 0.6); }
+        }
+
+        .pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        .priority-high {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .priority-medium {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .priority-low {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-8">
+                    <h1 class="text-2xl font-bold text-gray-900">🤖 Growth Autopilot</h1>
+                    <div class="flex space-x-4">
+                        <a href="index.html" class="text-gray-600 hover:text-gray-900 transition">Dashboard</a>
+                        <a href="insights.html" class="text-gray-600 hover:text-gray-900 transition">Insights</a>
+                        <a href="autopilot.html" class="text-purple-600 font-semibold">Autopilot</a>
+                        <a href="segments.html" class="text-gray-600 hover:text-gray-900 transition">Segments</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div id="userProfile" class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-700">Loading...</span>
+                    </div>
+                    <button onclick="logout()" class="text-sm text-red-600 hover:text-red-700">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-6 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">Growth Autopilot Dashboard</h2>
+            <p class="text-gray-600">AI-powered competitor analysis, recommendations, and insights</p>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <button onclick="runAudit()" class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-4 rounded-xl font-semibold hover:shadow-lg transition card-hover">
+                🎯 Run Full Audit
+            </button>
+            <button onclick="generateRecommendations()" class="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-6 py-4 rounded-xl font-semibold hover:shadow-lg transition card-hover">
+                💡 Generate Ideas
+            </button>
+            <button onclick="detectPatterns()" class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-4 rounded-xl font-semibold hover:shadow-lg transition card-hover">
+                🔍 Detect Patterns
+            </button>
+            <button onclick="showAddCompetitor()" class="bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-4 rounded-xl font-semibold hover:shadow-lg transition card-hover">
+                ➕ Add Competitor
+            </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="bg-white rounded-xl shadow-lg mb-8">
+            <div class="border-b border-gray-200">
+                <nav class="flex space-x-8 px-6" aria-label="Tabs">
+                    <button onclick="switchTab('competitors')" id="tab-competitors" class="tab-button border-b-2 border-purple-600 py-4 px-1 text-sm font-medium text-purple-600">
+                        Competitors
+                    </button>
+                    <button onclick="switchTab('recommendations')" id="tab-recommendations" class="tab-button border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        Recommendations
+                    </button>
+                    <button onclick="switchTab('audits')" id="tab-audits" class="tab-button border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        Audit Reports
+                    </button>
+                    <button onclick="switchTab('insights')" id="tab-insights" class="tab-button border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        Auto Insights
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="p-6">
+                <!-- Competitors Tab -->
+                <div id="content-competitors" class="tab-content">
+                    <div class="mb-4 flex justify-between items-center">
+                        <h3 class="text-xl font-bold text-gray-900">Competitor Analysis</h3>
+                        <button onclick="loadCompetitors()" class="text-sm text-purple-600 hover:text-purple-700">
+                            🔄 Refresh
+                        </button>
+                    </div>
+                    <div id="competitorsList" class="space-y-4">
+                        <div class="text-center py-8 text-gray-500">Loading competitors...</div>
+                    </div>
+                </div>
+
+                <!-- Recommendations Tab -->
+                <div id="content-recommendations" class="tab-content hidden">
+                    <div class="mb-4 flex justify-between items-center">
+                        <h3 class="text-xl font-bold text-gray-900">AI Recommendations</h3>
+                        <button onclick="loadRecommendations()" class="text-sm text-purple-600 hover:text-purple-700">
+                            🔄 Refresh
+                        </button>
+                    </div>
+                    <div id="recommendationsList" class="space-y-4">
+                        <div class="text-center py-8 text-gray-500">Loading recommendations...</div>
+                    </div>
+                </div>
+
+                <!-- Audits Tab -->
+                <div id="content-audits" class="tab-content hidden">
+                    <div class="mb-4 flex justify-between items-center">
+                        <h3 class="text-xl font-bold text-gray-900">Audit Reports</h3>
+                        <button onclick="loadAudits()" class="text-sm text-purple-600 hover:text-purple-700">
+                            🔄 Refresh
+                        </button>
+                    </div>
+                    <div id="auditsList" class="space-y-4">
+                        <div class="text-center py-8 text-gray-500">Loading audits...</div>
+                    </div>
+                </div>
+
+                <!-- Auto Insights Tab -->
+                <div id="content-insights" class="tab-content hidden">
+                    <div class="mb-4 flex justify-between items-center">
+                        <h3 class="text-xl font-bold text-gray-900">Auto-Generated Insights</h3>
+                        <button onclick="loadAutoInsights()" class="text-sm text-purple-600 hover:text-purple-700">
+                            🔄 Refresh
+                        </button>
+                    </div>
+                    <div id="insightsList" class="space-y-4">
+                        <div class="text-center py-8 text-gray-500">Loading insights...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Competitor Modal -->
+    <div id="addCompetitorModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <h3 class="text-2xl font-bold text-gray-900 mb-6">Add Competitor</h3>
+            <form id="competitorForm" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">App Name *</label>
+                        <input type="text" id="app_name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Bundle ID</label>
+                        <input type="text" id="bundle_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Category *</label>
+                        <select id="category" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+                            <option value="productivity">Productivity</option>
+                            <option value="health">Health & Fitness</option>
+                            <option value="finance">Finance</option>
+                            <option value="entertainment">Entertainment</option>
+                            <option value="education">Education</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Market Position</label>
+                        <select id="market_position" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+                            <option value="premium">Premium</option>
+                            <option value="mid">Mid-tier</option>
+                            <option value="budget">Budget</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h4 class="text-lg font-semibold text-gray-900 mt-6 mb-3">Pricing</h4>
+                <div class="grid grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Weekly ($)</label>
+                        <input type="number" step="0.01" id="pricing_weekly" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Monthly ($)</label>
+                        <input type="number" step="0.01" id="pricing_monthly" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Yearly ($)</label>
+                        <input type="number" step="0.01" id="pricing_yearly" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Lifetime ($)</label>
+                        <input type="number" step="0.01" id="pricing_lifetime" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+                    </div>
+                </div>
+
+                <h4 class="text-lg font-semibold text-gray-900 mt-6 mb-3">Trial Strategy</h4>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Trial Type</label>
+                        <select id="trial_type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+                            <option value="free">Free Trial</option>
+                            <option value="paid">Paid Trial</option>
+                            <option value="none">No Trial</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Trial Duration (days)</label>
+                        <input type="number" id="trial_duration" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                    <textarea id="notes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"></textarea>
+                </div>
+
+                <div class="flex space-x-4 mt-6">
+                    <button type="submit" class="flex-1 bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition">
+                        Add Competitor
+                    </button>
+                    <button type="button" onclick="hideAddCompetitor()" class="flex-1 bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Check authentication
+        checkAuth();
+
+        // Load initial data
+        loadCompetitors();
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            // Remove active state from all tabs
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('border-purple-600', 'text-purple-600');
+                button.classList.add('border-transparent', 'text-gray-500');
+            });
+
+            // Show selected tab content
+            document.getElementById(`content-${tabName}`).classList.remove('hidden');
+
+            // Set active state on selected tab
+            const activeTab = document.getElementById(`tab-${tabName}`);
+            activeTab.classList.add('border-purple-600', 'text-purple-600');
+            activeTab.classList.remove('border-transparent', 'text-gray-500');
+
+            // Load data for the selected tab
+            if (tabName === 'competitors') loadCompetitors();
+            if (tabName === 'recommendations') loadRecommendations();
+            if (tabName === 'audits') loadAudits();
+            if (tabName === 'insights') loadAutoInsights();
+        }
+
+        // Load competitors
+        async function loadCompetitors() {
+            const container = document.getElementById('competitorsList');
+            container.innerHTML = '<div class="text-center py-8 text-gray-500"><div class="loading mx-auto"></div></div>';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/autopilot/competitors`, {
+                    headers: {
+                        'Authorization': `Bearer ${getAccessToken()}`
+                    }
+                });
+
+                if (!response.ok) throw new Error('Failed to load competitors');
+
+                const result = await response.json();
+                const competitors = result.data || [];
+
+                if (competitors.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-12">
+                            <p class="text-gray-500 mb-4">No competitors added yet</p>
+                            <button onclick="showAddCompetitor()" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">
+                                Add Your First Competitor
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = competitors.map(comp => `
+                    <div class="bg-gray-50 rounded-lg p-6 card-hover">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h4 class="text-lg font-bold text-gray-900">${comp.app_name}</h4>
+                                <p class="text-sm text-gray-500">${comp.category} • ${comp.country || 'US'}</p>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold ${
+                                comp.market_position === 'premium' ? 'bg-purple-100 text-purple-700' :
+                                comp.market_position === 'mid' ? 'bg-blue-100 text-blue-700' :
+                                'bg-green-100 text-green-700'
+                            }">
+                                ${comp.market_position || 'mid'}
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-4 gap-4 mb-4">
+                            ${comp.pricing_weekly ? `<div><p class="text-xs text-gray-500">Weekly</p><p class="font-semibold">$${comp.pricing_weekly}</p></div>` : ''}
+                            ${comp.pricing_monthly ? `<div><p class="text-xs text-gray-500">Monthly</p><p class="font-semibold">$${comp.pricing_monthly}</p></div>` : ''}
+                            ${comp.pricing_yearly ? `<div><p class="text-xs text-gray-500">Yearly</p><p class="font-semibold">$${comp.pricing_yearly}</p></div>` : ''}
+                            ${comp.trial_duration ? `<div><p class="text-xs text-gray-500">Trial</p><p class="font-semibold">${comp.trial_duration}d ${comp.trial_type}</p></div>` : ''}
+                        </div>
+                        ${comp.notes ? `<p class="text-sm text-gray-600 mt-2">${comp.notes}</p>` : ''}
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading competitors:', error);
+                container.innerHTML = '<div class="text-center py-8 text-red-500">Failed to load competitors</div>';
+            }
+        }
+
+        // Load recommendations
+        async function loadRecommendations() {
+            const container = document.getElementById('recommendationsList');
+            container.innerHTML = '<div class="text-center py-8 text-gray-500"><div class="loading mx-auto"></div></div>';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/autopilot/recommendations?status=pending`, {
+                    headers: {
+                        'Authorization': `Bearer ${getAccessToken()}`
+                    }
+                });
+
+                if (!response.ok) throw new Error('Failed to load recommendations');
+
+                const result = await response.json();
+                const recommendations = result.data || [];
+
+                if (recommendations.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-12">
+                            <p class="text-gray-500 mb-4">No recommendations yet</p>
+                            <button onclick="generateRecommendations()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                                Generate Recommendations
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = recommendations.map(rec => {
+                    const priorityClass = rec.priority_score >= 80 ? 'priority-high' :
+                                         rec.priority_score >= 50 ? 'priority-medium' : 'priority-low';
+                    return `
+                        <div class="bg-white border-2 border-gray-200 rounded-lg p-6 card-hover">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-3 mb-2">
+                                        <span class="${priorityClass} text-white px-3 py-1 rounded-full text-xs font-bold">
+                                            Priority: ${rec.priority_score}/100
+                                        </span>
+                                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
+                                            ${rec.test_type}
+                                        </span>
+                                    </div>
+                                    <h4 class="text-lg font-bold text-gray-900">${rec.hypothesis}</h4>
+                                    <p class="text-sm text-gray-600 mt-2">${rec.description}</p>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                                <p class="text-sm text-gray-700 mb-2"><strong>Rationale:</strong> ${rec.rationale}</p>
+                                <div class="grid grid-cols-3 gap-4 mt-3 text-sm">
+                                    <div>
+                                        <p class="text-gray-500">Expected Impact</p>
+                                        <p class="font-semibold">${rec.expected_impact}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-500">Confidence</p>
+                                        <p class="font-semibold">${(rec.confidence_score * 100).toFixed(0)}%</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-500">Sample Size</p>
+                                        <p class="font-semibold">${rec.sample_size_required}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-3">
+                                <button onclick="approveRecommendation('${rec.id}')" class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
+                                    ✅ Approve & Launch
+                                </button>
+                                <button class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition">
+                                    Dismiss
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading recommendations:', error);
+                container.innerHTML = '<div class="text-center py-8 text-red-500">Failed to load recommendations</div>';
+            }
+        }
+
+        // Load audits
+        async function loadAudits() {
+            const container = document.getElementById('auditsList');
+            container.innerHTML = '<div class="text-center py-8 text-gray-500"><div class="loading mx-auto"></div></div>';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/autopilot/audits`, {
+                    headers: {
+                        'Authorization': `Bearer ${getAccessToken()}`
+                    }
+                });
+
+                if (!response.ok) throw new Error('Failed to load audits');
+
+                const result = await response.json();
+                const audits = result.data || [];
+
+                if (audits.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-12">
+                            <p class="text-gray-500 mb-4">No audits run yet</p>
+                            <button onclick="runAudit()" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">
+                                Run Your First Audit
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = audits.map(audit => `
+                    <div class="bg-white border-2 border-gray-200 rounded-lg p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <div>
+                                <h4 class="text-lg font-bold text-gray-900">Audit Report</h4>
+                                <p class="text-sm text-gray-500">${new Date(audit.created_at).toLocaleDateString()}</p>
+                            </div>
+                            <div class="text-4xl font-bold ${audit.overall_score >= 70 ? 'text-green-600' : audit.overall_score >= 50 ? 'text-yellow-600' : 'text-red-600'}">
+                                ${audit.overall_score}/100
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4">
+                            <div>
+                                <h5 class="font-semibold text-green-700 mb-2">✅ Strengths (${audit.strengths.length})</h5>
+                                <ul class="text-sm text-gray-600 space-y-1">
+                                    ${audit.strengths.slice(0, 3).map(s => `<li>• ${s.area || s}</li>`).join('')}
+                                </ul>
+                            </div>
+                            <div>
+                                <h5 class="font-semibold text-red-700 mb-2">⚠️ Weaknesses (${audit.weaknesses.length})</h5>
+                                <ul class="text-sm text-gray-600 space-y-1">
+                                    ${audit.weaknesses.slice(0, 3).map(w => `<li>• ${w.area || w}</li>`).join('')}
+                                </ul>
+                            </div>
+                            <div>
+                                <h5 class="font-semibold text-blue-700 mb-2">💡 Opportunities (${audit.opportunities.length})</h5>
+                                <ul class="text-sm text-gray-600 space-y-1">
+                                    ${audit.opportunities.slice(0, 3).map(o => `<li>• ${o.area || o}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading audits:', error);
+                container.innerHTML = '<div class="text-center py-8 text-red-500">Failed to load audits</div>';
+            }
+        }
+
+        // Load auto insights
+        async function loadAutoInsights() {
+            const container = document.getElementById('insightsList');
+            container.innerHTML = '<div class="text-center py-8 text-gray-500"><div class="loading mx-auto"></div></div>';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/autopilot/insights?status=pending`, {
+                    headers: {
+                        'Authorization': `Bearer ${getAccessToken()}`
+                    }
+                });
+
+                if (!response.ok) throw new Error('Failed to load insights');
+
+                const result = await response.json();
+                const insights = result.data || [];
+
+                if (insights.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-12">
+                            <p class="text-gray-500 mb-4">No auto-generated insights yet</p>
+                            <button onclick="detectPatterns()" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
+                                Detect Patterns
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = insights.map(insight => `
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-600 text-white">
+                                    ${insight.pattern_type}
+                                </span>
+                                <span class="ml-2 text-sm text-gray-500">
+                                    Confidence: ${(insight.confidence_score * 100).toFixed(0)}%
+                                </span>
+                            </div>
+                            <span class="text-xs text-gray-500">${new Date(insight.detected_at).toLocaleDateString()}</span>
+                        </div>
+                        <p class="text-sm text-gray-700">${insight.raw_data.description || JSON.stringify(insight.raw_data).substring(0, 200)}</p>
+                        <div class="flex space-x-3 mt-4">
+                            <button class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700">
+                                Validate & Publish
+                            </button>
+                            <button class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700">
+                                Reject
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading auto insights:', error);
+                container.innerHTML = '<div class="text-center py-8 text-red-500">Failed to load insights</div>';
+            }
+        }
+
+        // Show add competitor modal
+        function showAddCompetitor() {
+            document.getElementById('addCompetitorModal').classList.remove('hidden');
+        }
+
+        // Hide add competitor modal
+        function hideAddCompetitor() {
+            document.getElementById('addCompetitorModal').classList.add('hidden');
+            document.getElementById('competitorForm').reset();
+        }
+
+        // Handle competitor form submission
+        document.getElementById('competitorForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                app_name: document.getElementById('app_name').value,
+                bundle_id: document.getElementById('bundle_id').value,
+                category: document.getElementById('category').value,
+                market_position: document.getElementById('market_position').value,
+                pricing_weekly: parseFloat(document.getElementById('pricing_weekly').value) || null,
+                pricing_monthly: parseFloat(document.getElementById('pricing_monthly').value) || null,
+                pricing_yearly: parseFloat(document.getElementById('pricing_yearly').value) || null,
+                pricing_lifetime: parseFloat(document.getElementById('pricing_lifetime').value) || null,
+                trial_type: document.getElementById('trial_type').value,
+                trial_duration: parseInt(document.getElementById('trial_duration').value) || null,
+                notes: document.getElementById('notes').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/autopilot/competitors`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getAccessToken()}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) throw new Error('Failed to add competitor');
+
+                alert('✅ Competitor added successfully!');
+                hideAddCompetitor();
+                loadCompetitors();
+            } catch (error) {
+                console.error('Error adding competitor:', error);
+                alert('❌ Failed to add competitor');
+            }
+        });
+
+        // Action functions
+        async function runAudit() {
+            if (!confirm('This will run a comprehensive audit using AI. Continue?')) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/autopilot/audit`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getAccessToken()}`
+                    },
+                    body: JSON.stringify({
+                        category: 'productivity',
+                        pricing: { monthly: 9.99, yearly: 99.99 },
+                        trial: { duration: 14, type: 'free' },
+                        metrics: {
+                            conversion_rate: 0.15,
+                            retention_d7: 0.45,
+                            arpu: 5.99
+                        }
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to run audit');
+
+                alert('✅ Audit completed successfully!');
+                switchTab('audits');
+            } catch (error) {
+                console.error('Error running audit:', error);
+                alert('❌ Failed to run audit: ' + error.message);
+            }
+        }
+
+        async function generateRecommendations() {
+            if (!confirm('This will generate AI-powered test recommendations. Continue?')) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/autopilot/recommendations`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getAccessToken()}`
+                    },
+                    body: JSON.stringify({
+                        category: 'productivity',
+                        pricing: { monthly: 9.99, yearly: 99.99 },
+                        trial: { duration: 14, type: 'free' },
+                        metrics: {
+                            conversion_rate: 0.15,
+                            retention_d7: 0.45,
+                            arpu: 5.99
+                        }
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to generate recommendations');
+
+                alert('✅ Recommendations generated successfully!');
+                switchTab('recommendations');
+            } catch (error) {
+                console.error('Error generating recommendations:', error);
+                alert('❌ Failed to generate recommendations: ' + error.message);
+            }
+        }
+
+        async function detectPatterns() {
+            if (!confirm('This will analyze event data to detect patterns. Continue?')) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/autopilot/insights/detect`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getAccessToken()}`
+                    },
+                    body: JSON.stringify({ timeWindow: '7d' })
+                });
+
+                if (!response.ok) throw new Error('Failed to detect patterns');
+
+                const result = await response.json();
+                alert(`✅ Detected ${result.total} patterns!`);
+                switchTab('insights');
+            } catch (error) {
+                console.error('Error detecting patterns:', error);
+                alert('❌ Failed to detect patterns: ' + error.message);
+            }
+        }
+
+        async function approveRecommendation(recId) {
+            if (!confirm('This will approve this recommendation and create an experiment. Continue?')) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/autopilot/recommendations/${recId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getAccessToken()}`
+                    },
+                    body: JSON.stringify({
+                        status: 'approved'
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to approve recommendation');
+
+                alert('✅ Recommendation approved!');
+                loadRecommendations();
+            } catch (error) {
+                console.error('Error approving recommendation:', error);
+                alert('❌ Failed to approve recommendation');
+            }
+        }
+    </script>
+</body>
+</html>
