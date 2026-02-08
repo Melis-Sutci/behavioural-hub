@@ -2,7 +2,12 @@
 FROM node:22-alpine AS builder
 
 # Install build dependencies for native modules (better-sqlite3)
-RUN apk add --no-cache python3 make g++
+# python3, make, g++ for compilation
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    sqlite-dev
 
 # Set working directory
 WORKDIR /app
@@ -10,8 +15,12 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Install ALL dependencies (including devDependencies for build)
+# Then rebuild native modules to ensure they're compiled correctly
+RUN npm ci && \
+    npm rebuild better-sqlite3 && \
+    npm prune --production && \
+    npm cache clean --force
 
 # Copy application files
 COPY . .
@@ -24,8 +33,12 @@ RUN rm -rf tests/ *.test.js *.spec.js
 # ===================================
 FROM node:22-alpine
 
-# Install dumb-init for proper signal handling
-RUN apk add --no-cache dumb-init
+# Install runtime dependencies
+# dumb-init for proper signal handling
+# sqlite-libs for better-sqlite3 runtime
+RUN apk add --no-cache \
+    dumb-init \
+    sqlite-libs
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
