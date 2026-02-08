@@ -21,6 +21,8 @@ const {
 
 const { authenticate, authorize, optionalAuth } = require('./middleware/auth');
 const createAuthRoutes = require('./routes/auth');
+const createAutopilotRoutes = require('./routes/autopilot');
+const AutopilotJobs = require('./jobs/autopilotJobs');
 const logger = require('./utils/logger');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
@@ -111,6 +113,9 @@ app.use('/api', (req, res, next) => {
   // Apply authentication middleware
   authenticate(db)(req, res, next);
 });
+
+// Growth Autopilot routes
+app.use('/api/autopilot', createAutopilotRoutes(db));
 
 // GET all insights
 app.get('/api/insights', (req, res) => {
@@ -2028,6 +2033,19 @@ app.listen(PORT, () => {
   console.log(`   GET    /api/sources`);
   console.log(`   POST   /api/citations`);
   console.log(`   GET    /api/knowledge-base/stats`);
+  console.log(`\n🤖 Growth Autopilot (Protected):`);
+  console.log(`   GET    /api/autopilot/competitors`);
+  console.log(`   POST   /api/autopilot/competitors`);
+  console.log(`   POST   /api/autopilot/audit`);
+  console.log(`   POST   /api/autopilot/recommendations`);
+  console.log(`   GET    /api/autopilot/recommendations`);
+  console.log(`   POST   /api/autopilot/insights/detect`);
+  console.log(`   POST   /api/autopilot/segments/cluster`);
+  console.log(`   POST   /api/autopilot/segments/rfm`);
+  console.log(`   POST   /api/autopilot/churn/predict`);
+  console.log(`   POST   /api/autopilot/ltv/predict`);
+  console.log(`   POST   /api/autopilot/loops/detect`);
+  console.log(`   GET    /api/autopilot/loops`);
   console.log(`\n✅ Health Checks (Public):`);
   console.log(`   GET    /health                    Basic health check`);
   console.log(`   GET    /health/live               Liveness probe`);
@@ -2039,6 +2057,20 @@ app.listen(PORT, () => {
   console.log(`   Password: Admin123!`);
   console.log(`   ⚠️  CHANGE THESE IN PRODUCTION!`);
   console.log(`${'='.repeat(60)}\n`);
+
+  // Initialize Growth Autopilot scheduled jobs
+  if (process.env.ENABLE_AUTOPILOT_JOBS !== 'false') {
+    try {
+      const autopilotJobs = new AutopilotJobs(db);
+      autopilotJobs.startAll();
+      console.log('🤖 Growth Autopilot jobs initialized successfully\n');
+    } catch (error) {
+      logger.error('Failed to initialize Autopilot jobs', { error: error.message });
+      console.error('⚠️  Failed to start Growth Autopilot jobs:', error.message);
+    }
+  } else {
+    console.log('ℹ️  Growth Autopilot jobs disabled (set ENABLE_AUTOPILOT_JOBS=true to enable)\n');
+  }
 });
 
 // Graceful shutdown
