@@ -387,7 +387,16 @@
                         <!-- Messages will appear here -->
                     </div>
                     <div class="p-4 border-t bg-white">
+                        <!-- File Upload Preview -->
+                        <div id="file-preview-container" class="mb-3 hidden">
+                            <div class="flex flex-wrap gap-2" id="file-previews"></div>
+                        </div>
+
                         <div class="flex space-x-2">
+                            <input type="file" id="chat-file-input" multiple accept="image/*,.pdf" class="hidden" onchange="handleFileSelect(event)">
+                            <button onclick="document.getElementById('chat-file-input').click()" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition flex items-center" title="Upload images or PDFs">
+                                📎
+                            </button>
                             <input type="text" id="chat-input" placeholder="Describe what you want to change..." class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" onkeypress="if(event.key==='Enter') sendChatMessage()">
                             <button onclick="sendChatMessage()" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition">
                                 Send
@@ -597,13 +606,29 @@
                         </div>
                     </div>
 
-                    <div class="flex space-x-2">
-                        <button onclick="viewTemplate('${t.id}')" class="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700 transition">
-                            View Details
-                        </button>
-                        <button onclick="refineTemplate('${t.id}')" class="flex-1 border border-purple-600 text-purple-600 px-4 py-2 rounded-lg text-sm hover:bg-purple-50 transition">
-                            Refine with AI
-                        </button>
+                    <div class="flex flex-col space-y-2">
+                        <div class="flex space-x-2">
+                            <button onclick="viewTemplate('${t.id}')" class="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700 transition">
+                                View Details
+                            </button>
+                            <button onclick="refineTemplate('${t.id}')" class="flex-1 border border-purple-600 text-purple-600 px-4 py-2 rounded-lg text-sm hover:bg-purple-50 transition">
+                                Refine with AI
+                            </button>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="downloadAsHTML('${t.id}', '${t.name.replace(/'/g, "\\'")}'); event.stopPropagation();"
+                                    class="flex-1 bg-blue-500 text-white px-3 py-2 rounded-lg text-xs hover:bg-blue-600 transition">
+                                📥 HTML
+                            </button>
+                            <button onclick="downloadAsJSON('${t.id}', '${t.name.replace(/'/g, "\\'")}'); event.stopPropagation();"
+                                    class="flex-1 bg-green-500 text-white px-3 py-2 rounded-lg text-xs hover:bg-green-600 transition">
+                                📥 JSON
+                            </button>
+                            <button onclick="previewInNewTab('${t.id}'); event.stopPropagation();"
+                                    class="flex-1 bg-gray-500 text-white px-3 py-2 rounded-lg text-xs hover:bg-gray-600 transition">
+                                👁️ Preview
+                            </button>
+                        </div>
                     </div>
                 </div>
             `).join('');
@@ -786,41 +811,65 @@
             }
         }
 
-        // Display chat previews
+        // Display chat previews with download buttons
         function displayChatPreviews(designs, templateIds) {
             const container = document.getElementById('chat-previews');
             container.innerHTML = designs.map((design, i) => `
-                <div class="paywall-preview p-4" onclick="selectTemplate('${templateIds[i]}')">
+                <div class="paywall-preview p-4 border rounded-lg mb-3">
                     <h5 class="font-bold text-sm mb-2">${design.name}</h5>
                     <p class="text-xs text-gray-600 mb-3">${design.description}</p>
-                    <div class="text-xs bg-gray-50 p-2 rounded">
+                    <div class="text-xs bg-gray-50 p-2 rounded mb-3">
                         <strong>Headline:</strong> ${design.copyConfig.headline}
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="downloadAsHTML('${templateIds[i]}', '${design.name.replace(/'/g, "\\'")}'); event.stopPropagation();"
+                                class="flex-1 text-xs bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600 transition">
+                            📥 HTML
+                        </button>
+                        <button onclick="downloadAsJSON('${templateIds[i]}', '${design.name.replace(/'/g, "\\'")}'); event.stopPropagation();"
+                                class="flex-1 text-xs bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600 transition">
+                            📥 JSON
+                        </button>
+                        <button onclick="previewInNewTab('${templateIds[i]}'); event.stopPropagation();"
+                                class="flex-1 text-xs bg-purple-500 text-white px-3 py-2 rounded hover:bg-purple-600 transition">
+                            👁️ Preview
+                        </button>
                     </div>
                 </div>
             `).join('');
         }
 
-        // Send chat message
+        // Send chat message with optional file attachments
         async function sendChatMessage() {
             const input = document.getElementById('chat-input');
             const message = input.value.trim();
+            const fileInput = document.getElementById('chat-file-input');
 
             if (!message || !currentChatSession) return;
 
             input.value = '';
 
+            // Create FormData for multipart/form-data
+            const formData = new FormData();
+            formData.append('sessionId', currentChatSession);
+            formData.append('userMessage', message);
+            formData.append('refinementRequest', JSON.stringify({ feedback: message }));
+
+            // Add files if any
+            if (fileInput.files.length > 0) {
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    formData.append('files', fileInput.files[i]);
+                }
+            }
+
             try {
                 const response = await fetch(`${API_BASE_URL}/api/autopilot/paywall/chat/continue`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        // Don't set Content-Type - browser will set it with boundary for FormData
                     },
-                    body: JSON.stringify({
-                        sessionId: currentChatSession,
-                        userMessage: message,
-                        refinementRequest: { feedback: message }
-                    })
+                    body: formData
                 });
 
                 const result = await response.json();
@@ -828,10 +877,17 @@
                 if (result.success) {
                     // Add messages to chat
                     const messagesContainer = document.getElementById('chat-messages');
+
+                    // Build user message HTML with file attachments
+                    let userMessageHTML = `<div class="text-gray-700">${message}</div>`;
+                    if (fileInput.files.length > 0) {
+                        userMessageHTML += `<div class="text-xs text-gray-500 mt-2">📎 ${fileInput.files.length} file(s) attached</div>`;
+                    }
+
                     messagesContainer.innerHTML += `
                         <div class="chat-message bg-blue-50 p-4 rounded-lg">
                             <div class="text-sm font-semibold text-blue-900 mb-1">You</div>
-                            <div class="text-gray-700">${message}</div>
+                            ${userMessageHTML}
                         </div>
                         <div class="chat-message bg-purple-50 p-4 rounded-lg">
                             <div class="text-sm font-semibold text-purple-900 mb-1">AI Assistant</div>
@@ -841,6 +897,11 @@
 
                     // Update previews
                     displayChatPreviews(result.data.designs, result.data.templateIds);
+
+                    // Clear file input and preview
+                    fileInput.value = '';
+                    document.getElementById('file-preview-container').classList.add('hidden');
+                    document.getElementById('file-previews').innerHTML = '';
 
                     // Scroll to bottom
                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -870,9 +931,137 @@
             document.getElementById('seasonalModal').classList.add('hidden');
         }
 
+        // Handle file selection for upload
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            if (files.length === 0) return;
+
+            const previewContainer = document.getElementById('file-preview-container');
+            const previewsDiv = document.getElementById('file-previews');
+
+            previewContainer.classList.remove('hidden');
+            previewsDiv.innerHTML = '';
+
+            // Show file previews
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const fileDiv = document.createElement('div');
+                fileDiv.className = 'flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg text-sm';
+
+                // File icon based on type
+                const icon = file.type.includes('image') ? '🖼️' : '📄';
+
+                // File size in KB/MB
+                const sizeKB = (file.size / 1024).toFixed(1);
+                const sizeText = sizeKB > 1024 ? `${(sizeKB / 1024).toFixed(1)}MB` : `${sizeKB}KB`;
+
+                fileDiv.innerHTML = `
+                    <span>${icon}</span>
+                    <span class="text-gray-700">${file.name}</span>
+                    <span class="text-gray-500 text-xs">(${sizeText})</span>
+                    <button onclick="removeFile(${i})" class="text-red-500 hover:text-red-700 ml-2">×</button>
+                `;
+
+                previewsDiv.appendChild(fileDiv);
+            }
+        }
+
+        // Remove file from selection
+        function removeFile(index) {
+            const fileInput = document.getElementById('chat-file-input');
+            const dt = new DataTransfer();
+
+            for (let i = 0; i < fileInput.files.length; i++) {
+                if (i !== index) {
+                    dt.items.add(fileInput.files[i]);
+                }
+            }
+
+            fileInput.files = dt.files;
+
+            // Re-render previews
+            if (dt.files.length === 0) {
+                document.getElementById('file-preview-container').classList.add('hidden');
+            } else {
+                handleFileSelect({ target: fileInput });
+            }
+        }
+
         function closeChatModal() {
             document.getElementById('chatModal').classList.add('hidden');
             currentChatSession = null;
+
+            // Clear file inputs
+            document.getElementById('chat-file-input').value = '';
+            document.getElementById('file-preview-container').classList.add('hidden');
+            document.getElementById('file-previews').innerHTML = '';
+        }
+
+        // Export/Download Functions
+
+        // Download paywall as HTML
+        async function downloadAsHTML(templateId, name) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/autopilot/paywall/export/${templateId}/html`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${name.replace(/[^a-z0-9]/gi, '-')}.html`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    showNotification('✅ HTML downloaded successfully', 'success');
+                } else {
+                    showNotification('❌ Failed to download HTML', 'error');
+                }
+            } catch (error) {
+                console.error('Error downloading HTML:', error);
+                showNotification('❌ Failed to download HTML', 'error');
+            }
+        }
+
+        // Download paywall as JSON
+        async function downloadAsJSON(templateId, name) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/autopilot/paywall/export/${templateId}/json`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${name.replace(/[^a-z0-9]/gi, '-')}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    showNotification('✅ JSON downloaded successfully', 'success');
+                } else {
+                    showNotification('❌ Failed to download JSON', 'error');
+                }
+            } catch (error) {
+                console.error('Error downloading JSON:', error);
+                showNotification('❌ Failed to download JSON', 'error');
+            }
+        }
+
+        // Open preview in new tab
+        function previewInNewTab(templateId) {
+            const url = `${API_BASE_URL}/api/autopilot/paywall/export/${templateId}/preview`;
+            window.open(url, '_blank');
         }
 
         // Quick generate (without chat)
@@ -949,22 +1138,106 @@
             alert(message);
         }
 
-        // View template
+        // View template - Open preview in new tab
         function viewTemplate(templateId) {
-            // TODO: Implement template detail view
-            console.log('View template:', templateId);
+            previewInNewTab(templateId);
         }
 
-        // Refine template
-        function refineTemplate(templateId) {
-            // TODO: Open chat with refinement mode
-            console.log('Refine template:', templateId);
+        // Refine template - Start new chat for refinement
+        async function refineTemplate(templateId) {
+            try {
+                // Get template details first
+                const response = await fetch(`${API_BASE_URL}/api/autopilot/paywall/templates`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                const result = await response.json();
+                if (!result.success) {
+                    showNotification('❌ Failed to load template', 'error');
+                    return;
+                }
+
+                const template = result.data.find(t => t.id === templateId);
+                if (!template) {
+                    showNotification('❌ Template not found', 'error');
+                    return;
+                }
+
+                // Start a new chat session with refinement prompt
+                const chatResponse = await fetch(`${API_BASE_URL}/api/autopilot/paywall/chat/start`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        objective: 'refine_existing',
+                        targetSegment: template.target_segment || 'all',
+                        initialPrompt: `I want to refine my existing paywall template: "${template.name}". Please suggest improvements and variations.`,
+                        contextData: {
+                            category: 'General',
+                            baseTemplateId: templateId
+                        }
+                    })
+                });
+
+                const chatResult = await chatResponse.json();
+
+                if (chatResult.success) {
+                    currentChatSession = chatResult.data.sessionId;
+                    openChatModal(chatResult.data);
+                    showNotification('✅ Refinement chat started', 'success');
+                } else {
+                    showNotification('❌ ' + chatResult.error, 'error');
+                }
+            } catch (error) {
+                console.error('Error refining template:', error);
+                showNotification('❌ Failed to start refinement', 'error');
+            }
         }
 
-        // Resume chat session
-        function resumeChatSession(sessionId) {
-            // TODO: Load chat history and resume
-            console.log('Resume session:', sessionId);
+        // Resume chat session - Load existing chat
+        async function resumeChatSession(sessionId) {
+            try {
+                // Get session messages
+                const response = await fetch(`${API_BASE_URL}/api/autopilot/paywall/chat/sessions/${sessionId}/messages`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    currentChatSession = sessionId;
+
+                    // Open chat modal
+                    document.getElementById('chatModal').classList.remove('hidden');
+
+                    // Display chat history
+                    const messagesContainer = document.getElementById('chat-messages');
+                    messagesContainer.innerHTML = result.data.map(msg => `
+                        <div class="chat-message ${msg.role === 'user' ? 'bg-blue-50' : 'bg-purple-50'} p-4 rounded-lg">
+                            <div class="text-sm font-semibold ${msg.role === 'user' ? 'text-blue-900' : 'text-purple-900'} mb-1">
+                                ${msg.role === 'user' ? 'You' : 'AI Assistant'}
+                            </div>
+                            <div class="text-gray-700">${msg.content}</div>
+                        </div>
+                    `).join('');
+
+                    // Scroll to bottom
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                    showNotification('✅ Chat session resumed', 'success');
+                } else {
+                    showNotification('❌ Failed to load chat history', 'error');
+                }
+            } catch (error) {
+                console.error('Error resuming chat:', error);
+                showNotification('❌ Failed to resume chat', 'error');
+            }
         }
     </script>
 </body>

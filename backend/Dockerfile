@@ -15,11 +15,10 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install ALL dependencies (including devDependencies for build)
-# Then rebuild native modules to ensure they're compiled correctly
-RUN npm ci && \
+# Install dependencies and rebuild native modules
+# Use --omit=dev to only install production dependencies from the start
+RUN npm ci --omit=dev && \
     npm rebuild better-sqlite3 && \
-    npm prune --production && \
     npm cache clean --force
 
 # Copy application files
@@ -61,7 +60,7 @@ COPY --chown=nodejs:nodejs docker-entrypoint.sh ./
 USER root
 RUN chmod +x docker-entrypoint.sh && \
     mkdir -p logs data && \
-    chown -R nodejs:nodejs logs data
+    chown -R nodejs:nodejs /app
 
 # Switch to non-root user
 USER nodejs

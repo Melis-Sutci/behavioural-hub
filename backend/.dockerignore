@@ -18,5 +18,7 @@ coverage/
 *.spec.js
 tests/
 __tests__/
+*.backup
+*.bak
 .DS_Store
 Thumbs.db
