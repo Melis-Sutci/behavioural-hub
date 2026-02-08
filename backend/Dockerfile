@@ -1,6 +1,9 @@
 # Multi-stage build for production-ready image
 FROM node:22-alpine AS builder
 
+# Install build dependencies for native modules (better-sqlite3)
+RUN apk add --no-cache python3 make g++
+
 # Set working directory
 WORKDIR /app
 
