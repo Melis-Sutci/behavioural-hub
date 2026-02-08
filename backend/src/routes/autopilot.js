@@ -1,19 +1,31 @@
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
-const { AutopilotAIService } = require('../services/autopilot/aiService');
-const { PatternDetector } = require('../services/autopilot/patternDetector');
-const { BehavioralClusteringEngine } = require('../services/segmentation/clusteringEngine');
-const { RFMAnalysisEngine } = require('../services/segmentation/rfmEngine');
-const { ChurnPredictor } = require('../services/predictive/churnPredictor');
-const { LTVPredictor } = require('../services/predictive/ltvPredictor');
-const { GrowthLoopDetector } = require('../services/growthLoops/loopDetector');
-const { ViralCoefficientCalculator } = require('../services/growthLoops/viralCalculator');
+// Fix: Use default imports instead of destructuring
+const AutopilotAIService = require('../services/autopilot/aiService');
+const PatternDetector = require('../services/autopilot/patternDetector');
+const BehavioralClusteringEngine = require('../services/segmentation/clusteringEngine');
+const RFMAnalysisEngine = require('../services/segmentation/rfmEngine');
+const ChurnPredictor = require('../services/predictive/churnPredictor');
+const LTVPredictor = require('../services/predictive/ltvPredictor');
+const GrowthLoopDetector = require('../services/growthLoops/loopDetector');
+const ViralCoefficientCalculator = require('../services/growthLoops/viralCalculator');
+
+// Import validation middleware
+const {
+  validateAudit,
+  validateRecommendations,
+  validateCompetitor,
+  validateChurnPrediction,
+  validateLtvPrediction,
+  validateClustering,
+  validatePatternDetection
+} = require('../middleware/autopilotValidation');
 
 module.exports = (db) => {
   const router = express.Router();
 
-  // Initialize services
-  const aiService = new AutopilotAIService();
+  // Initialize services with db parameter
+  const aiService = new AutopilotAIService(db);
   const patternDetector = new PatternDetector(db);
   const clusteringEngine = new BehavioralClusteringEngine(db);
   const rfmEngine = new RFMAnalysisEngine(db);
@@ -64,7 +76,7 @@ module.exports = (db) => {
   });
 
   // POST /api/autopilot/competitors - Add new competitor
-  router.post('/competitors', (req, res) => {
+  router.post('/competitors', validateCompetitor, (req, res) => {
     try {
       const competitorId = `comp_${uuidv4()}`;
       const {
@@ -235,7 +247,7 @@ module.exports = (db) => {
   // ==========================================
 
   // POST /api/autopilot/audit - Generate full audit
-  router.post('/audit', async (req, res) => {
+  router.post('/audit', validateAudit, async (req, res) => {
     try {
       const { category, pricing, trial, metrics } = req.body;
 
@@ -325,7 +337,7 @@ module.exports = (db) => {
   // ==========================================
 
   // POST /api/autopilot/recommendations - Generate recommendations
-  router.post('/recommendations', async (req, res) => {
+  router.post('/recommendations', validateRecommendations, async (req, res) => {
     try {
       const { category, pricing, trial, metrics, pastTests = [] } = req.body;
 
@@ -468,7 +480,7 @@ module.exports = (db) => {
   // ==========================================
 
   // POST /api/autopilot/insights/detect - Run pattern detection
-  router.post('/insights/detect', async (req, res) => {
+  router.post('/insights/detect', validatePatternDetection, async (req, res) => {
     try {
       const { timeWindow = '7d' } = req.body;
 
@@ -533,7 +545,7 @@ module.exports = (db) => {
   // ==========================================
 
   // POST /api/autopilot/segments/cluster - Run clustering analysis
-  router.post('/segments/cluster', async (req, res) => {
+  router.post('/segments/cluster', validateClustering, async (req, res) => {
     try {
       const { k = 5, features } = req.body;
 
@@ -569,7 +581,7 @@ module.exports = (db) => {
   // ==========================================
 
   // POST /api/autopilot/churn/predict - Predict churn for users
-  router.post('/churn/predict', async (req, res) => {
+  router.post('/churn/predict', validateChurnPrediction, async (req, res) => {
     try {
       const { userIds } = req.body;
 
@@ -622,7 +634,7 @@ module.exports = (db) => {
   // ==========================================
 
   // POST /api/autopilot/ltv/predict - Predict LTV for users
-  router.post('/ltv/predict', async (req, res) => {
+  router.post('/ltv/predict', validateLtvPrediction, async (req, res) => {
     try {
       const { userIds } = req.body;
 

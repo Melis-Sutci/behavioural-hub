@@ -151,20 +151,23 @@ class AutopilotJobs {
         if (segment.user_count === 0) continue;
 
         try {
+          // Fix: Use correct column names from schema
+          const segmentId = `rfm_${segment.name.toLowerCase().replace(/\s+/g, '_')}_${Date.now()}`;
           this.db.run(`
             INSERT INTO auto_segments (
-              name, description, detection_method,
-              traits, user_count, avg_conversion_rate,
-              behavioral_patterns, confidence_score,
-              detected_at, status
-            ) VALUES (?, ?, 'rule_based', ?, ?, ?, ?, 0.9, datetime('now'), 'pending')
+              id, name, description, segment_type,
+              criteria, features_used, user_count,
+              avg_engagement_score, confidence_score,
+              created_by, created_at, last_updated
+            ) VALUES (?, ?, ?, 'rfm', ?, ?, ?, ?, 0.9, 'autopilot', datetime('now'), datetime('now'))
           `, [
+            segmentId,
             segment.name,
             segment.description,
-            JSON.stringify(segment),
+            JSON.stringify(segment), // Full segment data as criteria
+            JSON.stringify(['recency', 'frequency', 'monetary']), // RFM features
             segment.user_count,
-            segment.avg_monetary / 50, // Simplified conversion rate
-            JSON.stringify(segment.recommended_actions)
+            segment.avg_monetary / 50 // Use as engagement score approximation
           ]);
         } catch (error) {
           console.error('Error saving RFM segment:', error);
@@ -189,30 +192,35 @@ class AutopilotJobs {
       // Save segments to database
       for (const segment of segments) {
         try {
-          const segmentId = this.db.run(`
+          // Fix: Use correct column names from schema
+          const segmentId = `cluster_${segment.name.toLowerCase().replace(/\s+/g, '_')}_${Date.now()}`;
+          this.db.run(`
             INSERT INTO auto_segments (
-              name, description, detection_method,
-              traits, user_count, avg_ltv, avg_conversion_rate,
-              behavioral_patterns, confidence_score,
-              detected_at, status
-            ) VALUES (?, ?, 'clustering', ?, ?, ?, ?, ?, 0.85, datetime('now'), 'pending')
+              id, name, description, segment_type,
+              criteria, features_used, user_count,
+              avg_ltv, avg_engagement_score, confidence_score,
+              created_by, created_at, last_updated
+            ) VALUES (?, ?, ?, 'clustering', ?, ?, ?, ?, ?, 0.85, 'autopilot', datetime('now'), datetime('now'))
           `, [
+            segmentId,
             segment.name,
             segment.description,
-            JSON.stringify(segment.traits),
-            segment.user_count,
-            segment.avg_lifetime_value,
-            segment.avg_conversion_rate,
-            JSON.stringify(segment.behavioral_patterns)
-          ]).lastInsertRowid;
+            JSON.stringify(segment.traits || {}),
+            JSON.stringify(segment.features_used || []),
+            segment.user_count || 0,
+            segment.avg_lifetime_value || 0,
+            segment.avg_conversion_rate || 0
+          ]);
 
           // Save segment memberships
-          for (const userId of segment.members) {
-            this.db.run(`
-              INSERT OR IGNORE INTO auto_segment_memberships (
-                auto_segment_id, user_id, membership_score, assigned_at
-              ) VALUES (?, ?, 1.0, datetime('now'))
-            `, [segmentId, userId]);
+          if (segment.members && Array.isArray(segment.members)) {
+            for (const userId of segment.members) {
+              this.db.run(`
+                INSERT OR IGNORE INTO auto_segment_memberships (
+                  segment_id, user_id, membership_score, joined_at
+                ) VALUES (?, ?, 1.0, datetime('now'))
+              `, [segmentId, userId]);
+            }
           }
         } catch (error) {
           console.error('Error saving cluster segment:', error);
@@ -237,19 +245,20 @@ class AutopilotJobs {
       // Save or update each loop
       for (const [type, loop] of Object.entries(loops)) {
         try {
+          // Fix: Use correct column names from schema
+          const loopId = `loop_${type}_${Date.now()}`;
           this.db.run(`
             INSERT OR REPLACE INTO growth_loops (
-              name, type, description,
-              current_performance, health_score,
-              detected_at, status
-            ) VALUES (?, ?, ?, ?, ?, datetime('now'), ?)
+              id, loop_type, name, description,
+              loop_strength, status, created_at, last_analyzed
+            ) VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
           `, [
-            `${type.charAt(0).toUpperCase() + type.slice(1)} Loop`,
+            loopId,
             type,
+            `${type.charAt(0).toUpperCase() + type.slice(1)} Loop`,
             `Automatically detected ${type} growth loop`,
-            JSON.stringify(loop.metrics),
-            loop.health_score,
-            loop.status
+            loop.loop_strength || loop.health_score || 0,
+            loop.status || 'active'
           ]);
         } catch (error) {
           console.error(`Error saving ${type} loop:`, error);
@@ -278,18 +287,19 @@ class AutopilotJobs {
         }
 
         try {
+          // Fix: Use correct column names from schema
           this.db.run(`
             INSERT INTO churn_predictions (
-              user_id, churn_probability, risk_level,
-              contributing_factors, recommended_actions,
-              predicted_at, model_version
+              user_id, churn_probability, churn_risk_level,
+              factors, recommended_action,
+              predicted_at, prediction_model_version
             ) VALUES (?, ?, ?, ?, ?, datetime('now'), 'v1.0')
           `, [
             prediction.user_id,
             prediction.churn_probability,
-            prediction.risk_level,
-            JSON.stringify(prediction.contributing_factors),
-            JSON.stringify(prediction.recommended_actions)
+            prediction.risk_level || prediction.churn_risk_level,
+            JSON.stringify(prediction.contributing_factors || prediction.factors || []),
+            JSON.stringify(prediction.recommended_actions || [])
           ]);
 
           // Auto-execute critical actions
