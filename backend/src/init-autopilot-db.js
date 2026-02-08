@@ -554,6 +554,287 @@ db.prepare(`
 console.log('✅ Inserted sample competitor (Todoist)');
 
 // ============================================
+// 15. PAYWALL TEMPLATES TABLE
+// ============================================
+db.exec(`
+  CREATE TABLE IF NOT EXISTS paywall_templates (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+
+    -- Template metadata
+    template_type TEXT NOT NULL, -- 'ai_generated', 'competitor_inspired', 'custom', 'seasonal'
+    target_segment TEXT, -- 'all', 'detective', 'victim', 'passive', 'high_ltv', 'churn_risk', etc.
+
+    -- Design config
+    layout_config TEXT NOT NULL, -- JSON: {structure, positioning, elements}
+    copy_config TEXT NOT NULL, -- JSON: {headline, subheadline, features, cta, social_proof}
+    pricing_display TEXT NOT NULL, -- JSON: {plans_to_show, price_positioning, trial_emphasis}
+    visual_config TEXT, -- JSON: {colors, fonts, images, backgrounds}
+
+    -- Performance & Analytics
+    performance_score REAL DEFAULT 0, -- 0-100
+    conversion_rate REAL,
+    total_views INTEGER DEFAULT 0,
+    total_conversions INTEGER DEFAULT 0,
+
+    -- Source & Attribution
+    created_from TEXT, -- competitor_id, 'ai_generated', generation_id
+    competitor_references TEXT, -- JSON array of competitor IDs
+    ai_rationale TEXT, -- Why AI generated this design
+
+    -- Seasonal/Campaign
+    campaign_id TEXT,
+    is_seasonal BOOLEAN DEFAULT 0,
+    seasonal_event TEXT, -- 'black_friday', 'ramadan', 'diwali', 'new_year', etc.
+    active_from TEXT,
+    active_until TEXT,
+
+    -- Status
+    status TEXT DEFAULT 'draft', -- 'draft', 'active', 'testing', 'archived', 'winner'
+
+    -- Timestamps
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    last_used_at TEXT
+  )
+`);
+console.log('✅ Table created: paywall_templates');
+
+// ============================================
+// 16. PAYWALL CHAT SESSIONS TABLE
+// ============================================
+db.exec(`
+  CREATE TABLE IF NOT EXISTS paywall_chat_sessions (
+    id TEXT PRIMARY KEY,
+
+    -- Session context
+    objective TEXT NOT NULL, -- 'generate_new', 'refine_existing', 'seasonal_campaign', 'ab_test'
+    target_segment TEXT,
+    template_id TEXT, -- If refining existing template
+
+    -- Input parameters
+    initial_prompt TEXT NOT NULL,
+    context_data TEXT, -- JSON: {competitors, benchmarks, user_data, etc.}
+
+    -- Generated outputs
+    generated_templates TEXT, -- JSON array of template IDs
+    final_template_id TEXT,
+
+    -- Session metadata
+    total_messages INTEGER DEFAULT 0,
+    iterations INTEGER DEFAULT 0, -- How many times user refined
+
+    -- Status
+    status TEXT DEFAULT 'active', -- 'active', 'completed', 'abandoned'
+
+    -- Timestamps
+    started_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    last_message_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    completed_at TEXT,
+
+    FOREIGN KEY (template_id) REFERENCES paywall_templates(id) ON DELETE SET NULL,
+    FOREIGN KEY (final_template_id) REFERENCES paywall_templates(id) ON DELETE SET NULL
+  )
+`);
+console.log('✅ Table created: paywall_chat_sessions');
+
+// ============================================
+// 17. PAYWALL CHAT MESSAGES TABLE
+// ============================================
+db.exec(`
+  CREATE TABLE IF NOT EXISTS paywall_chat_messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id TEXT NOT NULL,
+
+    -- Message details
+    role TEXT NOT NULL, -- 'user', 'assistant', 'system'
+    content TEXT NOT NULL,
+
+    -- Attachments
+    generated_templates TEXT, -- JSON array of template configs (for assistant messages)
+    refinement_request TEXT, -- JSON: what user wants to change
+
+    -- Metadata
+    tokens_used INTEGER,
+    processing_time_ms INTEGER,
+
+    -- Timestamp
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (session_id) REFERENCES paywall_chat_sessions(id) ON DELETE CASCADE
+  )
+`);
+console.log('✅ Table created: paywall_chat_messages');
+
+// ============================================
+// 18. SEASONAL CAMPAIGNS TABLE
+// ============================================
+db.exec(`
+  CREATE TABLE IF NOT EXISTS seasonal_campaigns (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+
+    -- Campaign details
+    event_type TEXT NOT NULL, -- 'black_friday', 'ramadan', 'diwali', 'new_year', 'christmas', 'custom'
+    event_country TEXT, -- Specific to certain regions (e.g., 'ramadan' -> MENA)
+
+    -- Timing
+    start_date TEXT NOT NULL,
+    end_date TEXT NOT NULL,
+    timezone TEXT DEFAULT 'UTC',
+
+    -- Campaign config
+    discount_percentage REAL,
+    special_pricing TEXT, -- JSON: custom pricing for this period
+    urgency_level TEXT, -- 'low', 'medium', 'high', 'critical'
+
+    -- Messaging
+    campaign_theme TEXT, -- JSON: {colors, messaging_tone, cultural_elements}
+    headline_template TEXT,
+    cta_template TEXT,
+
+    -- Targeting
+    target_countries TEXT, -- JSON array
+    target_segments TEXT, -- JSON array
+
+    -- Associated paywalls
+    paywall_template_ids TEXT, -- JSON array
+
+    -- Performance
+    total_revenue REAL DEFAULT 0,
+    total_conversions INTEGER DEFAULT 0,
+
+    -- Status
+    status TEXT DEFAULT 'planned', -- 'planned', 'active', 'completed', 'cancelled'
+
+    -- Timestamps
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+  )
+`);
+console.log('✅ Table created: seasonal_campaigns');
+
+// ============================================
+// 19. PAYWALL GENERATIONS TABLE
+// ============================================
+db.exec(`
+  CREATE TABLE IF NOT EXISTS paywall_generations (
+    id TEXT PRIMARY KEY,
+    session_id TEXT,
+
+    -- Generation request
+    generation_type TEXT NOT NULL, -- 'new_design', 'variant', 'seasonal', 'competitor_remix'
+    input_prompt TEXT NOT NULL,
+    input_parameters TEXT NOT NULL, -- JSON
+
+    -- AI model info
+    model_used TEXT, -- 'claude-sonnet-4-5-20250929'
+    temperature REAL,
+    tokens_used INTEGER,
+    processing_time_ms INTEGER,
+
+    -- Generated output
+    output_templates TEXT NOT NULL, -- JSON array of 3 paywall configs
+    ai_explanation TEXT, -- Why AI chose these designs
+    design_principles TEXT, -- JSON array of principles applied
+
+    -- User feedback
+    user_rating INTEGER, -- 1-5
+    user_feedback TEXT,
+    selected_template_index INTEGER, -- Which of the 3 templates user selected
+
+    -- Timestamps
+    generated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (session_id) REFERENCES paywall_chat_sessions(id) ON DELETE SET NULL
+  )
+`);
+console.log('✅ Table created: paywall_generations');
+
+// ============================================
+// 20. PAYWALL EXPERIMENTS TABLE (Extension of experiments)
+// ============================================
+db.exec(`
+  CREATE TABLE IF NOT EXISTS paywall_experiments (
+    id TEXT PRIMARY KEY,
+    experiment_id TEXT NOT NULL, -- Links to main experiments table
+
+    -- Paywall-specific test details
+    test_type TEXT NOT NULL, -- 'layout', 'copy', 'pricing', 'elements', 'full_design'
+
+    -- Templates being tested
+    control_template_id TEXT NOT NULL,
+    variant_template_ids TEXT NOT NULL, -- JSON array
+
+    -- Test hypothesis
+    hypothesis TEXT NOT NULL,
+    expected_improvement REAL, -- Percentage
+
+    -- Targeting
+    segment_targeting TEXT, -- JSON
+    traffic_allocation TEXT, -- JSON: {control: 50, variant_a: 25, variant_b: 25}
+
+    -- Results
+    winner_template_id TEXT,
+    improvement_percentage REAL,
+    statistical_significance REAL,
+
+    -- Status
+    status TEXT DEFAULT 'draft', -- 'draft', 'running', 'completed', 'stopped'
+
+    -- Timestamps
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    started_at TEXT,
+    completed_at TEXT,
+
+    FOREIGN KEY (control_template_id) REFERENCES paywall_templates(id),
+    FOREIGN KEY (winner_template_id) REFERENCES paywall_templates(id)
+  )
+`);
+console.log('✅ Table created: paywall_experiments');
+
+// ============================================
+// CREATE INDEXES FOR PAYWALL TABLES
+// ============================================
+db.exec(`
+  -- Paywall templates indexes
+  CREATE INDEX IF NOT EXISTS idx_paywall_templates_type ON paywall_templates(template_type);
+  CREATE INDEX IF NOT EXISTS idx_paywall_templates_segment ON paywall_templates(target_segment);
+  CREATE INDEX IF NOT EXISTS idx_paywall_templates_status ON paywall_templates(status);
+  CREATE INDEX IF NOT EXISTS idx_paywall_templates_seasonal ON paywall_templates(is_seasonal, seasonal_event);
+  CREATE INDEX IF NOT EXISTS idx_paywall_templates_campaign ON paywall_templates(campaign_id);
+  CREATE INDEX IF NOT EXISTS idx_paywall_templates_performance ON paywall_templates(performance_score DESC);
+
+  -- Paywall chat sessions indexes
+  CREATE INDEX IF NOT EXISTS idx_paywall_chat_sessions_status ON paywall_chat_sessions(status);
+  CREATE INDEX IF NOT EXISTS idx_paywall_chat_sessions_objective ON paywall_chat_sessions(objective);
+  CREATE INDEX IF NOT EXISTS idx_paywall_chat_sessions_started ON paywall_chat_sessions(started_at);
+
+  -- Paywall chat messages indexes
+  CREATE INDEX IF NOT EXISTS idx_paywall_chat_messages_session ON paywall_chat_messages(session_id);
+  CREATE INDEX IF NOT EXISTS idx_paywall_chat_messages_role ON paywall_chat_messages(role);
+  CREATE INDEX IF NOT EXISTS idx_paywall_chat_messages_created ON paywall_chat_messages(created_at);
+
+  -- Seasonal campaigns indexes
+  CREATE INDEX IF NOT EXISTS idx_seasonal_campaigns_event ON seasonal_campaigns(event_type);
+  CREATE INDEX IF NOT EXISTS idx_seasonal_campaigns_status ON seasonal_campaigns(status);
+  CREATE INDEX IF NOT EXISTS idx_seasonal_campaigns_dates ON seasonal_campaigns(start_date, end_date);
+
+  -- Paywall generations indexes
+  CREATE INDEX IF NOT EXISTS idx_paywall_generations_session ON paywall_generations(session_id);
+  CREATE INDEX IF NOT EXISTS idx_paywall_generations_type ON paywall_generations(generation_type);
+  CREATE INDEX IF NOT EXISTS idx_paywall_generations_generated ON paywall_generations(generated_at);
+
+  -- Paywall experiments indexes
+  CREATE INDEX IF NOT EXISTS idx_paywall_experiments_experiment ON paywall_experiments(experiment_id);
+  CREATE INDEX IF NOT EXISTS idx_paywall_experiments_status ON paywall_experiments(status);
+  CREATE INDEX IF NOT EXISTS idx_paywall_experiments_control ON paywall_experiments(control_template_id);
+`);
+console.log('✅ Indexes created for paywall tables');
+
+// ============================================
 // SUMMARY
 // ============================================
 const tableCount = db.prepare(`
@@ -564,12 +845,18 @@ const tableCount = db.prepare(`
 
 const benchmarkCount = db.prepare('SELECT COUNT(*) as count FROM benchmarks').get();
 const competitorCount = db.prepare('SELECT COUNT(*) as count FROM competitors').get();
+const paywallTemplateCount = db.prepare('SELECT COUNT(*) as count FROM paywall_templates').get();
+const paywallChatSessionCount = db.prepare('SELECT COUNT(*) as count FROM paywall_chat_sessions').get();
+const seasonalCampaignCount = db.prepare('SELECT COUNT(*) as count FROM seasonal_campaigns').get();
 
 console.log('\n📊 Growth Autopilot Database Summary:');
 console.log('─────────────────────────────────────');
 console.log(`Total tables: ${tableCount.count}`);
 console.log(`Benchmarks: ${benchmarkCount.count}`);
 console.log(`Competitors: ${competitorCount.count}`);
+console.log(`Paywall Templates: ${paywallTemplateCount.count}`);
+console.log(`Chat Sessions: ${paywallChatSessionCount.count}`);
+console.log(`Seasonal Campaigns: ${seasonalCampaignCount.count}`);
 console.log('─────────────────────────────────────');
 
 db.close();

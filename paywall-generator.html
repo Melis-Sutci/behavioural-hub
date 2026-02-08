@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paywall Generator - Behavioural Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="config.js"></script>
+    <script src="ui-common.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .chat-message {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .paywall-preview {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .paywall-preview:hover {
+            border-color: #8b5cf6;
+            box-shadow: 0 8px 16px rgba(139, 92, 246, 0.2);
+        }
+
+        .paywall-selected {
+            border-color: #8b5cf6;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(139, 92, 246, 0.1) 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-8">
+                    <h1 class="text-2xl font-bold text-gray-900">🎨 Paywall Generator</h1>
+                    <div class="flex space-x-4">
+                        <a href="index.html" class="text-gray-600 hover:text-gray-900 transition">Dashboard</a>
+                        <a href="insights.html" class="text-gray-600 hover:text-gray-900 transition">Insights</a>
+                        <a href="autopilot.html" class="text-gray-600 hover:text-gray-900 transition">Autopilot</a>
+                        <a href="paywall-generator.html" class="text-purple-600 font-semibold">Paywall Generator</a>
+                        <a href="segments.html" class="text-gray-600 hover:text-gray-900 transition">Segments</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div id="userProfile" class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-700">Loading...</span>
+                    </div>
+                    <button onclick="logout()" class="text-sm text-red-600 hover:text-red-700">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-6 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">AI Paywall Generator</h2>
+            <p class="text-gray-600">Generate, refine, and test paywalls with AI - optimized for your user personas and seasonal campaigns</p>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <button onclick="showNewPaywallModal()" class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-4 rounded-xl font-semibold hover:shadow-lg transition card-hover">
+                ✨ Generate New
+            </button>
+            <button onclick="showSeasonalModal()" class="bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-4 rounded-xl font-semibold hover:shadow-lg transition card-hover">
+                🎉 Seasonal Campaign
+            </button>
+            <button onclick="loadPaywallTemplates()" class="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-6 py-4 rounded-xl font-semibold hover:shadow-lg transition card-hover">
+                📚 My Templates
+            </button>
+            <button onclick="loadSeasonalCampaigns()" class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-4 rounded-xl font-semibold hover:shadow-lg transition card-hover">
+                📅 Campaigns
+            </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="bg-white rounded-xl shadow-lg mb-8">
+            <div class="border-b border-gray-200">
+                <nav class="flex space-x-8 px-6" aria-label="Tabs">
+                    <button onclick="switchTab('generator')" id="tab-generator" class="tab-button border-b-2 border-purple-600 py-4 px-1 text-sm font-medium text-purple-600">
+                        Generator
+                    </button>
+                    <button onclick="switchTab('templates')" id="tab-templates" class="tab-button border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        Templates
+                    </button>
+                    <button onclick="switchTab('campaigns')" id="tab-campaigns" class="tab-button border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        Seasonal Campaigns
+                    </button>
+                    <button onclick="switchTab('chat')" id="tab-chat" class="tab-button border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        Chat Sessions
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="p-6">
+                <!-- Generator Tab -->
+                <div id="content-generator" class="tab-content">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Left: Configuration -->
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-4">Generate Paywalls</h3>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                                    <select id="gen-category" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                        <option value="productivity">Productivity</option>
+                                        <option value="fitness">Fitness</option>
+                                        <option value="education">Education</option>
+                                        <option value="entertainment">Entertainment</option>
+                                        <option value="finance">Finance</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Target Segment</label>
+                                    <select id="gen-segment" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                        <option value="all">All Users</option>
+                                        <option value="detective">Detective (Analytical, seeks control)</option>
+                                        <option value="victim">Victim (Fearful, seeks safety)</option>
+                                        <option value="passive">Passive (Seeks ease, avoids effort)</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Objective</label>
+                                    <select id="gen-objective" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                        <option value="maximize_conversions">Maximize Conversions</option>
+                                        <option value="maximize_revenue">Maximize Revenue</option>
+                                        <option value="maximize_ltv">Maximize LTV</option>
+                                        <option value="reduce_churn">Reduce Churn</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Additional Context (Optional)</label>
+                                    <textarea id="gen-context" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" rows="4" placeholder="e.g., Focus on annual plans, emphasize social proof, highlight new features..."></textarea>
+                                </div>
+
+                                <button onclick="generatePaywalls()" id="gen-button" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition">
+                                    ✨ Generate 3 Paywall Designs
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Right: Preview Area -->
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-4">Generated Designs</h3>
+                            <div id="paywall-previews" class="space-y-4">
+                                <div class="text-center py-12 text-gray-400">
+                                    <div class="text-6xl mb-4">🎨</div>
+                                    <p>Click "Generate" to create AI-powered paywall designs</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Templates Tab -->
+                <div id="content-templates" class="tab-content hidden">
+                    <div class="mb-4 flex justify-between items-center">
+                        <h3 class="text-xl font-bold text-gray-900">My Paywall Templates</h3>
+                        <button onclick="loadPaywallTemplates()" class="text-sm text-purple-600 hover:text-purple-700">
+                            🔄 Refresh
+                        </button>
+                    </div>
+                    <div id="templatesList" class="space-y-4">
+                        <div class="text-center py-8 text-gray-500">Loading templates...</div>
+                    </div>
+                </div>
+
+                <!-- Campaigns Tab -->
+                <div id="content-campaigns" class="tab-content hidden">
+                    <div class="mb-4 flex justify-between items-center">
+                        <h3 class="text-xl font-bold text-gray-900">Seasonal Campaigns</h3>
+                        <button onclick="loadSeasonalCampaigns()" class="text-sm text-purple-600 hover:text-purple-700">
+                            🔄 Refresh
+                        </button>
+                    </div>
+                    <div id="campaignsList" class="space-y-4">
+                        <div class="text-center py-8 text-gray-500">Loading campaigns...</div>
+                    </div>
+                </div>
+
+                <!-- Chat Sessions Tab -->
+                <div id="content-chat" class="tab-content hidden">
+                    <div class="mb-4 flex justify-between items-center">
+                        <h3 class="text-xl font-bold text-gray-900">Chat Sessions</h3>
+                        <button onclick="loadChatSessions()" class="text-sm text-purple-600 hover:text-purple-700">
+                            🔄 Refresh
+                        </button>
+                    </div>
+                    <div id="chatSessionsList" class="space-y-4">
+                        <div class="text-center py-8 text-gray-500">Loading chat sessions...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Paywall Modal -->
+    <div id="newPaywallModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-8 border w-full max-w-4xl shadow-2xl rounded-2xl bg-white">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-900">🎨 Generate New Paywalls</h3>
+                <button onclick="closeNewPaywallModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+
+            <div class="space-y-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                        <select id="modal-category" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                            <option value="productivity">Productivity</option>
+                            <option value="fitness">Fitness</option>
+                            <option value="education">Education</option>
+                            <option value="entertainment">Entertainment</option>
+                            <option value="finance">Finance</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Target Segment</label>
+                        <select id="modal-segment" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                            <option value="all">All Users</option>
+                            <option value="detective">Detective</option>
+                            <option value="victim">Victim</option>
+                            <option value="passive">Passive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">What do you want to achieve?</label>
+                    <textarea id="modal-prompt" class="w-full px-4 py-2 border border-gray-300 rounded-lg" rows="4" placeholder="Describe your paywall needs. E.g., 'Create a paywall that emphasizes annual plans with social proof and urgency for Black Friday'"></textarea>
+                </div>
+
+                <div class="flex space-x-4">
+                    <button onclick="startChatSession()" class="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition">
+                        Start Chat Session
+                    </button>
+                    <button onclick="quickGenerate()" class="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition">
+                        Quick Generate
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seasonal Campaign Modal -->
+    <div id="seasonalModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-8 border w-full max-w-4xl shadow-2xl rounded-2xl bg-white">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-900">🎉 Create Seasonal Campaign</h3>
+                <button onclick="closeSeasonalModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+
+            <div class="space-y-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Event Type</label>
+                        <select id="seasonal-event" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                            <option value="black_friday">Black Friday</option>
+                            <option value="ramadan">Ramadan</option>
+                            <option value="diwali">Diwali</option>
+                            <option value="new_year">New Year</option>
+                            <option value="christmas">Christmas</option>
+                            <option value="custom">Custom Event</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Country/Region</label>
+                        <select id="seasonal-country" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                            <option value="global">Global</option>
+                            <option value="US">United States</option>
+                            <option value="IN">India</option>
+                            <option value="SA">Saudi Arabia</option>
+                            <option value="TR">Turkey</option>
+                            <option value="BR">Brazil</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                        <input type="date" id="seasonal-start" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+                        <input type="date" id="seasonal-end" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Discount %</label>
+                        <input type="number" id="seasonal-discount" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="50">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Urgency Level</label>
+                        <select id="seasonal-urgency" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                        <select id="seasonal-category" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                            <option value="productivity">Productivity</option>
+                            <option value="fitness">Fitness</option>
+                            <option value="education">Education</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button onclick="generateSeasonalCampaign()" class="w-full bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition">
+                    🎉 Generate Seasonal Paywalls
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Interface Modal -->
+    <div id="chatModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-10 mx-auto p-0 border w-full max-w-6xl shadow-2xl rounded-2xl bg-white h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center p-6 border-b">
+                <h3 class="text-2xl font-bold text-gray-900">💬 Paywall Design Chat</h3>
+                <button onclick="closeChatModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+
+            <div class="flex-1 grid grid-cols-2 gap-0 overflow-hidden">
+                <!-- Left: Chat -->
+                <div class="flex flex-col border-r">
+                    <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50">
+                        <!-- Messages will appear here -->
+                    </div>
+                    <div class="p-4 border-t bg-white">
+                        <div class="flex space-x-2">
+                            <input type="text" id="chat-input" placeholder="Describe what you want to change..." class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" onkeypress="if(event.key==='Enter') sendChatMessage()">
+                            <button onclick="sendChatMessage()" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition">
+                                Send
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Live Preview -->
+                <div class="flex flex-col overflow-y-auto p-6 bg-white">
+                    <h4 class="text-lg font-bold text-gray-900 mb-4">Live Previews</h4>
+                    <div id="chat-previews" class="space-y-4">
+                        <!-- Paywall previews will appear here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let currentChatSession = null;
+        let selectedTemplateId = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserProfile();
+            loadPaywallTemplates();
+        });
+
+        // Tab switching
+        function switchTab(tab) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-button').forEach(el => {
+                el.classList.remove('border-purple-600', 'text-purple-600');
+                el.classList.add('border-transparent', 'text-gray-500');
+            });
+
+            // Show selected tab
+            document.getElementById(`content-${tab}`).classList.remove('hidden');
+            document.getElementById(`tab-${tab}`).classList.remove('border-transparent', 'text-gray-500');
+            document.getElementById(`tab-${tab}`).classList.add('border-purple-600', 'text-purple-600');
+
+            // Load data for tab
+            if (tab === 'templates') loadPaywallTemplates();
+            if (tab === 'campaigns') loadSeasonalCampaigns();
+            if (tab === 'chat') loadChatSessions();
+        }
+
+        // Generate paywalls
+        async function generatePaywalls() {
+            const button = document.getElementById('gen-button');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<div class="loading"></div> Generating...';
+            button.disabled = true;
+
+            try {
+                const category = document.getElementById('gen-category').value;
+                const targetSegment = document.getElementById('gen-segment').value;
+                const objective = document.getElementById('gen-objective').value;
+                const context = document.getElementById('gen-context').value;
+
+                const response = await fetch(`${API_BASE_URL}/api/autopilot/paywall/generate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        category,
+                        targetSegment,
+                        objective,
+                        appContext: { notes: context }
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    displayPaywallPreviews(result.data.designs, result.data.templateIds);
+                    showNotification('✅ Generated 3 paywall designs!', 'success');
+                } else {
+                    showNotification('❌ ' + result.error, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('❌ Failed to generate paywalls', 'error');
+            } finally {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+
+        // Display paywall previews
+        function displayPaywallPreviews(designs, templateIds) {
+            const container = document.getElementById('paywall-previews');
+            container.innerHTML = designs.map((design, i) => `
+                <div class="paywall-preview p-6 cursor-pointer" onclick="selectTemplate('${templateIds[i]}')">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h4 class="text-lg font-bold text-gray-900">${design.name}</h4>
+                            <p class="text-sm text-gray-600">${design.description}</p>
+                        </div>
+                        <span class="text-xs bg-purple-100 text-purple-800 px-3 py-1 rounded-full">#${i + 1}</span>
+                    </div>
+
+                    <div class="space-y-3 text-sm">
+                        <div>
+                            <div class="font-semibold text-gray-700 mb-1">Headline</div>
+                            <div class="text-gray-600">${design.copyConfig.headline}</div>
+                        </div>
+
+                        <div>
+                            <div class="font-semibold text-gray-700 mb-1">Key Features</div>
+                            <ul class="list-disc list-inside text-gray-600 space-y-1">
+                                ${design.copyConfig.features.slice(0, 3).map(f => `<li>${f.text}</li>`).join('')}
+                            </ul>
+                        </div>
+
+                        <div>
+                            <div class="font-semibold text-gray-700 mb-1">CTA</div>
+                            <button class="w-full bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold">
+                                ${design.copyConfig.cta.primary}
+                            </button>
+                        </div>
+
+                        <div class="pt-3 border-t">
+                            <div class="font-semibold text-gray-700 mb-1">AI Rationale</div>
+                            <p class="text-xs text-gray-500">${design.rationale}</p>
+                        </div>
+
+                        <div class="pt-2">
+                            <div class="text-xs text-gray-500">
+                                Expected lift: ${design.expectedPerformance.conversionLift}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Select template
+        function selectTemplate(templateId) {
+            selectedTemplateId = templateId;
+            document.querySelectorAll('.paywall-preview').forEach(el => {
+                el.classList.remove('paywall-selected');
+            });
+            event.currentTarget.classList.add('paywall-selected');
+        }
+
+        // Load templates
+        async function loadPaywallTemplates() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/autopilot/paywall/templates`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    displayTemplates(result.data);
+                }
+            } catch (error) {
+                console.error('Error loading templates:', error);
+            }
+        }
+
+        // Display templates
+        function displayTemplates(templates) {
+            const container = document.getElementById('templatesList');
+
+            if (templates.length === 0) {
+                container.innerHTML = '<div class="text-center py-8 text-gray-500">No templates yet. Generate your first paywall!</div>';
+                return;
+            }
+
+            container.innerHTML = templates.map(t => `
+                <div class="bg-white border border-gray-200 rounded-lg p-6 card-hover">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h4 class="text-lg font-bold text-gray-900">${t.name}</h4>
+                            <p class="text-sm text-gray-600">${t.description}</p>
+                        </div>
+                        <span class="text-xs px-3 py-1 rounded-full ${
+                            t.status === 'active' ? 'bg-green-100 text-green-800' :
+                            t.status === 'winner' ? 'bg-purple-100 text-purple-800' :
+                            t.status === 'testing' ? 'bg-blue-100 text-blue-800' :
+                            'bg-gray-100 text-gray-800'
+                        }">${t.status.toUpperCase()}</span>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4 text-sm mb-4">
+                        <div>
+                            <div class="text-gray-500">Segment</div>
+                            <div class="font-semibold">${t.target_segment || 'All'}</div>
+                        </div>
+                        <div>
+                            <div class="text-gray-500">Type</div>
+                            <div class="font-semibold">${t.template_type}</div>
+                        </div>
+                        <div>
+                            <div class="text-gray-500">Performance</div>
+                            <div class="font-semibold">${t.performance_score || 0}/100</div>
+                        </div>
+                    </div>
+
+                    <div class="flex space-x-2">
+                        <button onclick="viewTemplate('${t.id}')" class="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700 transition">
+                            View Details
+                        </button>
+                        <button onclick="refineTemplate('${t.id}')" class="flex-1 border border-purple-600 text-purple-600 px-4 py-2 rounded-lg text-sm hover:bg-purple-50 transition">
+                            Refine with AI
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Load seasonal campaigns
+        async function loadSeasonalCampaigns() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/autopilot/paywall/campaigns`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    displayCampaigns(result.data);
+                }
+            } catch (error) {
+                console.error('Error loading campaigns:', error);
+            }
+        }
+
+        // Display campaigns
+        function displayCampaigns(campaigns) {
+            const container = document.getElementById('campaignsList');
+
+            if (campaigns.length === 0) {
+                container.innerHTML = '<div class="text-center py-8 text-gray-500">No campaigns yet. Create your first seasonal campaign!</div>';
+                return;
+            }
+
+            container.innerHTML = campaigns.map(c => `
+                <div class="bg-white border border-gray-200 rounded-lg p-6 card-hover">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h4 class="text-lg font-bold text-gray-900">${c.name}</h4>
+                            <p class="text-sm text-gray-600">${c.event_type} - ${c.event_country}</p>
+                        </div>
+                        <span class="text-xs px-3 py-1 rounded-full ${
+                            c.status === 'active' ? 'bg-green-100 text-green-800' :
+                            c.status === 'completed' ? 'bg-gray-100 text-gray-800' :
+                            'bg-blue-100 text-blue-800'
+                        }">${c.status.toUpperCase()}</span>
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-4 text-sm">
+                        <div>
+                            <div class="text-gray-500">Start Date</div>
+                            <div class="font-semibold">${new Date(c.start_date).toLocaleDateString()}</div>
+                        </div>
+                        <div>
+                            <div class="text-gray-500">End Date</div>
+                            <div class="font-semibold">${new Date(c.end_date).toLocaleDateString()}</div>
+                        </div>
+                        <div>
+                            <div class="text-gray-500">Discount</div>
+                            <div class="font-semibold">${c.discount_percentage || 0}%</div>
+                        </div>
+                        <div>
+                            <div class="text-gray-500">Templates</div>
+                            <div class="font-semibold">${c.paywall_template_ids?.length || 0}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Generate seasonal campaign
+        async function generateSeasonalCampaign() {
+            try {
+                const eventType = document.getElementById('seasonal-event').value;
+                const country = document.getElementById('seasonal-country').value;
+                const startDate = document.getElementById('seasonal-start').value;
+                const endDate = document.getElementById('seasonal-end').value;
+                const discount = document.getElementById('seasonal-discount').value;
+                const urgencyLevel = document.getElementById('seasonal-urgency').value;
+                const category = document.getElementById('seasonal-category').value;
+
+                if (!startDate || !endDate) {
+                    showNotification('Please select start and end dates', 'error');
+                    return;
+                }
+
+                const response = await fetch(`${API_BASE_URL}/api/autopilot/paywall/seasonal`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        eventType,
+                        country,
+                        startDate,
+                        endDate,
+                        discount: parseFloat(discount) || 0,
+                        urgencyLevel,
+                        category
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification('✅ Seasonal campaign created!', 'success');
+                    closeSeasonalModal();
+                    switchTab('campaigns');
+                    loadSeasonalCampaigns();
+                } else {
+                    showNotification('❌ ' + result.error, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('❌ Failed to create campaign', 'error');
+            }
+        }
+
+        // Start chat session
+        async function startChatSession() {
+            const category = document.getElementById('modal-category').value;
+            const segment = document.getElementById('modal-segment').value;
+            const prompt = document.getElementById('modal-prompt').value;
+
+            if (!prompt) {
+                showNotification('Please describe what you want', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/autopilot/paywall/chat/start`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        objective: 'generate_new',
+                        targetSegment: segment,
+                        initialPrompt: prompt,
+                        contextData: { category }
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    currentChatSession = result.data.sessionId;
+                    closeNewPaywallModal();
+                    openChatModal(result.data);
+                } else {
+                    showNotification('❌ ' + result.error, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('❌ Failed to start chat', 'error');
+            }
+        }
+
+        // Open chat modal
+        function openChatModal(data) {
+            document.getElementById('chatModal').classList.remove('hidden');
+
+            // Display initial message
+            const messagesContainer = document.getElementById('chat-messages');
+            messagesContainer.innerHTML = `
+                <div class="chat-message bg-blue-50 p-4 rounded-lg">
+                    <div class="text-sm font-semibold text-blue-900 mb-1">You</div>
+                    <div class="text-gray-700">${data.designs ? 'Generate paywall designs' : 'Starting chat...'}</div>
+                </div>
+                <div class="chat-message bg-purple-50 p-4 rounded-lg">
+                    <div class="text-sm font-semibold text-purple-900 mb-1">AI Assistant</div>
+                    <div class="text-gray-700">${data.recommendation || 'I\'ve generated 3 paywall designs for you. Let me know what you\'d like to change!'}</div>
+                </div>
+            `;
+
+            // Display previews
+            if (data.designs) {
+                displayChatPreviews(data.designs, data.templateIds);
+            }
+        }
+
+        // Display chat previews
+        function displayChatPreviews(designs, templateIds) {
+            const container = document.getElementById('chat-previews');
+            container.innerHTML = designs.map((design, i) => `
+                <div class="paywall-preview p-4" onclick="selectTemplate('${templateIds[i]}')">
+                    <h5 class="font-bold text-sm mb-2">${design.name}</h5>
+                    <p class="text-xs text-gray-600 mb-3">${design.description}</p>
+                    <div class="text-xs bg-gray-50 p-2 rounded">
+                        <strong>Headline:</strong> ${design.copyConfig.headline}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Send chat message
+        async function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+
+            if (!message || !currentChatSession) return;
+
+            input.value = '';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/autopilot/paywall/chat/continue`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        sessionId: currentChatSession,
+                        userMessage: message,
+                        refinementRequest: { feedback: message }
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Add messages to chat
+                    const messagesContainer = document.getElementById('chat-messages');
+                    messagesContainer.innerHTML += `
+                        <div class="chat-message bg-blue-50 p-4 rounded-lg">
+                            <div class="text-sm font-semibold text-blue-900 mb-1">You</div>
+                            <div class="text-gray-700">${message}</div>
+                        </div>
+                        <div class="chat-message bg-purple-50 p-4 rounded-lg">
+                            <div class="text-sm font-semibold text-purple-900 mb-1">AI Assistant</div>
+                            <div class="text-gray-700">I've refined the paywalls based on your feedback!</div>
+                        </div>
+                    `;
+
+                    // Update previews
+                    displayChatPreviews(result.data.designs, result.data.templateIds);
+
+                    // Scroll to bottom
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                } else {
+                    showNotification('❌ ' + result.error, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('❌ Failed to send message', 'error');
+            }
+        }
+
+        // Modal functions
+        function showNewPaywallModal() {
+            document.getElementById('newPaywallModal').classList.remove('hidden');
+        }
+
+        function closeNewPaywallModal() {
+            document.getElementById('newPaywallModal').classList.add('hidden');
+        }
+
+        function showSeasonalModal() {
+            document.getElementById('seasonalModal').classList.remove('hidden');
+        }
+
+        function closeSeasonalModal() {
+            document.getElementById('seasonalModal').classList.add('hidden');
+        }
+
+        function closeChatModal() {
+            document.getElementById('chatModal').classList.add('hidden');
+            currentChatSession = null;
+        }
+
+        // Quick generate (without chat)
+        async function quickGenerate() {
+            closeNewPaywallModal();
+            switchTab('generator');
+
+            const category = document.getElementById('modal-category').value;
+            const segment = document.getElementById('modal-segment').value;
+            const prompt = document.getElementById('modal-prompt').value;
+
+            document.getElementById('gen-category').value = category;
+            document.getElementById('gen-segment').value = segment;
+            document.getElementById('gen-context').value = prompt;
+
+            await generatePaywalls();
+        }
+
+        // Load chat sessions
+        async function loadChatSessions() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/autopilot/paywall/chat/sessions`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    displayChatSessions(result.data);
+                }
+            } catch (error) {
+                console.error('Error loading chat sessions:', error);
+            }
+        }
+
+        // Display chat sessions
+        function displayChatSessions(sessions) {
+            const container = document.getElementById('chatSessionsList');
+
+            if (sessions.length === 0) {
+                container.innerHTML = '<div class="text-center py-8 text-gray-500">No chat sessions yet.</div>';
+                return;
+            }
+
+            container.innerHTML = sessions.map(s => `
+                <div class="bg-white border border-gray-200 rounded-lg p-6 card-hover">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-700">Session ${s.id.substring(0, 8)}</h4>
+                            <p class="text-sm text-gray-600">${s.objective} - ${s.target_segment}</p>
+                        </div>
+                        <span class="text-xs px-3 py-1 rounded-full ${
+                            s.status === 'active' ? 'bg-green-100 text-green-800' :
+                            'bg-gray-100 text-gray-800'
+                        }">${s.status.toUpperCase()}</span>
+                    </div>
+
+                    <div class="text-sm text-gray-600 mb-4">
+                        ${s.total_messages} messages • ${s.iterations} iterations
+                    </div>
+
+                    <button onclick="resumeChatSession('${s.id}')" class="w-full bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700 transition">
+                        Resume Chat
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Notification helper
+        function showNotification(message, type = 'info') {
+            // Simple alert for now - you can enhance this
+            alert(message);
+        }
+
+        // View template
+        function viewTemplate(templateId) {
+            // TODO: Implement template detail view
+            console.log('View template:', templateId);
+        }
+
+        // Refine template
+        function refineTemplate(templateId) {
+            // TODO: Open chat with refinement mode
+            console.log('Refine template:', templateId);
+        }
+
+        // Resume chat session
+        function resumeChatSession(sessionId) {
+            // TODO: Load chat history and resume
+            console.log('Resume session:', sessionId);
+        }
+    </script>
+</body>
+</html>

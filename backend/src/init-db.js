@@ -333,3 +333,12 @@ console.log(`\n🧪 AB Testing: ${experimentCount.count} experiments`);
 
 db.close();
 console.log('\n✅ Database initialization complete!');
+
+// Initialize Growth Autopilot database
+console.log('\n🚀 Initializing Growth Autopilot database...');
+try {
+  require('./init-autopilot-db');
+  console.log('✅ Growth Autopilot database initialized!');
+} catch (error) {
+  console.error('❌ Error initializing Growth Autopilot database:', error);
+}
