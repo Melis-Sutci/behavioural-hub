@@ -2,6 +2,7 @@ const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 // Fix: Use default imports instead of destructuring
 const AutopilotAIService = require('../services/autopilot/aiService');
+const PaywallGenerator = require('../services/autopilot/paywallGenerator');
 const PatternDetector = require('../services/autopilot/patternDetector');
 const BehavioralClusteringEngine = require('../services/segmentation/clusteringEngine');
 const RFMAnalysisEngine = require('../services/segmentation/rfmEngine');
@@ -26,6 +27,7 @@ module.exports = (db) => {
 
   // Initialize services with db parameter
   const aiService = new AutopilotAIService(db);
+  const paywallGenerator = new PaywallGenerator(db);
   const patternDetector = new PatternDetector(db);
   const clusteringEngine = new BehavioralClusteringEngine(db);
   const rfmEngine = new RFMAnalysisEngine(db);
@@ -747,6 +749,502 @@ module.exports = (db) => {
       });
     } catch (error) {
       console.error('Error calculating viral coefficient:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  // ==========================================
+  // PAYWALL GENERATOR API
+  // ==========================================
+
+  // POST /api/autopilot/paywall/generate - Generate paywall designs
+  router.post('/paywall/generate', async (req, res) => {
+    try {
+      const {
+        category,
+        targetSegment = 'all',
+        objective = 'maximize_conversions',
+        appContext = {},
+        seasonalContext = null
+      } = req.body;
+
+      if (!category) {
+        return res.status(400).json({
+          success: false,
+          error: 'category is required'
+        });
+      }
+
+      const result = await paywallGenerator.generatePaywalls({
+        category,
+        targetSegment,
+        objective,
+        appContext,
+        seasonalContext
+      });
+
+      res.json({
+        success: true,
+        data: result
+      });
+    } catch (error) {
+      console.error('Error generating paywalls:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  // POST /api/autopilot/paywall/refine - Refine existing paywall
+  router.post('/paywall/refine', async (req, res) => {
+    try {
+      const {
+        templateId,
+        userFeedback,
+        targetSegment,
+        objective,
+        sessionId
+      } = req.body;
+
+      if (!templateId || !userFeedback) {
+        return res.status(400).json({
+          success: false,
+          error: 'templateId and userFeedback are required'
+        });
+      }
+
+      const result = await paywallGenerator.refinePaywall({
+        templateId,
+        userFeedback,
+        targetSegment,
+        objective,
+        sessionId
+      });
+
+      res.json({
+        success: true,
+        data: result
+      });
+    } catch (error) {
+      console.error('Error refining paywall:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  // POST /api/autopilot/paywall/seasonal - Generate seasonal campaign paywall
+  router.post('/paywall/seasonal', async (req, res) => {
+    try {
+      const {
+        eventType,
+        country,
+        startDate,
+        endDate,
+        discount,
+        urgencyLevel = 'medium',
+        targetSegment = 'all',
+        category
+      } = req.body;
+
+      if (!eventType || !country || !startDate || !endDate || !category) {
+        return res.status(400).json({
+          success: false,
+          error: 'eventType, country, startDate, endDate, and category are required'
+        });
+      }
+
+      const result = await paywallGenerator.generateSeasonalPaywall({
+        eventType,
+        country,
+        startDate,
+        endDate,
+        discount,
+        urgencyLevel,
+        targetSegment,
+        category
+      });
+
+      res.json({
+        success: true,
+        data: result
+      });
+    } catch (error) {
+      console.error('Error generating seasonal paywall:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  // POST /api/autopilot/paywall/optimize-copy - Optimize paywall copy
+  router.post('/paywall/optimize-copy', async (req, res) => {
+    try {
+      const { currentCopy, persona, goal, currentRate, painPoints } = req.body;
+
+      if (!currentCopy || !persona) {
+        return res.status(400).json({
+          success: false,
+          error: 'currentCopy and persona are required'
+        });
+      }
+
+      const result = await paywallGenerator.optimizeCopy({
+        currentCopy,
+        persona,
+        goal,
+        currentRate,
+        painPoints
+      });
+
+      res.json({
+        success: true,
+        data: result
+      });
+    } catch (error) {
+      console.error('Error optimizing copy:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  // POST /api/autopilot/paywall/optimize-pricing - Optimize pricing strategy
+  router.post('/paywall/optimize-pricing', async (req, res) => {
+    try {
+      const {
+        currentPricing,
+        competitorPricing,
+        benchmarks,
+        appMetrics,
+        goal = 'maximize_revenue'
+      } = req.body;
+
+      if (!currentPricing) {
+        return res.status(400).json({
+          success: false,
+          error: 'currentPricing is required'
+        });
+      }
+
+      const result = await paywallGenerator.optimizePricing({
+        currentPricing,
+        competitorPricing,
+        benchmarks,
+        appMetrics,
+        goal
+      });
+
+      res.json({
+        success: true,
+        data: result
+      });
+    } catch (error) {
+      console.error('Error optimizing pricing:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  // POST /api/autopilot/paywall/chat/start - Start chat session
+  router.post('/paywall/chat/start', async (req, res) => {
+    try {
+      const {
+        objective,
+        targetSegment,
+        initialPrompt,
+        contextData = {}
+      } = req.body;
+
+      if (!objective || !initialPrompt) {
+        return res.status(400).json({
+          success: false,
+          error: 'objective and initialPrompt are required'
+        });
+      }
+
+      const result = await paywallGenerator.createChatSession({
+        objective,
+        targetSegment,
+        initialPrompt,
+        contextData
+      });
+
+      res.json({
+        success: true,
+        data: result
+      });
+    } catch (error) {
+      console.error('Error starting chat session:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  // POST /api/autopilot/paywall/chat/continue - Continue chat session
+  router.post('/paywall/chat/continue', async (req, res) => {
+    try {
+      const { sessionId, userMessage, refinementRequest } = req.body;
+
+      if (!sessionId || !userMessage) {
+        return res.status(400).json({
+          success: false,
+          error: 'sessionId and userMessage are required'
+        });
+      }
+
+      const result = await paywallGenerator.continueChat(
+        sessionId,
+        userMessage,
+        refinementRequest
+      );
+
+      res.json({
+        success: true,
+        data: result
+      });
+    } catch (error) {
+      console.error('Error continuing chat:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  // POST /api/autopilot/paywall/chat/complete - Complete chat session
+  router.post('/paywall/chat/complete', async (req, res) => {
+    try {
+      const { sessionId, finalTemplateId } = req.body;
+
+      if (!sessionId || !finalTemplateId) {
+        return res.status(400).json({
+          success: false,
+          error: 'sessionId and finalTemplateId are required'
+        });
+      }
+
+      await paywallGenerator.completeSession(sessionId, finalTemplateId);
+
+      res.json({
+        success: true,
+        message: 'Chat session completed'
+      });
+    } catch (error) {
+      console.error('Error completing chat session:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  // GET /api/autopilot/paywall/templates - List paywall templates
+  router.get('/paywall/templates', (req, res) => {
+    try {
+      const { status, targetSegment, isSeasonal, campaignId } = req.query;
+
+      let query = 'SELECT * FROM paywall_templates';
+      const conditions = [];
+      const params = [];
+
+      if (status) {
+        conditions.push('status = ?');
+        params.push(status);
+      }
+      if (targetSegment) {
+        conditions.push('target_segment = ?');
+        params.push(targetSegment);
+      }
+      if (isSeasonal !== undefined) {
+        conditions.push('is_seasonal = ?');
+        params.push(isSeasonal === 'true' ? 1 : 0);
+      }
+      if (campaignId) {
+        conditions.push('campaign_id = ?');
+        params.push(campaignId);
+      }
+
+      if (conditions.length > 0) {
+        query += ' WHERE ' + conditions.join(' AND ');
+      }
+
+      query += ' ORDER BY created_at DESC';
+
+      const templates = db.prepare(query).all(...params);
+
+      const parsed = templates.map(t => ({
+        ...t,
+        layout_config: JSON.parse(t.layout_config || '{}'),
+        copy_config: JSON.parse(t.copy_config || '{}'),
+        pricing_display: JSON.parse(t.pricing_display || '{}'),
+        visual_config: JSON.parse(t.visual_config || '{}'),
+        competitor_references: JSON.parse(t.competitor_references || '[]')
+      }));
+
+      res.json({
+        success: true,
+        data: parsed,
+        total: parsed.length
+      });
+    } catch (error) {
+      console.error('Error fetching paywall templates:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  // GET /api/autopilot/paywall/templates/:id - Get single paywall template
+  router.get('/paywall/templates/:id', (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const template = db.prepare('SELECT * FROM paywall_templates WHERE id = ?').get(id);
+
+      if (!template) {
+        return res.status(404).json({ success: false, error: 'Template not found' });
+      }
+
+      const parsed = {
+        ...template,
+        layout_config: JSON.parse(template.layout_config || '{}'),
+        copy_config: JSON.parse(template.copy_config || '{}'),
+        pricing_display: JSON.parse(template.pricing_display || '{}'),
+        visual_config: JSON.parse(template.visual_config || '{}'),
+        competitor_references: JSON.parse(template.competitor_references || '[]')
+      };
+
+      res.json({
+        success: true,
+        data: parsed
+      });
+    } catch (error) {
+      console.error('Error fetching paywall template:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  // PUT /api/autopilot/paywall/templates/:id/status - Update template status
+  router.put('/paywall/templates/:id/status', (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+
+      if (!['draft', 'active', 'testing', 'archived', 'winner'].includes(status)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid status. Must be: draft, active, testing, archived, or winner'
+        });
+      }
+
+      db.prepare('UPDATE paywall_templates SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
+        .run(status, id);
+
+      const updated = db.prepare('SELECT * FROM paywall_templates WHERE id = ?').get(id);
+
+      res.json({
+        success: true,
+        data: updated
+      });
+    } catch (error) {
+      console.error('Error updating template status:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  // GET /api/autopilot/paywall/chat/sessions - List chat sessions
+  router.get('/paywall/chat/sessions', (req, res) => {
+    try {
+      const { status, objective } = req.query;
+
+      let query = 'SELECT * FROM paywall_chat_sessions';
+      const conditions = [];
+      const params = [];
+
+      if (status) {
+        conditions.push('status = ?');
+        params.push(status);
+      }
+      if (objective) {
+        conditions.push('objective = ?');
+        params.push(objective);
+      }
+
+      if (conditions.length > 0) {
+        query += ' WHERE ' + conditions.join(' AND ');
+      }
+
+      query += ' ORDER BY started_at DESC';
+
+      const sessions = db.prepare(query).all(...params);
+
+      const parsed = sessions.map(s => ({
+        ...s,
+        context_data: JSON.parse(s.context_data || '{}'),
+        generated_templates: JSON.parse(s.generated_templates || '[]')
+      }));
+
+      res.json({
+        success: true,
+        data: parsed,
+        total: parsed.length
+      });
+    } catch (error) {
+      console.error('Error fetching chat sessions:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  // GET /api/autopilot/paywall/chat/sessions/:id/messages - Get chat messages
+  router.get('/paywall/chat/sessions/:id/messages', (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const messages = db.prepare(
+        'SELECT * FROM paywall_chat_messages WHERE session_id = ? ORDER BY created_at ASC'
+      ).all(id);
+
+      const parsed = messages.map(m => ({
+        ...m,
+        generated_templates: JSON.parse(m.generated_templates || 'null'),
+        refinement_request: JSON.parse(m.refinement_request || 'null')
+      }));
+
+      res.json({
+        success: true,
+        data: parsed
+      });
+    } catch (error) {
+      console.error('Error fetching chat messages:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  // GET /api/autopilot/paywall/campaigns - List seasonal campaigns
+  router.get('/paywall/campaigns', (req, res) => {
+    try {
+      const { status, eventType } = req.query;
+
+      let query = 'SELECT * FROM seasonal_campaigns';
+      const conditions = [];
+      const params = [];
+
+      if (status) {
+        conditions.push('status = ?');
+        params.push(status);
+      }
+      if (eventType) {
+        conditions.push('event_type = ?');
+        params.push(eventType);
+      }
+
+      if (conditions.length > 0) {
+        query += ' WHERE ' + conditions.join(' AND ');
+      }
+
+      query += ' ORDER BY start_date DESC';
+
+      const campaigns = db.prepare(query).all(...params);
+
+      const parsed = campaigns.map(c => ({
+        ...c,
+        special_pricing: JSON.parse(c.special_pricing || 'null'),
+        campaign_theme: JSON.parse(c.campaign_theme || '{}'),
+        target_countries: JSON.parse(c.target_countries || '[]'),
+        target_segments: JSON.parse(c.target_segments || '[]'),
+        paywall_template_ids: JSON.parse(c.paywall_template_ids || '[]')
+      }));
+
+      res.json({
+        success: true,
+        data: parsed,
+        total: parsed.length
+      });
+    } catch (error) {
+      console.error('Error fetching seasonal campaigns:', error);
       res.status(500).json({ success: false, error: error.message });
     }
   });
