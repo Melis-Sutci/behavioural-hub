@@ -1,8 +1,10 @@
 const Database = require('better-sqlite3');
 const path = require('path');
 
-const dbPath = path.join(__dirname, '..', 'behavioural_hub.db');
+const dbPath = process.env.DATABASE_PATH || path.join(__dirname, '..', 'behavioural_hub.db');
 const db = new Database(dbPath);
+
+console.log(`📂 Using database: ${dbPath}`);
 
 console.log('🗄️  Initializing database...');
 

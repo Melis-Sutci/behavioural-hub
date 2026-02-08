@@ -76,6 +76,7 @@ jobs:
             -e JWT_SECRET=test-secret \
             -e JWT_REFRESH_SECRET=test-refresh-secret \
             -e ALLOWED_ORIGINS=http://localhost:3000 \
+            -e DATABASE_PATH=/app/data/behavioural_hub.db \
             behavioural-hub-api:${{ github.sha }}
 
           # Wait for container to start and initialize database

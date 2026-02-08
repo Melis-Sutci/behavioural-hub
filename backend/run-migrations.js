@@ -12,7 +12,7 @@ const Database = require('better-sqlite3');
 const fs = require('fs');
 const path = require('path');
 
-const dbPath = path.join(__dirname, 'behavioural_hub.db');
+const dbPath = process.env.DATABASE_PATH || path.join(__dirname, 'behavioural_hub.db');
 const migrationsDir = path.join(__dirname, 'migrations');
 
 // Get migration numbers from command line args, or run all

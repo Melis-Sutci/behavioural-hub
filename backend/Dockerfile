@@ -57,15 +57,17 @@ COPY --chown=nodejs:nodejs migrations ./migrations
 COPY --chown=nodejs:nodejs run-migrations.js ./
 COPY --chown=nodejs:nodejs docker-entrypoint.sh ./
 
-# Make entrypoint executable
+# Make entrypoint executable and create necessary directories
 USER root
-RUN chmod +x docker-entrypoint.sh
-
-# Create necessary directories
-RUN mkdir -p logs && chown -R nodejs:nodejs logs
+RUN chmod +x docker-entrypoint.sh && \
+    mkdir -p logs data && \
+    chown -R nodejs:nodejs logs data
 
 # Switch to non-root user
 USER nodejs
+
+# Set database path to writable directory
+ENV DATABASE_PATH=/app/data/behavioural_hub.db
 
 # Expose port
 EXPOSE 4000
