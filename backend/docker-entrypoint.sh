@@ -24,6 +24,16 @@ else
   exit 1
 fi
 
+# Run Growth Autopilot database initialization
+echo ""
+echo "🤖 Initializing Growth Autopilot tables..."
+if node src/init-autopilot-db.js; then
+  echo "✅ Growth Autopilot tables initialized successfully"
+else
+  echo "❌ Growth Autopilot initialization failed!"
+  exit 1
+fi
+
 # Run migrations
 echo ""
 echo "🔄 Running migrations..."
