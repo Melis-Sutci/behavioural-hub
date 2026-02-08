@@ -60,7 +60,7 @@ COPY --chown=nodejs:nodejs docker-entrypoint.sh ./
 USER root
 RUN chmod +x docker-entrypoint.sh && \
     mkdir -p logs data && \
-    chown -R nodejs:nodejs logs data
+    chown -R nodejs:nodejs /app
 
 # Switch to non-root user
 USER nodejs
