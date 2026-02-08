@@ -1,115 +1,22 @@
-// Load environment variables FIRST
-require('dotenv').config();
-
 const express = require('express');
 const cors = require('cors');
 const Database = require('better-sqlite3');
 const path = require('path');
 
-// Import middleware
-const {
-  configureHelmet,
-  configureCors,
-  createApiLimiter,
-  createAuthLimiter,
-  createMutationLimiter,
-  sanitizeRequest,
-  errorHandler,
-  notFoundHandler,
-  requestLogger
-} = require('./middleware/security');
-
-const { authenticate, authorize, optionalAuth } = require('./middleware/auth');
-const createAuthRoutes = require('./routes/auth');
-const logger = require('./utils/logger');
-const swaggerUi = require('swagger-ui-express');
-const swaggerSpec = require('./config/swagger');
-
 const app = express();
-const PORT = process.env.PORT || 4000;
+const PORT = 4000;
+
+// Middleware
+app.use(cors());
+app.use(express.json());
 
 // Database connection
-const dbPath = process.env.DATABASE_PATH || path.join(__dirname, '..', 'behavioural_hub.db');
+const dbPath = path.join(__dirname, '..', 'behavioural_hub.db');
 const db = new Database(dbPath);
 
-// Trust proxy (for rate limiting behind reverse proxy)
-app.set('trust proxy', 1);
-
-// Security Middleware
-app.use(configureHelmet());
-app.use(cors(configureCors()));
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-app.use(sanitizeRequest);
-app.use(requestLogger(logger));
-
-// Apply general rate limiting to all routes
-app.use(createApiLimiter());
-
-// ==================== Public Routes ====================
-
-// API Documentation (Swagger UI)
-if (process.env.SWAGGER_ENABLED !== 'false') {
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-    explorer: true,
-    customCss: '.swagger-ui .topbar { display: none }',
-    customSiteTitle: 'Behavioural Hub API Documentation'
-  }));
-
-  // Serve OpenAPI spec as JSON
-  app.get('/api-docs.json', (req, res) => {
-    res.setHeader('Content-Type', 'application/json');
-    res.send(swaggerSpec);
-  });
-}
-
-// Health check endpoints
+// Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Backend is running!' });
-});
-
-app.get('/health/live', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
-app.get('/health/ready', (req, res) => {
-  try {
-    // Check database connectivity
-    const result = db.prepare('SELECT 1 as test').get();
-
-    if (result.test === 1) {
-      res.json({
-        status: 'ready',
-        database: 'connected',
-        timestamp: new Date().toISOString()
-      });
-    } else {
-      throw new Error('Database check failed');
-    }
-  } catch (error) {
-    res.status(503).json({
-      status: 'not_ready',
-      database: 'disconnected',
-      error: error.message,
-      timestamp: new Date().toISOString()
-    });
-  }
-});
-
-// Authentication routes (with strict rate limiting)
-app.use('/api/auth', createAuthLimiter(), createAuthRoutes(db));
-
-// ==================== Protected Routes ====================
-// All routes below require authentication
-
-// Apply authentication to all /api/* routes except /api/auth
-app.use('/api', (req, res, next) => {
-  // Skip authentication for auth routes
-  if (req.path.startsWith('/auth')) {
-    return next();
-  }
-  // Apply authentication middleware
-  authenticate(db)(req, res, next);
 });
 
 // GET all insights
@@ -1949,61 +1856,24 @@ app.get('/api/knowledge-base/stats', (req, res) => {
   }
 });
 
-// ==================== Error Handling ====================
-// 404 handler - must be after all routes
-app.use(notFoundHandler);
-
-// Global error handler - must be last
-app.use(errorHandler(logger));
-
-// ==================== Start Server ====================
+// Start server
 app.listen(PORT, () => {
-  logger.info('Server started successfully', {
-    port: PORT,
-    environment: process.env.NODE_ENV || 'development',
-    database: dbPath
-  });
-
-  console.log(`\n${'='.repeat(60)}`);
-  console.log(`🚀 BEHAVIOURAL HUB BACKEND - PRODUCTION READY`);
-  console.log(`${'='.repeat(60)}`);
-  console.log(`\n🌐 Server:        http://localhost:${PORT}`);
-  console.log(`📊 Database:      ${dbPath}`);
-  console.log(`🔒 Environment:   ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🛡️  Security:      ✓ Helmet, Rate Limiting, CORS, JWT Auth`);
-  console.log(`📝 Logging:       ✓ Winston (./logs/)`);
-  if (process.env.SWAGGER_ENABLED !== 'false') {
-    console.log(`📚 API Docs:      http://localhost:${PORT}/api-docs`);
-  }
-  console.log(`\n${'='.repeat(60)}`);
-  console.log(`📋 API ENDPOINTS`);
-  console.log(`${'='.repeat(60)}`);
-  console.log(`\n🔐 Authentication (Public):`);
-  console.log(`   POST   /api/auth/register         Register new user`);
-  console.log(`   POST   /api/auth/login            Login with email/password`);
-  console.log(`   POST   /api/auth/refresh          Refresh access token`);
-  console.log(`   POST   /api/auth/logout           Logout and revoke token`);
-  console.log(`   GET    /api/auth/me               Get current user profile`);
-  console.log(`   PUT    /api/auth/password         Change password`);
-  console.log(`   POST   /api/auth/api-keys         Generate API key`);
-  console.log(`   GET    /api/auth/api-keys         List API keys`);
-  console.log(`   DELETE /api/auth/api-keys/:id     Revoke API key`);
-  console.log(`\n🧠 Insights (Protected):`);
-  console.log(`   GET    /api/insights`);
-  console.log(`   GET    /api/insights/:id`);
-  console.log(`   GET    /api/insights/category/:category`);
-  console.log(`   GET    /api/insights/segment/:segment`);
-  console.log(`   POST   /api/insights`);
-  console.log(`   PUT    /api/insights/:id`);
-  console.log(`   DELETE /api/insights/:id`);
-  console.log(`\n📈 Analytics (Protected):`);
-  console.log(`   GET    /api/analytics/summary`);
-  console.log(`   GET    /api/analytics/by-category`);
-  console.log(`   GET    /api/analytics/by-segment`);
-  console.log(`   GET    /api/analytics/impact`);
-  console.log(`   GET    /api/analytics/trends`);
-  console.log(`   GET    /api/analytics/top-insights?limit=10`);
-  console.log(`\n🧪 AB Testing (Protected):`);
+  console.log(`🚀 Behavioural Hub Backend running on http://localhost:${PORT}`);
+  console.log(`📊 Database: ${dbPath}`);
+  console.log(`\n🧠 Insights Endpoints:`);
+  console.log(`   GET  /api/insights`);
+  console.log(`   GET  /api/insights/:id`);
+  console.log(`   GET  /api/insights/category/:category`);
+  console.log(`   GET  /api/insights/segment/:segment`);
+  console.log(`   POST /api/insights`);
+  console.log(`\n📈 Analytics Endpoints:`);
+  console.log(`   GET  /api/analytics/summary`);
+  console.log(`   GET  /api/analytics/by-category`);
+  console.log(`   GET  /api/analytics/by-segment`);
+  console.log(`   GET  /api/analytics/impact`);
+  console.log(`   GET  /api/analytics/trends`);
+  console.log(`   GET  /api/analytics/top-insights?limit=10`);
+  console.log(`\n🧪 AB Testing Endpoints:`);
   console.log(`   GET    /api/experiments`);
   console.log(`   POST   /api/experiments`);
   console.log(`   GET    /api/experiments/:id`);
@@ -2011,63 +1881,37 @@ app.listen(PORT, () => {
   console.log(`   GET    /api/experiments/:id/assign?user_id=xxx`);
   console.log(`   GET    /api/experiments/:id/results`);
   console.log(`   POST   /api/events/track`);
-  console.log(`\n👥 Segments (Protected):`);
+  console.log(`\n👥 Segments Endpoints:`);
   console.log(`   GET    /api/segments`);
-  console.log(`   POST   /api/segments`);
   console.log(`   GET    /api/segments/:id`);
+  console.log(`   POST   /api/segments`);
   console.log(`   PATCH  /api/segments/:id`);
+  console.log(`   POST   /api/segments/:id/traits`);
+  console.log(`   DELETE /api/segments/:id/traits/:trait`);
   console.log(`   POST   /api/segments/:id/archive`);
   console.log(`   POST   /api/segments/:id/reactivate`);
-  console.log(`\n⚙️  Settings (Protected):`);
+  console.log(`   GET    /api/segments/:id/history`);
+  console.log(`\n⚙️  Settings Endpoints:`);
   console.log(`   GET    /api/settings`);
   console.log(`   GET    /api/settings/:category`);
   console.log(`   POST   /api/settings`);
   console.log(`   PATCH  /api/settings/:category/:key`);
-  console.log(`\n🧬 Knowledge Base (Protected):`);
+  console.log(`   DELETE /api/settings/:category/:key`);
+  console.log(`\n🧬 Knowledge Base Endpoints:`);
   console.log(`   GET    /api/principles`);
+  console.log(`   GET    /api/principles/:id`);
+  console.log(`   GET    /api/principles/category/:category`);
   console.log(`   GET    /api/sources`);
+  console.log(`   GET    /api/sources/:id`);
+  console.log(`   GET    /api/insights/:id/citations`);
   console.log(`   POST   /api/citations`);
   console.log(`   GET    /api/knowledge-base/stats`);
-  console.log(`\n✅ Health Checks (Public):`);
-  console.log(`   GET    /health                    Basic health check`);
-  console.log(`   GET    /health/live               Liveness probe`);
-  console.log(`   GET    /health/ready              Readiness probe`);
-  console.log(`\n${'='.repeat(60)}`);
-  console.log(`📖 DEFAULT CREDENTIALS`);
-  console.log(`${'='.repeat(60)}`);
-  console.log(`   Email:    admin@behavioural-hub.com`);
-  console.log(`   Password: Admin123!`);
-  console.log(`   ⚠️  CHANGE THESE IN PRODUCTION!`);
-  console.log(`${'='.repeat(60)}\n`);
+  console.log(`\n✅ GET  /health`);
 });
 
 // Graceful shutdown
 process.on('SIGINT', () => {
-  logger.info('Shutting down gracefully...');
   db.close();
-  logger.info('Database connection closed');
   console.log('\n✅ Database connection closed');
   process.exit(0);
-});
-
-process.on('SIGTERM', () => {
-  logger.info('SIGTERM received, shutting down gracefully...');
-  db.close();
-  process.exit(0);
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-  logger.error('Unhandled Rejection', {
-    reason,
-    promise
-  });
-});
-
-process.on('uncaughtException', (error) => {
-  logger.error('Uncaught Exception', {
-    error: error.message,
-    stack: error.stack
-  });
-  // Exit with failure
-  process.exit(1);
 });
