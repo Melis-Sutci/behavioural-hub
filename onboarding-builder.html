@@ -719,6 +719,9 @@
     <script src="ui-common.js"></script>
     <script src="auth-check.js"></script>
     <script>
+        // API Configuration
+        const API_BASE_URL = BehaviouralConfig.API.BASE_URL.replace('/api', ''); // Remove /api suffix
+
         // Global State
         let currentFlow = null;
         let allFlows = [];

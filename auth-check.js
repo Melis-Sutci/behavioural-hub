@@ -4,6 +4,11 @@
  */
 
 (function() {
+  // TEMPORARY: Authentication check disabled for public access
+  // TODO: Re-enable in production by removing the return statement below
+  console.log('⚠️ Authentication check disabled - public access mode');
+  return;
+
   // Skip auth check on login page
   if (window.location.pathname.includes('login.html')) {
     return;
@@ -62,7 +67,8 @@
 
     try {
       // Call logout API (optional - to invalidate refresh token)
-      await fetch('http://localhost:4000/api/auth/logout', {
+      const apiUrl = window.BehaviouralConfig?.API?.BASE_URL || 'http://localhost:4000/api';
+      await fetch(`${apiUrl}/auth/logout`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

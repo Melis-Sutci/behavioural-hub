@@ -578,7 +578,7 @@
     </footer>
 
     <script>
-        const API_URL = 'http://localhost:4000';
+        const API_URL = BehaviouralConfig.API.BASE_URL.replace('/api', ''); // Remove /api suffix
         let insightId = null;
 
         // Get insight ID from URL

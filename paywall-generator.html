@@ -417,6 +417,9 @@
     </div>
 
     <script>
+        // API Configuration
+        const API_BASE_URL = BehaviouralConfig.API.BASE_URL.replace('/api', ''); // Remove /api suffix
+
         // Global state
         let currentChatSession = null;
         let selectedTemplateId = null;
