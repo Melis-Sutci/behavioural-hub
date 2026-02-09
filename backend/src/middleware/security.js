@@ -85,17 +85,18 @@ const createMutationLimiter = () => {
  * CORS configuration
  */
 const configureCors = () => {
+  const isProduction = process.env.NODE_ENV === 'production';
   const allowedOrigins = process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
-    : ['http://localhost:3000', 'http://localhost:8080'];
+    : ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:5500', 'http://127.0.0.1:5500', 'http://[::1]:5500'];
 
   return {
     origin: (origin, callback) => {
       // Allow requests with no origin (like mobile apps or Postman)
       if (!origin) return callback(null, true);
 
-      // Allow all origins in development mode
-      if (process.env.NODE_ENV === 'development') {
+      // Allow all origins in development mode (when NOT production)
+      if (!isProduction) {
         return callback(null, true);
       }
 
