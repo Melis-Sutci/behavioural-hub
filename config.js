@@ -10,7 +10,8 @@ const isDevelopment = window.location.hostname === 'localhost' || window.locatio
 const isProduction = !isDevelopment;
 
 // Production API URL - Update this when you deploy your backend
-const PRODUCTION_API_URL = process.env.PRODUCTION_API_URL || 'http://localhost:4000/api';
+// NOTE: process.env doesn't work in browser! Use a hardcoded URL for production
+const PRODUCTION_API_URL = 'http://localhost:4000/api'; // Change this when deploying
 
 // Configuration object
 const BehaviouralConfig = {

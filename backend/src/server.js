@@ -217,14 +217,20 @@ app.get('/api/health', (req, res) => {
 // ==================== Protected Routes ====================
 // All routes below require authentication
 
-// Apply authentication to all /api/* routes except /api/auth and /api/health
+// TEMPORARY: Authentication disabled for public access
+// TODO: Re-enable authentication in production
 app.use('/api', (req, res, next) => {
-  // Skip authentication for public routes
+  // Skip authentication for ALL routes temporarily (public access)
+  // Uncomment the code below to re-enable authentication:
+  /*
   if (req.path.startsWith('/auth') || req.path.startsWith('/health')) {
     return next();
   }
-  // Apply authentication middleware
   authenticate(db)(req, res, next);
+  */
+
+  // For now, allow all requests without authentication
+  next();
 });
 
 // Growth Autopilot routes
