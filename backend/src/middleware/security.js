@@ -94,7 +94,13 @@ const configureCors = () => {
       // Allow requests with no origin (like mobile apps or Postman)
       if (!origin) return callback(null, true);
 
-      if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+      // Allow all origins in development mode
+      if (process.env.NODE_ENV === 'development') {
+        return callback(null, true);
+      }
+
+      // In production, check whitelist
+      if (allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
