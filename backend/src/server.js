@@ -1,6 +1,26 @@
 // Load environment variables FIRST
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+const fs = require('fs');
+const envPath = path.join(__dirname, '..', '.env');
+
+console.log('🔍 Checking .env file...');
+console.log('📁 Path:', envPath);
+console.log('✅ Exists:', fs.existsSync(envPath));
+
+const dotenvResult = require('dotenv').config({ path: envPath });
+if (dotenvResult.error) {
+  console.error('❌ dotenv error:', dotenvResult.error);
+}
+console.log('📦 Loaded variables:', Object.keys(dotenvResult.parsed || {}).length);
+
+// Validate critical environment variables
+if (!process.env.JWT_SECRET) {
+  console.error('❌ ERROR: JWT_SECRET is not set in environment variables');
+  console.error('💡 Please ensure .env file exists and contains JWT_SECRET');
+  console.error('🔍 Current JWT_SECRET value:', process.env.JWT_SECRET);
+  console.error('🔍 All env keys:', Object.keys(process.env).filter(k => k.includes('JWT')));
+  process.exit(1);
+}
 
 const express = require('express');
 const cors = require('cors');
