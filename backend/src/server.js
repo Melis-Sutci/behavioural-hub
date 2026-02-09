@@ -31,6 +31,72 @@ const swaggerSpec = require('./config/swagger');
 const app = express();
 const PORT = process.env.PORT || 4000;
 
+// ============================================
+// VALIDATION HELPERS
+// ============================================
+
+/**
+ * Safely parse and validate integer from query parameters
+ * @param {string} value - The value to parse
+ * @param {number} defaultValue - Default value if parsing fails
+ * @param {number} min - Minimum allowed value (optional)
+ * @param {number} max - Maximum allowed value (optional)
+ * @returns {number} - Validated integer
+ */
+function validateInt(value, defaultValue = 0, min = null, max = null) {
+  const parsed = parseInt(value);
+
+  // Check if parsing failed
+  if (isNaN(parsed)) {
+    return defaultValue;
+  }
+
+  // Check min boundary
+  if (min !== null && parsed < min) {
+    return defaultValue;
+  }
+
+  // Check max boundary
+  if (max !== null && parsed > max) {
+    return defaultValue;
+  }
+
+  return parsed;
+}
+
+/**
+ * Safely parse and validate float from query parameters
+ * @param {string} value - The value to parse
+ * @param {number} defaultValue - Default value if parsing fails
+ * @param {number} min - Minimum allowed value (optional)
+ * @param {number} max - Maximum allowed value (optional)
+ * @returns {number} - Validated float
+ */
+function validateFloat(value, defaultValue = 0.0, min = null, max = null) {
+  const parsed = parseFloat(value);
+
+  // Check if parsing failed
+  if (isNaN(parsed) || !isFinite(parsed)) {
+    return defaultValue;
+  }
+
+  // Check min boundary
+  if (min !== null && parsed < min) {
+    return defaultValue;
+  }
+
+  // Check max boundary
+  if (max !== null && parsed > max) {
+    return defaultValue;
+  }
+
+  return parsed;
+}
+
+// ============================================
+// DATABASE INITIALIZATION
+// ============================================
+
 // Database connection
 const dbPath = process.env.DATABASE_PATH || path.join(__dirname, '..', 'behavioural_hub.db');
 const db = new Database(dbPath);
@@ -430,7 +496,7 @@ app.get('/api/analytics/trends', (req, res) => {
 // GET top performing insights
 app.get('/api/analytics/top-insights', (req, res) => {
   try {
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = validateInt(req.query.limit, 10, 1, 100);
 
     const topInsights = db.prepare(`
       SELECT
@@ -1193,7 +1259,17 @@ app.post('/api/segments/:id/traits', (req, res) => {
       });
     }
 
-    const traits = JSON.parse(segment.traits);
+    let traits;
+    try {
+      traits = JSON.parse(segment.traits);
+    } catch (error) {
+      console.error('Error parsing segment traits:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Invalid segment data format'
+      });
+    }
+
     if (!traits.includes(trait)) {
       traits.push(trait);
 
@@ -1240,7 +1316,17 @@ app.delete('/api/segments/:id/traits/:trait', (req, res) => {
       });
     }
 
-    const traits = JSON.parse(segment.traits);
+    let traits;
+    try {
+      traits = JSON.parse(segment.traits);
+    } catch (error) {
+      console.error('Error parsing segment traits:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Invalid segment data format'
+      });
+    }
+
     const index = traits.indexOf(trait);
 
     if (index > -1) {
