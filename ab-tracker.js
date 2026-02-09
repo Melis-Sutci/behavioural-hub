@@ -38,12 +38,23 @@ class ABTracker {
       const response = await fetch(
         `${this.apiUrl}/experiments/${experimentId}/assign?user_id=${this.userId}`
       );
+
+      if (!response.ok) {
+        console.error('Failed to get variant: HTTP', response.status);
+        return null;
+      }
+
       const result = await response.json();
 
       if (result.success) {
         // Parse config if it's a string
         if (typeof result.data.config === 'string') {
-          result.data.config = JSON.parse(result.data.config);
+          try {
+            result.data.config = JSON.parse(result.data.config);
+          } catch (parseError) {
+            console.error('Failed to parse variant config:', parseError);
+            result.data.config = {};
+          }
         }
 
         // Cache the variant
@@ -86,6 +97,11 @@ class ABTracker {
           event_data: eventData
         })
       });
+
+      if (!response.ok) {
+        console.error('Failed to track event: HTTP', response.status);
+        return;
+      }
 
       const result = await response.json();
 

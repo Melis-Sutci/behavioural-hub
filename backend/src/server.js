@@ -31,6 +31,72 @@ const swaggerSpec = require('./config/swagger');
 const app = express();
 const PORT = process.env.PORT || 4000;
 
+// ============================================
+// VALIDATION HELPERS
+// ============================================
+
+/**
+ * Safely parse and validate integer from query parameters
+ * @param {string} value - The value to parse
+ * @param {number} defaultValue - Default value if parsing fails
+ * @param {number} min - Minimum allowed value (optional)
+ * @param {number} max - Maximum allowed value (optional)
+ * @returns {number} - Validated integer
+ */
+function validateInt(value, defaultValue = 0, min = null, max = null) {
+  const parsed = parseInt(value);
+
+  // Check if parsing failed
+  if (isNaN(parsed)) {
+    return defaultValue;
+  }
+
+  // Check min boundary
+  if (min !== null && parsed < min) {
+    return defaultValue;
+  }
+
+  // Check max boundary
+  if (max !== null && parsed > max) {
+    return defaultValue;
+  }
+
+  return parsed;
+}
+
+/**
+ * Safely parse and validate float from query parameters
+ * @param {string} value - The value to parse
+ * @param {number} defaultValue - Default value if parsing fails
+ * @param {number} min - Minimum allowed value (optional)
+ * @param {number} max - Maximum allowed value (optional)
+ * @returns {number} - Validated float
+ */
+function validateFloat(value, defaultValue = 0.0, min = null, max = null) {
+  const parsed = parseFloat(value);
+
+  // Check if parsing failed
+  if (isNaN(parsed) || !isFinite(parsed)) {
+    return defaultValue;
+  }
+
+  // Check min boundary
+  if (min !== null && parsed < min) {
+    return defaultValue;
+  }
+
+  // Check max boundary
+  if (max !== null && parsed > max) {
+    return defaultValue;
+  }
+
+  return parsed;
+}
+
+// ============================================
+// DATABASE INITIALIZATION
+// ============================================
+
 // Database connection
 const dbPath = process.env.DATABASE_PATH || path.join(__dirname, '..', 'behavioural_hub.db');
 const db = new Database(dbPath);
@@ -45,6 +111,14 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(sanitizeRequest);
 app.use(requestLogger(logger));
+
+// Add request ID for tracing
+app.use((req, res, next) => {
+  const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  req.id = requestId;
+  res.setHeader('X-Request-ID', requestId);
+  next();
+});
 
 // Apply general rate limiting to all routes
 app.use(createApiLimiter());
@@ -102,13 +176,50 @@ app.get('/health/ready', (req, res) => {
 // Authentication routes (with strict rate limiting)
 app.use('/api/auth', createAuthLimiter(), createAuthRoutes(db));
 
+// ==================== Public Routes ====================
+
+/**
+ * Health check endpoint
+ * Returns system health status and basic metrics
+ */
+app.get('/api/health', (req, res) => {
+  try {
+    // Check database connection
+    const dbCheck = db.prepare('SELECT 1 as ok').get();
+
+    // Get basic stats
+    const stats = {
+      insights: db.prepare('SELECT COUNT(*) as count FROM insights').get().count,
+      experiments: db.prepare('SELECT COUNT(*) as count FROM experiments').get().count,
+      segments: db.prepare('SELECT COUNT(*) as count FROM segments').get().count,
+      principles: db.prepare('SELECT COUNT(*) as count FROM psychology_principles').get().count,
+      sources: db.prepare('SELECT COUNT(*) as count FROM sources').get().count
+    };
+
+    res.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      database: dbCheck ? 'connected' : 'disconnected',
+      stats,
+      version: process.env.npm_package_version || '1.0.0'
+    });
+  } catch (error) {
+    console.error('Health check failed:', error);
+    res.status(503).json({
+      status: 'unhealthy',
+      timestamp: new Date().toISOString(),
+      error: error.message
+    });
+  }
+});
+
 // ==================== Protected Routes ====================
 // All routes below require authentication
 
-// Apply authentication to all /api/* routes except /api/auth
+// Apply authentication to all /api/* routes except /api/auth and /api/health
 app.use('/api', (req, res, next) => {
-  // Skip authentication for auth routes
-  if (req.path.startsWith('/auth')) {
+  // Skip authentication for public routes
+  if (req.path.startsWith('/auth') || req.path.startsWith('/health')) {
     return next();
   }
   // Apply authentication middleware
@@ -430,7 +541,7 @@ app.get('/api/analytics/trends', (req, res) => {
 // GET top performing insights
 app.get('/api/analytics/top-insights', (req, res) => {
   try {
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = validateInt(req.query.limit, 10, 1, 100);
 
     const topInsights = db.prepare(`
       SELECT
@@ -1193,7 +1304,17 @@ app.post('/api/segments/:id/traits', (req, res) => {
       });
     }
 
-    const traits = JSON.parse(segment.traits);
+    let traits;
+    try {
+      traits = JSON.parse(segment.traits);
+    } catch (error) {
+      console.error('Error parsing segment traits:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Invalid segment data format'
+      });
+    }
+
     if (!traits.includes(trait)) {
       traits.push(trait);
 
@@ -1240,7 +1361,17 @@ app.delete('/api/segments/:id/traits/:trait', (req, res) => {
       });
     }
 
-    const traits = JSON.parse(segment.traits);
+    let traits;
+    try {
+      traits = JSON.parse(segment.traits);
+    } catch (error) {
+      console.error('Error parsing segment traits:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Invalid segment data format'
+      });
+    }
+
     const index = traits.indexOf(trait);
 
     if (index > -1) {

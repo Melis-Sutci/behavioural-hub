@@ -5,6 +5,23 @@
  */
 
 // ============================================
+// HTML ESCAPING - PREVENT XSS
+// ============================================
+
+// HTML escaping helper to prevent XSS
+function escapeHtml(unsafe) {
+  if (typeof unsafe !== 'string') {
+    return '';
+  }
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+// ============================================
 // QUICK WIN #7: LOADING STATES
 // ============================================
 
@@ -84,7 +101,7 @@ const ErrorHandler = {
       <span class="text-2xl">❌</span>
       <div class="flex-1">
         <p class="font-semibold">Error</p>
-        <p class="text-sm text-red-100">${message}</p>
+        <p class="text-sm text-red-100">${escapeHtml(message)}</p>
       </div>
       <button onclick="this.parentElement.remove()" class="text-white hover:text-red-200">
         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -154,14 +171,14 @@ const ErrorHandler = {
       <div class="bg-white rounded-xl shadow-2xl max-w-md w-full">
         <div class="bg-red-500 text-white p-6 rounded-t-xl flex items-center gap-3">
           <span class="text-3xl">❌</span>
-          <h2 class="text-xl font-bold">${title}</h2>
+          <h2 class="text-xl font-bold">${escapeHtml(title)}</h2>
         </div>
         <div class="p-6">
-          <p class="text-gray-700 mb-4">${message}</p>
+          <p class="text-gray-700 mb-4">${escapeHtml(message)}</p>
           ${details ? `
             <details class="text-sm text-gray-500">
               <summary class="cursor-pointer font-semibold mb-2">Technical Details</summary>
-              <pre class="bg-gray-100 p-3 rounded overflow-x-auto">${details}</pre>
+              <pre class="bg-gray-100 p-3 rounded overflow-x-auto">${escapeHtml(details)}</pre>
             </details>
           ` : ''}
         </div>
