@@ -5,7 +5,7 @@
 
 -- Insights Table Indexes
 CREATE INDEX IF NOT EXISTS idx_insights_target_segment ON insights(target_segment);
-CREATE INDEX IF NOT EXISTS idx_insights_psychology_principle ON insights(psychology_principle);
+CREATE INDEX IF NOT EXISTS idx_insights_psychological_principle ON insights(psychological_principle);
 CREATE INDEX IF NOT EXISTS idx_insights_created_at ON insights(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_insights_impact_score ON insights(impact_score DESC);
 CREATE INDEX IF NOT EXISTS idx_insights_status ON insights(status);
@@ -18,7 +18,7 @@ CREATE INDEX IF NOT EXISTS idx_insights_category_status ON insights(category, st
 
 -- Segments Table Indexes
 CREATE INDEX IF NOT EXISTS idx_segments_name ON segments(name);
-CREATE INDEX IF NOT EXISTS idx_segments_active ON segments(is_active);
+CREATE INDEX IF NOT EXISTS idx_segments_status ON segments(status);
 CREATE INDEX IF NOT EXISTS idx_segments_created_at ON segments(created_at DESC);
 
 -- Segment Rules Indexes

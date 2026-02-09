@@ -110,9 +110,9 @@ try {
     statements.forEach((statement, index) => {
       try {
         // Skip PostgreSQL-specific or informational commands
-        const upper = statement.toUpperCase();
+        const upper = statement.toUpperCase().trim();
         if (upper.includes('COMMENT ON') ||
-            upper.includes('ANALYZE') ||
+            upper.startsWith('ANALYZE') ||
             upper.startsWith('COMMENT')) {
           skipCount++;
           return;
