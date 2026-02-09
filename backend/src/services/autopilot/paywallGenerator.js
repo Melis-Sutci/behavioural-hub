@@ -57,7 +57,7 @@ class PaywallGenerator {
 
     // Get competitors
     const competitors = this.db.all(`
-      SELECT * FROM competitors
+      SELECT * FROM paywall_competitors
       WHERE category = ?
       ORDER BY market_position DESC
       LIMIT 5
