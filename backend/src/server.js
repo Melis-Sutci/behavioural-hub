@@ -22,6 +22,7 @@ const {
 const { authenticate, authorize, optionalAuth } = require('./middleware/auth');
 const createAuthRoutes = require('./routes/auth');
 const createAutopilotRoutes = require('./routes/autopilot');
+const createOnboardingRoutes = require('./routes/onboarding');
 const AutopilotJobs = require('./jobs/autopilotJobs');
 const logger = require('./utils/logger');
 const swaggerUi = require('swagger-ui-express');
@@ -116,6 +117,9 @@ app.use('/api', (req, res, next) => {
 
 // Growth Autopilot routes
 app.use('/api/autopilot', createAutopilotRoutes(db));
+
+// Onboarding Builder routes
+app.use('/api/onboarding', createOnboardingRoutes(db));
 
 // GET all insights
 app.get('/api/insights', (req, res) => {
@@ -2046,6 +2050,20 @@ app.listen(PORT, () => {
   console.log(`   POST   /api/autopilot/ltv/predict`);
   console.log(`   POST   /api/autopilot/loops/detect`);
   console.log(`   GET    /api/autopilot/loops`);
+  console.log(`\n🎯 Onboarding Builder (Protected):`);
+  console.log(`   GET    /api/onboarding/flows`);
+  console.log(`   POST   /api/onboarding/flows`);
+  console.log(`   GET    /api/onboarding/flows/:id`);
+  console.log(`   PATCH  /api/onboarding/flows/:id`);
+  console.log(`   DELETE /api/onboarding/flows/:id`);
+  console.log(`   POST   /api/onboarding/screens`);
+  console.log(`   PATCH  /api/onboarding/screens/:id`);
+  console.log(`   DELETE /api/onboarding/screens/:id`);
+  console.log(`   POST   /api/onboarding/suggestions/generate`);
+  console.log(`   GET    /api/onboarding/suggestions`);
+  console.log(`   PATCH  /api/onboarding/suggestions/:id`);
+  console.log(`   GET    /api/onboarding/best-practices`);
+  console.log(`   GET    /api/onboarding/analytics`);
   console.log(`\n✅ Health Checks (Public):`);
   console.log(`   GET    /health                    Basic health check`);
   console.log(`   GET    /health/live               Liveness probe`);
