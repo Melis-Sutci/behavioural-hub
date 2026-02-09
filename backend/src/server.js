@@ -23,6 +23,7 @@ const { authenticate, authorize, optionalAuth } = require('./middleware/auth');
 const createAuthRoutes = require('./routes/auth');
 const createAutopilotRoutes = require('./routes/autopilot');
 const createOnboardingRoutes = require('./routes/onboarding');
+const createIndustryTrackingRoutes = require('./routes/industry-tracking');
 const AutopilotJobs = require('./jobs/autopilotJobs');
 const logger = require('./utils/logger');
 const swaggerUi = require('swagger-ui-express');
@@ -231,6 +232,9 @@ app.use('/api/autopilot', createAutopilotRoutes(db));
 
 // Onboarding Builder routes
 app.use('/api/onboarding', createOnboardingRoutes(db));
+
+// Industry Tracking routes
+app.use('/api/industry', createIndustryTrackingRoutes(db));
 
 // GET all insights
 app.get('/api/insights', (req, res) => {

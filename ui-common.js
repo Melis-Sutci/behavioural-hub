@@ -391,11 +391,41 @@ const UIStandards = {
 const API = {
   baseUrl: 'http://localhost:4000/api',
 
+  // Get stored auth token
+  getToken() {
+    return localStorage.getItem('auth_token');
+  },
+
+  // Set auth token
+  setToken(token) {
+    localStorage.setItem('auth_token', token);
+  },
+
+  // Remove auth token
+  clearToken() {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user');
+  },
+
+  // Get user data
+  getUser() {
+    const userData = localStorage.getItem('user');
+    return userData ? JSON.parse(userData) : null;
+  },
+
+  // Set user data
+  setUser(user) {
+    localStorage.setItem('user', JSON.stringify(user));
+  },
+
   async request(endpoint, options = {}) {
     const url = `${this.baseUrl}${endpoint}`;
+    const token = this.getToken();
+
     const config = {
       headers: {
         'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` }),
         ...options.headers
       },
       ...options
@@ -405,6 +435,17 @@ const API = {
       const response = await fetch(url, config);
 
       if (!response.ok) {
+        // Handle 401 Unauthorized - redirect to login
+        if (response.status === 401) {
+          this.clearToken();
+          if (!window.location.pathname.includes('login.html')) {
+            ErrorHandler.showError('Session expired. Please login again.');
+            setTimeout(() => {
+              window.location.href = 'login.html';
+            }, 1500);
+          }
+        }
+
         const errorData = await response.json().catch(() => ({}));
         throw {
           response: {
