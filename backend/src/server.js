@@ -112,6 +112,14 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(sanitizeRequest);
 app.use(requestLogger(logger));
 
+// Add request ID for tracing
+app.use((req, res, next) => {
+  const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  req.id = requestId;
+  res.setHeader('X-Request-ID', requestId);
+  next();
+});
+
 // Apply general rate limiting to all routes
 app.use(createApiLimiter());
 
@@ -168,13 +176,50 @@ app.get('/health/ready', (req, res) => {
 // Authentication routes (with strict rate limiting)
 app.use('/api/auth', createAuthLimiter(), createAuthRoutes(db));
 
+// ==================== Public Routes ====================
+
+/**
+ * Health check endpoint
+ * Returns system health status and basic metrics
+ */
+app.get('/api/health', (req, res) => {
+  try {
+    // Check database connection
+    const dbCheck = db.prepare('SELECT 1 as ok').get();
+
+    // Get basic stats
+    const stats = {
+      insights: db.prepare('SELECT COUNT(*) as count FROM insights').get().count,
+      experiments: db.prepare('SELECT COUNT(*) as count FROM experiments').get().count,
+      segments: db.prepare('SELECT COUNT(*) as count FROM segments').get().count,
+      principles: db.prepare('SELECT COUNT(*) as count FROM psychology_principles').get().count,
+      sources: db.prepare('SELECT COUNT(*) as count FROM sources').get().count
+    };
+
+    res.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      database: dbCheck ? 'connected' : 'disconnected',
+      stats,
+      version: process.env.npm_package_version || '1.0.0'
+    });
+  } catch (error) {
+    console.error('Health check failed:', error);
+    res.status(503).json({
+      status: 'unhealthy',
+      timestamp: new Date().toISOString(),
+      error: error.message
+    });
+  }
+});
+
 // ==================== Protected Routes ====================
 // All routes below require authentication
 
-// Apply authentication to all /api/* routes except /api/auth
+// Apply authentication to all /api/* routes except /api/auth and /api/health
 app.use('/api', (req, res, next) => {
-  // Skip authentication for auth routes
-  if (req.path.startsWith('/auth')) {
+  // Skip authentication for public routes
+  if (req.path.startsWith('/auth') || req.path.startsWith('/health')) {
     return next();
   }
   // Apply authentication middleware
