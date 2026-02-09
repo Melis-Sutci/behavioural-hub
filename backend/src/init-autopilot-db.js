@@ -8,10 +8,12 @@ console.log(`📂 Using database: ${dbPath}`);
 console.log('🚀 Initializing Growth Autopilot tables...');
 
 // ============================================
-// 1. COMPETITORS TABLE
+// 1. PAYWALL COMPETITORS TABLE
 // ============================================
+// Note: Renamed from 'competitors' to 'paywall_competitors' to avoid conflict
+// with the 'competitors' table in migration 012 (industry tracking)
 db.exec(`
-  CREATE TABLE IF NOT EXISTS competitors (
+  CREATE TABLE IF NOT EXISTS paywall_competitors (
     id TEXT PRIMARY KEY,
     app_name TEXT NOT NULL,
     bundle_id TEXT,
@@ -41,7 +43,7 @@ db.exec(`
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
   )
 `);
-console.log('✅ Table created: competitors');
+console.log('✅ Table created: paywall_competitors');
 
 // ============================================
 // 2. BENCHMARKS TABLE
@@ -461,8 +463,8 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_trigger_executions_triggered ON trigger_executions(triggered_at);
 
   -- Competitors indexes
-  CREATE INDEX IF NOT EXISTS idx_competitors_category ON competitors(category);
-  CREATE INDEX IF NOT EXISTS idx_competitors_country ON competitors(country);
+  CREATE INDEX IF NOT EXISTS idx_paywall_competitors_category ON paywall_competitors(category);
+  CREATE INDEX IF NOT EXISTS idx_paywall_competitors_country ON paywall_competitors(country);
 
   -- Benchmarks indexes
   CREATE INDEX IF NOT EXISTS idx_benchmarks_category ON benchmarks(category, country);
@@ -534,7 +536,7 @@ const sampleCompetitor = {
 };
 
 db.prepare(`
-  INSERT OR IGNORE INTO competitors (
+  INSERT OR IGNORE INTO paywall_competitors (
     id, app_name, bundle_id, category, pricing_monthly, pricing_yearly,
     trial_duration, trial_type, market_position, notes, added_at
   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
@@ -844,7 +846,7 @@ const tableCount = db.prepare(`
 `).get();
 
 const benchmarkCount = db.prepare('SELECT COUNT(*) as count FROM benchmarks').get();
-const competitorCount = db.prepare('SELECT COUNT(*) as count FROM competitors').get();
+const competitorCount = db.prepare('SELECT COUNT(*) as count FROM paywall_competitors').get();
 const paywallTemplateCount = db.prepare('SELECT COUNT(*) as count FROM paywall_templates').get();
 const paywallChatSessionCount = db.prepare('SELECT COUNT(*) as count FROM paywall_chat_sessions').get();
 const seasonalCampaignCount = db.prepare('SELECT COUNT(*) as count FROM seasonal_campaigns').get();

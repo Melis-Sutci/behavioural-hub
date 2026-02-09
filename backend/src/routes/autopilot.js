@@ -50,7 +50,7 @@ module.exports = (db) => {
     try {
       const { category, country } = req.query;
 
-      let query = 'SELECT * FROM competitors';
+      let query = 'SELECT * FROM paywall_competitors';
       const conditions = [];
       const params = [];
 
@@ -112,7 +112,7 @@ module.exports = (db) => {
       }
 
       const stmt = db.prepare(`
-        INSERT INTO competitors (
+        INSERT INTO paywall_competitors (
           id, app_name, bundle_id, category, country,
           pricing_weekly, pricing_monthly, pricing_yearly, pricing_lifetime,
           trial_duration, trial_type,
@@ -130,7 +130,7 @@ module.exports = (db) => {
         notes, market_position
       );
 
-      const competitor = db.prepare('SELECT * FROM competitors WHERE id = ?').get(competitorId);
+      const competitor = db.prepare('SELECT * FROM paywall_competitors WHERE id = ?').get(competitorId);
 
       res.status(201).json({
         success: true,
@@ -149,7 +149,7 @@ module.exports = (db) => {
       const updates = req.body;
 
       // Check if competitor exists
-      const existing = db.prepare('SELECT * FROM competitors WHERE id = ?').get(id);
+      const existing = db.prepare('SELECT * FROM paywall_competitors WHERE id = ?').get(id);
       if (!existing) {
         return res.status(404).json({ success: false, error: 'Competitor not found' });
       }
@@ -182,10 +182,10 @@ module.exports = (db) => {
       setFields.push('updated_at = CURRENT_TIMESTAMP');
       params.push(id);
 
-      const query = `UPDATE competitors SET ${setFields.join(', ')} WHERE id = ?`;
+      const query = `UPDATE paywall_competitors SET ${setFields.join(', ')} WHERE id = ?`;
       db.prepare(query).run(...params);
 
-      const updated = db.prepare('SELECT * FROM competitors WHERE id = ?').get(id);
+      const updated = db.prepare('SELECT * FROM paywall_competitors WHERE id = ?').get(id);
 
       res.json({
         success: true,
@@ -202,7 +202,7 @@ module.exports = (db) => {
     try {
       const { id } = req.params;
 
-      const result = db.prepare('DELETE FROM competitors WHERE id = ?').run(id);
+      const result = db.prepare('DELETE FROM paywall_competitors WHERE id = ?').run(id);
 
       if (result.changes === 0) {
         return res.status(404).json({ success: false, error: 'Competitor not found' });
@@ -267,7 +267,7 @@ module.exports = (db) => {
 
       // Get competitors
       const competitors = db.prepare(
-        'SELECT * FROM competitors WHERE category = ? ORDER BY updated_at DESC LIMIT 10'
+        'SELECT * FROM paywall_competitors WHERE category = ? ORDER BY updated_at DESC LIMIT 10'
       ).all(category);
 
       // Get benchmarks
@@ -357,7 +357,7 @@ module.exports = (db) => {
 
       // Get top competitors
       const competitors = db.prepare(
-        'SELECT * FROM competitors WHERE category = ? ORDER BY updated_at DESC LIMIT 5'
+        'SELECT * FROM paywall_competitors WHERE category = ? ORDER BY updated_at DESC LIMIT 5'
       ).all(category);
 
       // Get benchmarks

@@ -3,6 +3,7 @@
 /**
  * Flexible Database Migration Runner
  * Runs specified migration files or all pending migrations
+ * Supports both SQL (.sql) and JavaScript (.js) migrations
  * Usage:
  *   node run-migrations.js                    # Run all migrations
  *   node run-migrations.js 007 008 009        # Run specific migrations
@@ -20,17 +21,16 @@ const args = process.argv.slice(2);
 let migrationFiles = [];
 
 if (args.length === 0) {
-  // Run all migrations in order
+  // Run all migrations in order (both .sql and .js files)
   const allFiles = fs.readdirSync(migrationsDir)
-    .filter(f => f.endsWith('.sql'))
+    .filter(f => f.endsWith('.sql') || f.endsWith('.js'))
     .sort();
   migrationFiles = allFiles.map(f => path.join(migrationsDir, f));
 } else {
   // Run specified migrations
   migrationFiles = args.map(num => {
-    const fileName = `${num.padStart(3, '0')}_*.sql`;
     const matches = fs.readdirSync(migrationsDir)
-      .filter(f => f.startsWith(num.padStart(3, '0')) && f.endsWith('.sql'));
+      .filter(f => f.startsWith(num.padStart(3, '0')) && (f.endsWith('.sql') || f.endsWith('.js')));
 
     if (matches.length === 0) {
       console.error(`❌ Migration ${num} not found`);
@@ -59,7 +59,29 @@ try {
     console.log(`\n🔄 Running: ${fileName}`);
     console.log('─'.repeat(60));
 
-    // Read migration file
+    // Check if this is a JavaScript migration
+    if (fileName.endsWith('.js')) {
+      try {
+        console.log('   Executing JavaScript migration...');
+        const migration = require(migrationFile);
+        if (typeof migration.up === 'function') {
+          migration.up(db);
+          console.log(`   ✅ JavaScript migration completed successfully\n`);
+          totalSuccess++;
+        } else {
+          console.error(`   ❌ JavaScript migration has no 'up' function`);
+          totalFailed++;
+        }
+        continue;
+      } catch (error) {
+        console.error(`   ❌ JavaScript migration failed: ${error.message}`);
+        console.error(`      ${error.stack}`);
+        totalFailed++;
+        continue;
+      }
+    }
+
+    // Read migration file (SQL)
     const migrationSQL = fs.readFileSync(migrationFile, 'utf8');
 
     // Remove comments first, then split into statements
@@ -88,9 +110,9 @@ try {
     statements.forEach((statement, index) => {
       try {
         // Skip PostgreSQL-specific or informational commands
-        const upper = statement.toUpperCase();
+        const upper = statement.toUpperCase().trim();
         if (upper.includes('COMMENT ON') ||
-            upper.includes('ANALYZE') ||
+            upper.startsWith('ANALYZE') ||
             upper.startsWith('COMMENT')) {
           skipCount++;
           return;
