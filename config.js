@@ -9,11 +9,14 @@
 const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 const isProduction = !isDevelopment;
 
+// Production API URL - Update this when you deploy your backend
+const PRODUCTION_API_URL = process.env.PRODUCTION_API_URL || 'http://localhost:4000/api';
+
 // Configuration object
 const BehaviouralConfig = {
   // API Configuration
   API: {
-    BASE_URL: isDevelopment ? 'http://localhost:4000/api' : '/api',
+    BASE_URL: isDevelopment ? 'http://localhost:4000/api' : PRODUCTION_API_URL,
     TIMEOUT: 30000, // 30 seconds
     RETRY_ATTEMPTS: 3,
     RETRY_DELAY: 1000 // 1 second

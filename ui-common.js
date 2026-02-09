@@ -389,7 +389,10 @@ const UIStandards = {
 // ============================================
 
 const API = {
-  baseUrl: 'http://localhost:4000/api',
+  // Use the configured API URL from config.js
+  get baseUrl() {
+    return window.BehaviouralConfig?.API?.BASE_URL || 'http://localhost:4000/api';
+  },
 
   // Get stored auth token
   getToken() {
