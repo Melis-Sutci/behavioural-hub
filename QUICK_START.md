@@ -105,9 +105,20 @@ ALLOWED_ORIGINS=http://localhost:5500,https://melis-sutci.github.io
 - ✅ CORS ayarlarını kontrol edin
 - ✅ API URL'lerinin doğru olduğunu kontrol edin
 
-### Login yapamıyorum
+### Login yapamıyorum - "no such table: users" hatası
+
+**ÖNEMLİ:** İlk kez çalıştırıyorsanız database migration'ları çalıştırmanız gerekiyor!
+
+```bash
+cd backend
+node run-migrations.js
+```
+
+Sonra backend'i **yeniden başlatın** (Ctrl+C ile durdurup tekrar `npm start`)
+
 - ✅ Backend logs'a bakın
-- ✅ Database'in doğru initialize edildiğini kontrol edin
+- ✅ Database migration'larını çalıştırdınız mı?
+- ✅ Backend'i migration'dan sonra restart ettiniz mi?
 - ✅ Default credentials'ı kullanın: `admin@behavioural-hub.com` / `Admin123!`
 
 ### GitHub Pages'te çalışmıyor
