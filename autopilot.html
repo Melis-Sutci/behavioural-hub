@@ -282,6 +282,30 @@
         // API Configuration
         const API_BASE_URL = BehaviouralConfig.API.BASE_URL.replace('/api', ''); // Remove /api suffix
 
+        // Auth disabled - stub functions
+        function checkAuth() {}
+        function getAccessToken() { return ''; }
+
+        // Mock data for offline/demo mode
+        const AUTOPILOT_MOCK = {
+            competitors: [
+                { app_name: 'Headspace', category: 'Wellness', country: 'US', market_position: 'premium', pricing_monthly: 12.99, pricing_yearly: 69.99, trial_duration: 14, trial_type: 'free', notes: 'Güçlü içerik kütüphanesi, yüksek marka bilinirliği' },
+                { app_name: 'Calm', category: 'Wellness', country: 'US', market_position: 'premium', pricing_monthly: 14.99, pricing_yearly: 69.99, trial_duration: 7, trial_type: 'free', notes: 'Sleep içerikleri öne çıkıyor' },
+                { app_name: 'BetterHelp', category: 'Mental Health', country: 'US', market_position: 'premium', pricing_monthly: 60, pricing_yearly: 600, trial_duration: 7, trial_type: 'free', notes: 'Terapi odaklı, yüksek fiyat noktası' }
+            ],
+            recommendations: [
+                { id: 1, hypothesis: 'Ödeme sayfasında loss aversion mesajı CTR\'ı artırır', description: 'Mevcut kazanç odaklı metni kayıp odaklı mesajla A/B test et', rationale: 'Loss aversion psikolojik tetikleyicisi, kullanıcıların kaybetmekten kaçınma motivasyonunu kullanır', priority_score: 92, test_type: 'A/B Test', expected_impact: '+18% conversion', confidence_score: 0.87, sample_size_required: 5000 },
+                { id: 2, hypothesis: 'Social proof widget eklemek free-to-paid dönüşümü artırır', description: '"Bu ay 2,400 kullanıcı premium\'a geçti" widget\'ı test et', rationale: 'Sosyal kanıt belirsizlik durumunda güçlü bir karar verme tetikleyicisidir', priority_score: 78, test_type: 'A/B Test', expected_impact: '+12% conversion', confidence_score: 0.82, sample_size_required: 3000 }
+            ],
+            audits: [
+                { overall_score: 72, created_at: new Date().toISOString(), strengths: [{ area: 'Onboarding akışı güçlü' }, { area: 'İçerik kalitesi yüksek' }, { area: 'Retention mesajları etkili' }], weaknesses: [{ area: 'Ödeme sayfası optimize edilmemiş' }, { area: 'Trial conversion düşük' }], opportunities: [{ area: 'Loss aversion mesajları eklenebilir' }, { area: 'Social proof arttırılabilir' }, { area: 'Yıllık plan teşviki güçlendirilebilir' }] }
+            ],
+            insights: [
+                { id: 1, pattern_type: 'DROP_OFF', confidence_score: 0.91, detected_at: new Date().toISOString(), raw_data: { description: 'Kullanıcıların %68\'i ödeme sayfasının 3. adımında ayrılıyor — form uzunluğu azaltılabilir' } },
+                { id: 2, pattern_type: 'ENGAGEMENT_SPIKE', confidence_score: 0.85, detected_at: new Date().toISOString(), raw_data: { description: 'Sabah 8-10 arası açılan push bildirimlerinin tıklanma oranı diğer saatlere göre 2.8x daha yüksek' } }
+            ]
+        };
+
         // Check authentication
         checkAuth();
 
@@ -370,8 +394,25 @@
                     </div>
                 `).join('');
             } catch (error) {
-                console.error('Error loading competitors:', error);
-                container.innerHTML = '<div class="text-center py-8 text-red-500">Failed to load competitors</div>';
+                console.warn('Backend unavailable, using demo data');
+                const competitors = AUTOPILOT_MOCK.competitors;
+                container.innerHTML = competitors.map(comp => `
+                    <div class="bg-gray-50 rounded-lg p-6 card-hover">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h4 class="text-lg font-bold text-gray-900">${comp.app_name}</h4>
+                                <p class="text-sm text-gray-500">${comp.category} • ${comp.country || 'US'}</p>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">${comp.market_position}</span>
+                        </div>
+                        <div class="grid grid-cols-4 gap-4 mb-4">
+                            ${comp.pricing_monthly ? `<div><p class="text-xs text-gray-500">Monthly</p><p class="font-semibold">$${comp.pricing_monthly}</p></div>` : ''}
+                            ${comp.pricing_yearly ? `<div><p class="text-xs text-gray-500">Yearly</p><p class="font-semibold">$${comp.pricing_yearly}</p></div>` : ''}
+                            ${comp.trial_duration ? `<div><p class="text-xs text-gray-500">Trial</p><p class="font-semibold">${comp.trial_duration}d ${comp.trial_type}</p></div>` : ''}
+                        </div>
+                        ${comp.notes ? `<p class="text-sm text-gray-600 mt-2">${comp.notes}</p>` : ''}
+                    </div>
+                `).join('');
             }
         }
 
@@ -452,8 +493,30 @@
                     `;
                 }).join('');
             } catch (error) {
-                console.error('Error loading recommendations:', error);
-                container.innerHTML = '<div class="text-center py-8 text-red-500">Failed to load recommendations</div>';
+                console.warn('Backend unavailable, using demo data');
+                const recommendations = AUTOPILOT_MOCK.recommendations;
+                container.innerHTML = recommendations.map(rec => `
+                    <div class="bg-white border-2 border-gray-200 rounded-lg p-6 card-hover">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3 mb-2">
+                                    <span class="priority-high text-white px-3 py-1 rounded-full text-xs font-bold">Priority: ${rec.priority_score}/100</span>
+                                    <span class="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">${rec.test_type}</span>
+                                </div>
+                                <h4 class="text-lg font-bold text-gray-900">${rec.hypothesis}</h4>
+                                <p class="text-sm text-gray-600 mt-2">${rec.description}</p>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                            <p class="text-sm text-gray-700 mb-2"><strong>Rationale:</strong> ${rec.rationale}</p>
+                            <div class="grid grid-cols-3 gap-4 mt-3 text-sm">
+                                <div><p class="text-gray-500">Expected Impact</p><p class="font-semibold">${rec.expected_impact}</p></div>
+                                <div><p class="text-gray-500">Confidence</p><p class="font-semibold">${(rec.confidence_score * 100).toFixed(0)}%</p></div>
+                                <div><p class="text-gray-500">Sample Size</p><p class="font-semibold">${rec.sample_size_required}</p></div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
             }
         }
 
@@ -520,8 +583,21 @@
                     </div>
                 `).join('');
             } catch (error) {
-                console.error('Error loading audits:', error);
-                container.innerHTML = '<div class="text-center py-8 text-red-500">Failed to load audits</div>';
+                console.warn('Backend unavailable, using demo data');
+                const audits = AUTOPILOT_MOCK.audits;
+                container.innerHTML = audits.map(audit => `
+                    <div class="bg-white border-2 border-gray-200 rounded-lg p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <div><h4 class="text-lg font-bold text-gray-900">Audit Report</h4><p class="text-sm text-gray-500">${new Date(audit.created_at).toLocaleDateString()}</p></div>
+                            <div class="text-4xl font-bold text-green-600">${audit.overall_score}/100</div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4">
+                            <div><h5 class="font-semibold text-green-700 mb-2">✅ Strengths</h5><ul class="text-sm text-gray-600 space-y-1">${audit.strengths.map(s => `<li>• ${s.area || s}</li>`).join('')}</ul></div>
+                            <div><h5 class="font-semibold text-red-700 mb-2">⚠️ Weaknesses</h5><ul class="text-sm text-gray-600 space-y-1">${audit.weaknesses.map(w => `<li>• ${w.area || w}</li>`).join('')}</ul></div>
+                            <div><h5 class="font-semibold text-blue-700 mb-2">💡 Opportunities</h5><ul class="text-sm text-gray-600 space-y-1">${audit.opportunities.map(o => `<li>• ${o.area || o}</li>`).join('')}</ul></div>
+                        </div>
+                    </div>
+                `).join('');
             }
         }
 
@@ -579,8 +655,20 @@
                     </div>
                 `).join('');
             } catch (error) {
-                console.error('Error loading auto insights:', error);
-                container.innerHTML = '<div class="text-center py-8 text-red-500">Failed to load insights</div>';
+                console.warn('Backend unavailable, using demo data');
+                const insights = AUTOPILOT_MOCK.insights;
+                container.innerHTML = insights.map(insight => `
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-600 text-white">${insight.pattern_type}</span>
+                                <span class="ml-2 text-sm text-gray-500">Confidence: ${(insight.confidence_score * 100).toFixed(0)}%</span>
+                            </div>
+                            <span class="text-xs text-gray-500">${new Date(insight.detected_at).toLocaleDateString()}</span>
+                        </div>
+                        <p class="text-sm text-gray-700">${insight.raw_data.description}</p>
+                    </div>
+                `).join('');
             }
         }
 

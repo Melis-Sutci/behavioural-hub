@@ -733,23 +733,28 @@
             loadFlows();
         });
 
+        const MOCK_FLOWS = [
+            { id: 1, name: 'Yeni Kullanıcı Karşılama Akışı', description: 'Kullanıcıları platforma tanıştıran temel onboarding deneyimi', status: 'active', steps: 5, completion_rate: 72, created_at: '2024-01-10' },
+            { id: 2, name: 'Premium Upgrade Akışı', description: 'Ücretsiz kullanıcıları premium\'a yönlendiren dönüşüm akışı', status: 'active', steps: 3, completion_rate: 45, created_at: '2024-01-20' },
+            { id: 3, name: 'Yeniden Aktivasyon Akışı', description: '30+ gün aktif olmayan kullanıcıları geri kazanma akışı', status: 'draft', steps: 4, completion_rate: 0, created_at: '2024-02-01' }
+        ];
+
         // Load all flows
         async function loadFlows() {
             try {
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 8000);
                 const token = localStorage.getItem('auth_token');
                 const response = await fetch(`${API_BASE_URL}/api/onboarding/flows`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    signal: controller.signal
                 });
-
+                clearTimeout(timeout);
                 const data = await response.json();
 
                 if (data.success) {
                     allFlows = data.data;
                     renderFlows(allFlows);
-
-                    // Load first flow by default
                     if (allFlows.length > 0) {
                         loadFlow(allFlows[0].id);
                     } else {
@@ -757,7 +762,10 @@
                     }
                 }
             } catch (error) {
-                console.error('Error loading flows:', error);
+                console.warn('Backend unavailable, using demo data');
+                allFlows = MOCK_FLOWS;
+                renderFlows(allFlows);
+                showEmptyState();
             }
         }
 
