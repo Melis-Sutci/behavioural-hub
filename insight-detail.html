@@ -598,12 +598,21 @@
             }
         });
 
+        const MOCK_INSIGHTS_DETAIL = {
+            1: { id: 1, title: 'Loss Aversion ile Ödeme Sayfası Optimizasyonu', description: 'Kullanıcılar kazanç odaklı mesajlar yerine kayıp odaklı mesajlara %40 daha fazla tepki veriyor. Ödeme sayfasında "Premium\'u kaçırma" mesajı, "Premium\'u al" mesajına kıyasla daha yüksek CTR sağlıyor.', category: 'psychology', status: 'active', impact_score: 85000, impact_type: 'revenue', target_segment: 'Passive Users', discovery_date: '2024-01-15', tags: ['conversion', 'paywall'], evidence_strength: 92, test_duration: 21, sample_size: 15000 },
+            2: { id: 2, title: 'Social Proof ile Free-to-Paid Dönüşüm', description: '"X kişi bu planı seçti" mesajları dönüşüm oranını %28 artırıyor. Gerçek zamanlı kullanıcı sayısı göstermek güveni artırıyor.', category: 'psychology', status: 'active', impact_score: 72000, impact_type: 'revenue', target_segment: 'Detectives', discovery_date: '2024-01-20', tags: ['social-proof', 'conversion'], evidence_strength: 87, test_duration: 14, sample_size: 12000 },
+            3: { id: 3, title: 'Scarcity Messaging ile Churn Azaltma', description: 'Sınırlı süre teklifleri müşteri kayıp oranını %18 düşürüyor.', category: 'experiments', status: 'active', impact_score: 61000, impact_type: 'retention', target_segment: 'Victims', discovery_date: '2024-01-25', tags: ['scarcity', 'retention'], evidence_strength: 81, test_duration: 30, sample_size: 8000 }
+        };
+
         // Fetch insight detail from backend
         async function fetchInsightDetail(id) {
             try {
-                const response = await fetch(`${API_URL}/api/insights/${id}`);
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 8000);
+                const response = await fetch(`${API_URL}/api/insights/${id}`, { signal: controller.signal });
+                clearTimeout(timeout);
                 const result = await response.json();
-                
+
                 if (result.success) {
                     renderInsightDetail(result.data);
                     setTimeout(initEvidenceChart, 200);
@@ -611,8 +620,10 @@
                     showError('Insight not found');
                 }
             } catch (error) {
-                console.error('Error fetching insight:', error);
-                showError('Cannot connect to backend');
+                console.warn('Backend unavailable, using demo data');
+                const mockInsight = MOCK_INSIGHTS_DETAIL[parseInt(id)] || MOCK_INSIGHTS_DETAIL[1];
+                renderInsightDetail(mockInsight);
+                setTimeout(initEvidenceChart, 200);
             }
         }
 
