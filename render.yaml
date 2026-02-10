@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: behavioural-hub-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: DATABASE_PATH
+        value: /app/data/behavioural_hub.db
+      - key: ALLOWED_ORIGINS
+        value: https://melis-sutci.github.io
+      - key: ANTHROPIC_API_KEY
+        sync: false
+    disk:
+      name: db-data
+      mountPath: /app/data
+      sizeGB: 1

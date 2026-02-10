@@ -9,9 +9,10 @@
 const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 const isProduction = !isDevelopment;
 
-// Production API URL - Update this when you deploy your backend
-// NOTE: process.env doesn't work in browser! Use a hardcoded URL for production
-const PRODUCTION_API_URL = 'http://localhost:4000/api'; // Change this when deploying
+// Production API URL - Render.com backend URL
+// After deploying to Render, replace the URL below with your service URL
+// Format: https://<your-service-name>.onrender.com/api
+const PRODUCTION_API_URL = 'https://behavioural-hub-api.onrender.com/api';
 
 // Configuration object
 const BehaviouralConfig = {
