@@ -56,60 +56,8 @@
     </div>
 
     <script>
-        const form = document.getElementById('loginForm');
-        const messageDiv = document.getElementById('message');
-
-        function showMessage(message, isError = false) {
-            messageDiv.textContent = message;
-            messageDiv.className = `mt-4 p-3 rounded-lg ${isError ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
-            messageDiv.classList.remove('hidden');
-        }
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            try {
-                showMessage('Logging in...', false);
-
-                const response = await fetch(`${BehaviouralConfig.API.BASE_URL}/auth/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ email, password })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.message || 'Login failed');
-                }
-
-                // Save auth data
-                localStorage.setItem('auth_token', data.data.token);
-                localStorage.setItem('user', JSON.stringify(data.data.user));
-
-                showMessage('Login successful! Redirecting...', false);
-
-                // Redirect to dashboard
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 1000);
-
-            } catch (error) {
-                console.error('Login error:', error);
-                showMessage(error.message || 'Login failed. Please check your credentials.', true);
-            }
-        });
-
-        // Check if already logged in
-        const token = localStorage.getItem('auth_token');
-        if (token) {
-            window.location.href = 'index.html';
-        }
+        // Auth disabled - redirect everyone directly to dashboard
+        window.location.href = 'index.html';
     </script>
 </body>
 </html>
